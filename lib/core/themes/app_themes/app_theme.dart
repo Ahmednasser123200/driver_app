@@ -103,7 +103,10 @@ abstract final class AppTheme {
           fontWeight: FontWeight.w400,
           color: AppColors.error,
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
       dividerTheme: const DividerThemeData(
         color: AppColors.divider,
@@ -132,16 +135,12 @@ abstract final class AppTheme {
           fontWeight: FontWeight.w500,
           color: AppColors.primary,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         side: BorderSide.none,
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         titleTextStyle: GoogleFonts.inter(
           fontSize: 18.sp,
           fontWeight: FontWeight.w600,

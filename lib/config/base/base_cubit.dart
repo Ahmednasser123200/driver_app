@@ -20,9 +20,7 @@ abstract class BaseCubit<T> extends Cubit<BaseState<T>> {
   }
 
   void emitSuccess(T data) {
-    emit(
-      state.copyWith(isLoading: false, errorMessage: '', data: data),
-    );
+    emit(state.copyWith(isLoading: false, errorMessage: '', data: data));
   }
 
   void emitFailure(AppFailure failure) {

@@ -91,10 +91,8 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           controller: _controller,
           validator: widget.validator == null
               ? null
-              : (value) => mapValidationErrorToMessage(
-                  widget.validator!(value),
-                  l10n,
-                ),
+              : (value) =>
+                    mapValidationErrorToMessage(widget.validator!(value), l10n),
           obscureText: _obscureText.value,
           enabled: widget.enabled,
           keyboardType: widget.keyboardType,
