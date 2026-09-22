@@ -6,7 +6,7 @@ import '../app_colors/app_colors.dart';
 
 abstract final class AppTextThemes {
   static TextTheme textTheme() {
-    const base = TextTheme(
+    const defaultStyles = TextTheme(
       displayLarge: TextStyle(
         fontWeight: FontWeight.w500,
         fontSize: 80,
@@ -69,22 +69,22 @@ abstract final class AppTextThemes {
       ),
     );
 
-    final scaled = base.copyWith(
-      displayLarge: base.displayLarge?.copyWith(fontSize: 80.sp),
-      displayMedium: base.displayMedium?.copyWith(fontSize: 40.sp),
-      displaySmall: base.displaySmall?.copyWith(fontSize: 36.sp),
-      headlineLarge: base.headlineLarge?.copyWith(fontSize: 24.sp),
-      headlineMedium: base.headlineMedium?.copyWith(fontSize: 20.sp),
-      headlineSmall: base.headlineSmall?.copyWith(fontSize: 18.sp),
-      titleLarge: base.titleLarge?.copyWith(fontSize: 18.sp),
-      titleMedium: base.titleMedium?.copyWith(fontSize: 16.sp),
-      titleSmall: base.titleSmall?.copyWith(fontSize: 14.sp),
-      bodyLarge: base.bodyLarge?.copyWith(fontSize: 16.sp),
-      bodyMedium: base.bodyMedium?.copyWith(fontSize: 14.sp),
-      bodySmall: base.bodySmall?.copyWith(fontSize: 13.sp),
-      labelLarge: base.labelLarge?.copyWith(fontSize: 14.sp),
-      labelMedium: base.labelMedium?.copyWith(fontSize: 12.sp),
-      labelSmall: base.labelSmall?.copyWith(fontSize: 10.sp),
+    final scaled = defaultStyles.copyWith(
+      displayLarge: defaultStyles.displayLarge?.copyWith(fontSize: 80.sp),
+      displayMedium: defaultStyles.displayMedium?.copyWith(fontSize: 40.sp),
+      displaySmall: defaultStyles.displaySmall?.copyWith(fontSize: 36.sp),
+      headlineLarge: defaultStyles.headlineLarge?.copyWith(fontSize: 24.sp),
+      headlineMedium: defaultStyles.headlineMedium?.copyWith(fontSize: 20.sp),
+      headlineSmall: defaultStyles.headlineSmall?.copyWith(fontSize: 18.sp),
+      titleLarge: defaultStyles.titleLarge?.copyWith(fontSize: 18.sp),
+      titleMedium: defaultStyles.titleMedium?.copyWith(fontSize: 16.sp),
+      titleSmall: defaultStyles.titleSmall?.copyWith(fontSize: 14.sp),
+      bodyLarge: defaultStyles.bodyLarge?.copyWith(fontSize: 16.sp),
+      bodyMedium: defaultStyles.bodyMedium?.copyWith(fontSize: 14.sp),
+      bodySmall: defaultStyles.bodySmall?.copyWith(fontSize: 13.sp),
+      labelLarge: defaultStyles.labelLarge?.copyWith(fontSize: 14.sp),
+      labelMedium: defaultStyles.labelMedium?.copyWith(fontSize: 12.sp),
+      labelSmall: defaultStyles.labelSmall?.copyWith(fontSize: 10.sp),
     );
 
     return GoogleFonts.interTextTheme(scaled);

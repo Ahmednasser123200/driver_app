@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
-import '../../constants/app_strings/app_strings.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../themes/app_colors/app_colors.dart';
 
 class AppBottomNavigationBar extends StatelessWidget {
@@ -20,17 +20,18 @@ class AppBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return PersistentTabView(
       controller: PersistentTabController(initialIndex: initialIndex),
       onTabChanged: (_) {},
       tabs: [
-        _tabConfig(homeScreen, AppStrings.navHome, Icons.home_outlined),
+        _tabConfig(homeScreen, l10n.navHome, Icons.home_outlined),
         _tabConfig(
           ordersScreen,
-          AppStrings.navOrders,
+          l10n.navOrders,
           Icons.receipt_long_outlined,
         ),
-        _tabConfig(profileScreen, AppStrings.navProfile, Icons.person_outline),
+        _tabConfig(profileScreen, l10n.navProfile, Icons.person_outline),
       ],
       navBarBuilder: (navBarConfig) => Style1BottomNavBar(
         navBarConfig: navBarConfig,
@@ -57,7 +58,7 @@ class AppBottomNavigationBar extends StatelessWidget {
         icon: Icon(icon),
         title: title,
         activeForegroundColor: AppColors.primary,
-        inactiveForegroundColor: AppColors.grey,
+        inactiveForegroundColor: AppColors.grey.shade500,
       ),
     );
   }

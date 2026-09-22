@@ -14,6 +14,8 @@ class CustomButton extends StatelessWidget {
     this.isLoading = false,
     this.enabled = true,
     this.icon,
+    this.width,
+    this.height,
   });
 
   final String label;
@@ -22,6 +24,8 @@ class CustomButton extends StatelessWidget {
   final bool isLoading;
   final bool enabled;
   final Widget? icon;
+  final double? width;
+  final double? height;
 
   bool get _canPress => enabled && !isLoading && onPressed != null;
 
@@ -49,24 +53,18 @@ class CustomButton extends StatelessWidget {
             ],
           );
 
-    if (variant == ButtonVariant.outlined) {
-      return SizedBox(
-        width: 343.w,
-        height: 48.h,
-        child: OutlinedButton(
-          onPressed: _canPress ? onPressed : null,
-          child: child,
-        ),
-      );
-    }
-
     return SizedBox(
-      width: 343.w,
-      height: 48.h,
-      child: ElevatedButton(
-        onPressed: _canPress ? onPressed : null,
-        child: child,
-      ),
+      width: width ?? 343.w,
+      height: height ?? 48.h,
+      child: variant == ButtonVariant.outlined
+          ? OutlinedButton(
+              onPressed: _canPress ? onPressed : null,
+              child: child,
+            )
+          : ElevatedButton(
+              onPressed: _canPress ? onPressed : null,
+              child: child,
+            ),
     );
   }
 }

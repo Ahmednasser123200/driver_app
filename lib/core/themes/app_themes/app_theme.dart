@@ -32,7 +32,7 @@ abstract final class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.white,
-          disabledBackgroundColor: AppColors.greyLight,
+          disabledBackgroundColor: AppColors.grey.shade300,
           disabledForegroundColor: AppColors.white,
           minimumSize: const Size(343, 48),
           shape: const StadiumBorder(),
@@ -96,7 +96,7 @@ abstract final class AppTheme {
         hintStyle: GoogleFonts.inter(
           fontSize: 14.sp,
           fontWeight: FontWeight.w400,
-          color: AppColors.greyLight,
+          color: AppColors.grey.shade400,
         ),
         errorStyle: GoogleFonts.inter(
           fontSize: 12.sp,
@@ -126,7 +126,7 @@ abstract final class AppTheme {
         ),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: AppColors.primaryLight,
+        backgroundColor: AppColors.primary.shade50,
         labelStyle: GoogleFonts.inter(
           fontSize: 12.sp,
           fontWeight: FontWeight.w500,

@@ -1,5 +1,3 @@
-
-
 import 'package:dio/dio.dart';
 import 'package:driver_app/config/dio/auth_interceptor.dart';
 import 'package:injectable/injectable.dart';
@@ -7,7 +5,7 @@ import 'package:injectable/injectable.dart';
 @module
 abstract class DioModule {
   @lazySingleton
-  Dio dio() {
+  Dio dio(AuthInterceptors authInterceptor) {
     final dio = Dio(
       BaseOptions(
         baseUrl: '',
@@ -15,12 +13,7 @@ abstract class DioModule {
         receiveTimeout: const Duration(seconds: 10),
       ),
     );
-    dio.interceptors.add(AuthInterceptors());
+    dio.interceptors.add(authInterceptor);
     return dio;
   }
 }
-
-
-
-
-

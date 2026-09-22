@@ -4,8 +4,8 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'config/di/di.dart';
 import 'config/routing/app_routes.dart';
 import 'config/routing/routes.dart';
-import 'core/constants/app_strings/app_strings.dart';
 import 'core/themes/app_themes/app_theme.dart';
+import 'l10n/generated/app_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,9 +24,12 @@ class DriverApp extends StatelessWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp(
-          title: AppStrings.appName,
+          title: AppLocalizations.of(context)?.appName ?? 'Flowery rider',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
           initialRoute: Routes.initial,
           onGenerateRoute: AppRoutes.onGenerateRoute,
         );

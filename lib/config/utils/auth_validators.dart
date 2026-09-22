@@ -1,75 +1,94 @@
-import 'package:driver_app/core/constants/app_strings/app_strings.dart';
+enum ValidationError {
+  emailRequired,
+  emailInvalid,
+  passwordRequired,
+  passwordMinLength,
+  passwordStrongRules,
+  confirmPasswordRequired,
+  confirmPasswordMismatch,
+  usernameRequired,
+  usernameMinLength,
+  firstNameRequired,
+  firstNameOnlyLetters,
+  lastNameRequired,
+  lastNameOnlyLetters,
+  phoneRequired,
+  phoneInvalid,
+  fieldRequired,
+  fieldMinLength,
+}
 
 class AuthValidators {
   AuthValidators._(); // prevent instantiation
 
-  static String? email(String? value) {
-    if (value == null || value.trim().isEmpty) return AppStrings.emailRequired;
+  static ValidationError? email(String? value) {
+    if (value == null || value.trim().isEmpty) return ValidationError.emailRequired;
     final emailRegex = RegExp(r'^[\w.-]+@[\w.-]+\.\w{2,}$');
-    if (!emailRegex.hasMatch(value.trim())) return AppStrings.emailInvalid;
+    if (!emailRegex.hasMatch(value.trim())) return ValidationError.emailInvalid;
     return null;
   }
 
-  static String? password(String? value) {
-    if (value == null || value.isEmpty) return AppStrings.passwordRequired;
-    if (value.length < 8) return AppStrings.passwordMinLength;
+  static ValidationError? password(String? value) {
+    if (value == null || value.isEmpty) return ValidationError.passwordRequired;
+    if (value.length < 8) return ValidationError.passwordMinLength;
     return null;
   }
 
   /// Stricter policy for creating a new password (registration / reset),
   /// as opposed to [password] which only checks an existing password is present.
-  static String? strongPassword(String? value) {
-    if (value == null || value.isEmpty) return AppStrings.passwordRequired;
+  static ValidationError? strongPassword(String? value) {
+    if (value == null || value.isEmpty) return ValidationError.passwordRequired;
     final passwordRegex = RegExp(
       r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$',
     );
     if (!passwordRegex.hasMatch(value)) {
-      return AppStrings.passwordStrongRules;
+      return ValidationError.passwordStrongRules;
     }
     return null;
   }
 
-  static String? confirmPassword(String? value, String original) {
-    if (value == null || value.isEmpty) return AppStrings.confirmPasswordRequired;
-    if (value != original) return AppStrings.confirmPasswordMismatch;
+  static ValidationError? confirmPassword(String? value, String original) {
+    if (value == null || value.isEmpty) return ValidationError.confirmPasswordRequired;
+    if (value != original) return ValidationError.confirmPasswordMismatch;
     return null;
   }
 
-  static String? username(String? value) {
-    if (value == null || value.trim().isEmpty) return AppStrings.usernameRequired;
+  static ValidationError? username(String? value) {
+    if (value == null || value.trim().isEmpty) return ValidationError.usernameRequired;
     if (value.trim().length < 3) {
-      return AppStrings.usernameMinLength;
+      return ValidationError.usernameMinLength;
     }
     return null;
   }
-  static String? addressFields(String? value , String errorMessage) {
-    if (value == null || value.trim().isEmpty) return errorMessage;
+
+  static ValidationError? addressFields(String? value) {
+    if (value == null || value.trim().isEmpty) return ValidationError.fieldRequired;
     if (value.trim().length < 3) {
-      return errorMessage;
+      return ValidationError.fieldMinLength;
     }
     return null;
   }
 
-  static String? firstName(String? value) {
-    if (value == null || value.trim().isEmpty) return AppStrings.firstNameRequired;
+  static ValidationError? firstName(String? value) {
+    if (value == null || value.trim().isEmpty) return ValidationError.firstNameRequired;
     if (!RegExp(r'^[a-zA-Z]{2,30}$').hasMatch(value)) {
-      return AppStrings.firstNameOnlyLetters;
+      return ValidationError.firstNameOnlyLetters;
     }
     return null;
   }
 
-  static String? lastName(String? value) {
-    if (value == null || value.trim().isEmpty) return AppStrings.lastNameRequired;
+  static ValidationError? lastName(String? value) {
+    if (value == null || value.trim().isEmpty) return ValidationError.lastNameRequired;
     if (!RegExp(r'^[a-zA-Z]{2,30}$').hasMatch(value)) {
-      return AppStrings.lastNameOnlyLetters;
+      return ValidationError.lastNameOnlyLetters;
     }
     return null;
   }
 
-  static String? phone(String? value) {
-    if (value == null || value.isEmpty) return AppStrings.phoneRequired;
+  static ValidationError? phone(String? value) {
+    if (value == null || value.isEmpty) return ValidationError.phoneRequired;
     if (!RegExp(r'^01[0125][0-9]{8}$').hasMatch(value)) {
-      return AppStrings.phoneInvalid;
+      return ValidationError.phoneInvalid;
     }
     return null;
   }
