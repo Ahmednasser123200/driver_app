@@ -451,6 +451,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get failureNotFound => 'لم يتم العثور على المورد المطلوب.';
 
   @override
+  String get failureMethodNotAllowed =>
+      'الإجراء غير مسموح به. يرجى التواصل مع الدعم إذا استمرت المشكلة.';
+
+  @override
+  String get failureConflict =>
+      'حدث تعارض مع الحالة الحالية للمورد.';
+
+  @override
+  String get failureUnprocessableEntity =>
+      'تعذر معالجة الطلب بسبب بيانات غير صالحة.';
+
+  @override
   String get failureServerError =>
       'حدث خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.';
 

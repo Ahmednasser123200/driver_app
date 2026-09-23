@@ -13,6 +13,7 @@ class CustomTextFormField extends StatefulWidget {
     required this.label,
     this.hint,
     this.value,
+    this.controller,
     this.validator,
     this.obscureText = false,
     this.enabled = true,
@@ -29,6 +30,7 @@ class CustomTextFormField extends StatefulWidget {
   final String label;
   final String? hint;
   final String? value;
+  final TextEditingController? controller;
   final ValidationError? Function(String?)? validator;
   final bool obscureText;
   final bool enabled;
@@ -46,29 +48,41 @@ class CustomTextFormField extends StatefulWidget {
 }
 
 class _CustomTextFormFieldState extends State<CustomTextFormField> {
-  late final TextEditingController _controller;
+  TextEditingController? _internalController;
   final ValueNotifier<bool> _obscureText = ValueNotifier<bool>(false);
+
+  TextEditingController get _effectiveController =>
+      widget.controller ?? _internalController!;
 
   @override
   void initState() {
     super.initState();
     _obscureText.value = widget.obscureText;
-    _controller = TextEditingController(text: widget.value ?? '');
+    if (widget.controller == null) {
+      _internalController = TextEditingController(text: widget.value ?? '');
+    }
   }
 
   @override
   void didUpdateWidget(covariant CustomTextFormField oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.controller == null && oldWidget.controller != null) {
+      _internalController = TextEditingController(text: widget.value ?? '');
+    } else if (widget.controller != null && oldWidget.controller == null) {
+      _internalController?.dispose();
+      _internalController = null;
+    }
+
     if (oldWidget.value != widget.value &&
-        _controller.text != (widget.value ?? '')) {
-      _controller.text = widget.value ?? '';
+        _effectiveController.text != (widget.value ?? '')) {
+      _effectiveController.text = widget.value ?? '';
     }
     _obscureText.value = widget.obscureText;
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _internalController?.dispose();
     _obscureText.dispose();
     super.dispose();
   }
@@ -88,7 +102,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         ),
         SizedBox(height: 8.h),
         TextFormField(
-          controller: _controller,
+          controller: _effectiveController,
           validator: widget.validator == null
               ? null
               : (value) => mapValidationErrorToMessage(

@@ -35,13 +35,16 @@ AppFailure _mapServerFailure(DioException error) {
       return const ForbiddenFailure();
     case 404:
       return const NotFoundFailure();
+    case 405:
+      return const MethodNotAllowedFailure();
+    case 409:
+      return ConflictFailure(serverMessage: serverMessage);
+    case 422:
+      return UnprocessableEntityFailure(serverMessage: serverMessage);
     case 429:
       return const TooManyRequestsFailure();
     default:
-      return ServerFailure(
-        statusCode: statusCode,
-        serverMessage: serverMessage,
-      );
+      return ServerFailure(statusCode: statusCode);
   }
 }
 

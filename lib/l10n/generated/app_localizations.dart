@@ -968,6 +968,24 @@ abstract class AppLocalizations {
   /// **'The requested resource was not found.'**
   String get failureNotFound;
 
+  /// No description provided for @failureMethodNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Method not allowed. Please contact support if the issue persists.'**
+  String get failureMethodNotAllowed;
+
+  /// No description provided for @failureConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'A conflict occurred with the current state of the resource.'**
+  String get failureConflict;
+
+  /// No description provided for @failureUnprocessableEntity.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to process the request due to invalid data.'**
+  String get failureUnprocessableEntity;
+
   /// No description provided for @failureServerError.
   ///
   /// In en, this message translates to:

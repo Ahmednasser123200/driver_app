@@ -455,6 +455,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get failureNotFound => 'The requested resource was not found.';
 
   @override
+  String get failureMethodNotAllowed =>
+      'Method not allowed. Please contact support if the issue persists.';
+
+  @override
+  String get failureConflict =>
+      'A conflict occurred with the current state of the resource.';
+
+  @override
+  String get failureUnprocessableEntity =>
+      'Unable to process the request due to invalid data.';
+
+  @override
   String get failureServerError =>
       'Something went wrong on our server. Please try again later.';
 
