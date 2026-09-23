@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 
 import '../../../config/base/base_cubit.dart';
 
-
-
 class BaseUiEventListener<CubitState, UiEvent> extends StatefulWidget {
   const BaseUiEventListener({
     super.key,
@@ -21,6 +19,7 @@ class BaseUiEventListener<CubitState, UiEvent> extends StatefulWidget {
   State<BaseUiEventListener<CubitState, UiEvent>> createState() =>
       _BaseUiEventListenerState<CubitState, UiEvent>();
 }
+
 class _BaseUiEventListenerState<CubitState, UiEvent>
     extends State<BaseUiEventListener<CubitState, UiEvent>> {
   StreamSubscription<UiEvent>? _subscription;
@@ -32,7 +31,9 @@ class _BaseUiEventListenerState<CubitState, UiEvent>
   }
 
   @override
-  void didUpdateWidget(covariant BaseUiEventListener<CubitState, UiEvent> oldWidget) {
+  void didUpdateWidget(
+    covariant BaseUiEventListener<CubitState, UiEvent> oldWidget,
+  ) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.cubit != widget.cubit) {
       _unsubscribe();
@@ -62,4 +63,3 @@ class _BaseUiEventListenerState<CubitState, UiEvent>
   @override
   Widget build(BuildContext context) => widget.child;
 }
-

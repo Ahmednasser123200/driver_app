@@ -26,11 +26,7 @@ class AppBottomNavigationBar extends StatelessWidget {
       onTabChanged: (_) {},
       tabs: [
         _tabConfig(homeScreen, l10n.navHome, Icons.home_outlined),
-        _tabConfig(
-          ordersScreen,
-          l10n.navOrders,
-          Icons.receipt_long_outlined,
-        ),
+        _tabConfig(ordersScreen, l10n.navOrders, Icons.receipt_long_outlined),
         _tabConfig(profileScreen, l10n.navProfile, Icons.person_outline),
       ],
       navBarBuilder: (navBarConfig) => Style1BottomNavBar(
@@ -47,11 +43,7 @@ class AppBottomNavigationBar extends StatelessWidget {
     );
   }
 
-  PersistentTabConfig _tabConfig(
-    Widget screen,
-    String title,
-    IconData icon,
-  ) {
+  PersistentTabConfig _tabConfig(Widget screen, String title, IconData icon) {
     return PersistentTabConfig(
       screen: screen,
       item: ItemConfig(

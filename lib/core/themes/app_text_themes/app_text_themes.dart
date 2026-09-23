@@ -7,66 +7,21 @@ import '../app_colors/app_colors.dart';
 abstract final class AppTextThemes {
   static TextTheme textTheme() {
     const defaultStyles = TextTheme(
-      displayLarge: TextStyle(
-        fontWeight: FontWeight.w500,
-        fontSize: 80,
-      ),
-      displayMedium: TextStyle(
-        fontWeight: FontWeight.w600,
-        fontSize: 40,
-      ),
-      displaySmall: TextStyle(
-        fontWeight: FontWeight.w600,
-        fontSize: 36,
-      ),
-      headlineLarge: TextStyle(
-        fontWeight: FontWeight.w500,
-        fontSize: 24,
-      ),
-      headlineMedium: TextStyle(
-        fontWeight: FontWeight.w500,
-        fontSize: 20,
-      ),
-      headlineSmall: TextStyle(
-        fontWeight: FontWeight.w600,
-        fontSize: 18,
-      ),
-      titleLarge: TextStyle(
-        fontWeight: FontWeight.w500,
-        fontSize: 18,
-      ),
-      titleMedium: TextStyle(
-        fontWeight: FontWeight.w600,
-        fontSize: 16,
-      ),
-      titleSmall: TextStyle(
-        fontWeight: FontWeight.w500,
-        fontSize: 14,
-      ),
-      bodyLarge: TextStyle(
-        fontWeight: FontWeight.w400,
-        fontSize: 16,
-      ),
-      bodyMedium: TextStyle(
-        fontWeight: FontWeight.w400,
-        fontSize: 14,
-      ),
-      bodySmall: TextStyle(
-        fontWeight: FontWeight.w400,
-        fontSize: 13,
-      ),
-      labelLarge: TextStyle(
-        fontWeight: FontWeight.w500,
-        fontSize: 14,
-      ),
-      labelMedium: TextStyle(
-        fontWeight: FontWeight.w500,
-        fontSize: 12,
-      ),
-      labelSmall: TextStyle(
-        fontWeight: FontWeight.w400,
-        fontSize: 10,
-      ),
+      displayLarge: TextStyle(fontWeight: FontWeight.w500, fontSize: 80),
+      displayMedium: TextStyle(fontWeight: FontWeight.w600, fontSize: 40),
+      displaySmall: TextStyle(fontWeight: FontWeight.w600, fontSize: 36),
+      headlineLarge: TextStyle(fontWeight: FontWeight.w500, fontSize: 24),
+      headlineMedium: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+      headlineSmall: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+      titleLarge: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+      titleMedium: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+      titleSmall: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+      bodyLarge: TextStyle(fontWeight: FontWeight.w400, fontSize: 16),
+      bodyMedium: TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
+      bodySmall: TextStyle(fontWeight: FontWeight.w400, fontSize: 13),
+      labelLarge: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+      labelMedium: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+      labelSmall: TextStyle(fontWeight: FontWeight.w400, fontSize: 10),
     );
 
     final scaled = defaultStyles.copyWith(

@@ -22,7 +22,8 @@ class AuthValidators {
   AuthValidators._(); // prevent instantiation
 
   static ValidationError? email(String? value) {
-    if (value == null || value.trim().isEmpty) return ValidationError.emailRequired;
+    if (value == null || value.trim().isEmpty)
+      return ValidationError.emailRequired;
     final emailRegex = RegExp(r'^[\w.-]+@[\w.-]+\.\w{2,}$');
     if (!emailRegex.hasMatch(value.trim())) return ValidationError.emailInvalid;
     return null;
@@ -48,13 +49,15 @@ class AuthValidators {
   }
 
   static ValidationError? confirmPassword(String? value, String original) {
-    if (value == null || value.isEmpty) return ValidationError.confirmPasswordRequired;
+    if (value == null || value.isEmpty)
+      return ValidationError.confirmPasswordRequired;
     if (value != original) return ValidationError.confirmPasswordMismatch;
     return null;
   }
 
   static ValidationError? username(String? value) {
-    if (value == null || value.trim().isEmpty) return ValidationError.usernameRequired;
+    if (value == null || value.trim().isEmpty)
+      return ValidationError.usernameRequired;
     if (value.trim().length < 3) {
       return ValidationError.usernameMinLength;
     }
@@ -62,7 +65,8 @@ class AuthValidators {
   }
 
   static ValidationError? addressFields(String? value) {
-    if (value == null || value.trim().isEmpty) return ValidationError.fieldRequired;
+    if (value == null || value.trim().isEmpty)
+      return ValidationError.fieldRequired;
     if (value.trim().length < 3) {
       return ValidationError.fieldMinLength;
     }
@@ -70,7 +74,8 @@ class AuthValidators {
   }
 
   static ValidationError? firstName(String? value) {
-    if (value == null || value.trim().isEmpty) return ValidationError.firstNameRequired;
+    if (value == null || value.trim().isEmpty)
+      return ValidationError.firstNameRequired;
     if (!RegExp(r'^[a-zA-Z]{2,30}$').hasMatch(value)) {
       return ValidationError.firstNameOnlyLetters;
     }
@@ -78,7 +83,8 @@ class AuthValidators {
   }
 
   static ValidationError? lastName(String? value) {
-    if (value == null || value.trim().isEmpty) return ValidationError.lastNameRequired;
+    if (value == null || value.trim().isEmpty)
+      return ValidationError.lastNameRequired;
     if (!RegExp(r'^[a-zA-Z]{2,30}$').hasMatch(value)) {
       return ValidationError.lastNameOnlyLetters;
     }

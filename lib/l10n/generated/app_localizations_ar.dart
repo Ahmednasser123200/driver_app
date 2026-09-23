@@ -455,8 +455,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'الإجراء غير مسموح به. يرجى التواصل مع الدعم إذا استمرت المشكلة.';
 
   @override
-  String get failureConflict =>
-      'حدث تعارض مع الحالة الحالية للمورد.';
+  String get failureConflict => 'حدث تعارض مع الحالة الحالية للمورد.';
 
   @override
   String get failureUnprocessableEntity =>
