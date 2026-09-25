@@ -36,15 +36,30 @@ class NotFoundFailure extends AppFailure {
   const NotFoundFailure();
 }
 
+class MethodNotAllowedFailure extends AppFailure {
+  const MethodNotAllowedFailure();
+}
+
+class ConflictFailure extends AppFailure {
+  const ConflictFailure({this.serverMessage});
+
+  final String? serverMessage;
+}
+
+class UnprocessableEntityFailure extends AppFailure {
+  const UnprocessableEntityFailure({this.serverMessage});
+
+  final String? serverMessage;
+}
+
 class TooManyRequestsFailure extends AppFailure {
   const TooManyRequestsFailure();
 }
 
 class ServerFailure extends AppFailure {
-  const ServerFailure({this.statusCode, this.serverMessage});
+  const ServerFailure({this.statusCode});
 
   final int? statusCode;
-  final String? serverMessage;
 }
 
 class UnknownFailure extends AppFailure {

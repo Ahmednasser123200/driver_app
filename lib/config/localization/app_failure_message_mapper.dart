@@ -14,11 +14,15 @@ String mapAppFailureToMessage(AppFailure failure, AppLocalizations l10n) {
     UnauthorizedFailure() => l10n.failureUnauthorized,
     ForbiddenFailure() => l10n.failureForbidden,
     NotFoundFailure() => l10n.failureNotFound,
-    TooManyRequestsFailure() => l10n.failureTooManyRequests,
-    ServerFailure(:final serverMessage) =>
+    MethodNotAllowedFailure() => l10n.failureMethodNotAllowed,
+    ConflictFailure(:final serverMessage) =>
+      serverMessage?.isNotEmpty == true ? serverMessage! : l10n.failureConflict,
+    UnprocessableEntityFailure(:final serverMessage) =>
       serverMessage?.isNotEmpty == true
           ? serverMessage!
-          : l10n.failureServerError,
+          : l10n.failureUnprocessableEntity,
+    TooManyRequestsFailure() => l10n.failureTooManyRequests,
+    ServerFailure() => l10n.failureServerError,
     UnknownFailure() => l10n.failureUnknown,
   };
 }
