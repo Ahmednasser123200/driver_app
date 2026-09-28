@@ -55,26 +55,30 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
   }
 
   void _handleEvent(BuildContext context, E event) {
-    if (event is ShowSuccessMessage) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(event.message),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } else if (event is ShowErrorMessage) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(event.message),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } else if (event is NavigateTo) {
-      Navigator.of(context).pushNamed(event.routeName, arguments: event.arguments);
-    } else if (event is PopRoute) {
-      Navigator.of(context).pop(event.result);
-    } else {
-      widget.onCustomEvent?.call(context, event);
+    widget.onCustomEvent?.call(context, event);
+
+    switch (event) {
+      case ShowSuccessMessage():
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(event.message),
+            backgroundColor: Colors.green,
+          ),
+        );
+      case ShowErrorMessage():
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(event.message),
+            backgroundColor: Colors.red,
+          ),
+        );
+      case NavigateTo():
+        Navigator.of(context).pushNamed(
+          event.routeName,
+          arguments: event.arguments,
+        );
+      case PopRoute():
+        Navigator.of(context).pop(event.result);
     }
   }
 
