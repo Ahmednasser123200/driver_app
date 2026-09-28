@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../features/auth/presentation/apply/view/apply_view.dart';
 import 'routes.dart';
 
 abstract final class AppRoutes {
@@ -34,7 +35,7 @@ abstract final class AppRoutes {
       case Routes.apply:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const _StubScreen('Apply'),
+          builder: (_) => const ApplyView(),
         );
       case Routes.successApply:
         return MaterialPageRoute(

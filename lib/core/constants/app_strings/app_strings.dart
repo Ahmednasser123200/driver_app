@@ -65,7 +65,7 @@ abstract final class AppStrings {
   static const String invalidCode = 'Invalid code';
   static const String isDeliveryHero = 'Is your delivery hero for today';
   static const String deliveryManJoinTeam =
-      'You want to be a delivery man? Join our team';
+      'You want to be a delivery man?\nJoin our team';
   static const String vehicleInfo = 'Vehicle info';
   static const String vehicleType = 'Vehicle type';
   static const String vehicleNumber = 'Vehicle number';
@@ -86,6 +86,11 @@ abstract final class AppStrings {
   static const String enterSecondLegalName = 'Enter second legal name';
   static const String gender = 'Gender';
   static const String male = 'Male';
+  static const String female = 'Female';
+  static const String pleaseSelectGender = 'Please select your gender';
+  static const String pleaseUploadVehicleLicense =
+      'Please upload your vehicle license';
+  static const String pleaseUploadIdImage = 'Please upload your ID image';
   static const String address = 'Address';
   static const String apartment = 'Apartment';
   static const String area = 'Area';

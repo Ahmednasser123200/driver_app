@@ -21,9 +21,9 @@ abstract final class AppTheme {
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.black,
         elevation: 0,
-        centerTitle: true,
+        centerTitle: false,
         titleTextStyle: GoogleFonts.inter(
-          fontSize: 16.sp,
+          fontSize: 20.sp,
           fontWeight: FontWeight.w500,
           color: AppColors.black,
         ),
