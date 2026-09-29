@@ -992,6 +992,18 @@ abstract class AppLocalizations {
   /// **'Something went wrong on our server. Please try again later.'**
   String get failureServerError;
 
+  /// No description provided for @loginSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged in successfully'**
+  String get loginSuccess;
+
+  /// No description provided for @notDriverAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is not registered as a driver in the system.'**
+  String get notDriverAccount;
+
   /// No description provided for @failureTooManyRequests.
   ///
   /// In en, this message translates to:

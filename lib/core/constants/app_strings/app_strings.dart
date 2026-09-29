@@ -206,4 +206,5 @@ abstract final class AppStrings {
   static const String refreshToken = 'refresh_token';
   static const String accessToken = 'access_token';
   static const String rememberedEmail = 'remembered_email';
+  static const String notDriverAccount  ='This account is not registered as a driver in the system.';
 }

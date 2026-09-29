@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/dio/dio_failure_mapper.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
+import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/features/auth/api/service/secure_storage.dart';
 import 'package:driver_app/features/auth/data/data_source/remote_data_source/auth_remote_data_source.dart';
 import 'package:driver_app/features/auth/data/model/request/login_request/login_request.dart';
@@ -39,9 +40,9 @@ class AuthRepoImpl implements AuthRepo {
         // 1. التحقق الحاسم من الدور (Role Guard)
         final role = entity.user?.role.toLowerCase();
         if (role != 'driver') {
-          return const Error(
+          return Error(
             BadRequestFailure(
-              serverMessage: 'هذا الحساب غير مسجل كسائق في النظام.',
+              serverMessage: AppStrings.notDriverAccount,
             ),
           );
         }

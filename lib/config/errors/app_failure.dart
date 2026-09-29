@@ -62,6 +62,10 @@ class ServerFailure extends AppFailure {
   final int? statusCode;
 }
 
+class NotDriverAccountFailure extends AppFailure {
+  const NotDriverAccountFailure();
+}
+
 class UnknownFailure extends AppFailure {
   const UnknownFailure();
 }

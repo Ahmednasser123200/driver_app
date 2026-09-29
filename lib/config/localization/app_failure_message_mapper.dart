@@ -23,6 +23,7 @@ String mapAppFailureToMessage(AppFailure failure, AppLocalizations l10n) {
           : l10n.failureUnprocessableEntity,
     TooManyRequestsFailure() => l10n.failureTooManyRequests,
     ServerFailure() => l10n.failureServerError,
+    NotDriverAccountFailure() => l10n.notDriverAccount,
     UnknownFailure() => l10n.failureUnknown,
   };
 }
