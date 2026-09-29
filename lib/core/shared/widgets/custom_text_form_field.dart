@@ -49,7 +49,7 @@ class CustomTextFormField extends StatefulWidget {
 
 class _CustomTextFormFieldState extends State<CustomTextFormField> {
   TextEditingController? _internalController;
-  final ValueNotifier<bool> _obscureText = ValueNotifier<bool>(false);
+  late bool _obscureText;
 
   TextEditingController get _effectiveController =>
       widget.controller ?? _internalController!;
@@ -57,7 +57,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
   @override
   void initState() {
     super.initState();
-    _obscureText.value = widget.obscureText;
+    _obscureText = widget.obscureText;
     if (widget.controller == null) {
       _internalController = TextEditingController(text: widget.value ?? '');
     }
@@ -77,13 +77,15 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         _effectiveController.text != (widget.value ?? '')) {
       _effectiveController.text = widget.value ?? '';
     }
-    _obscureText.value = widget.obscureText;
+
+    if (oldWidget.obscureText != widget.obscureText) {
+      _obscureText = widget.obscureText;
+    }
   }
 
   @override
   void dispose() {
     _internalController?.dispose();
-    _obscureText.dispose();
     super.dispose();
   }
 
@@ -105,36 +107,35 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           controller: _effectiveController,
           validator: widget.validator == null
               ? null
-              : (value) =>
-                    mapValidationErrorToMessage(widget.validator!(value), l10n),
-          obscureText: _obscureText.value,
+              : (value) => mapValidationErrorToMessage(
+                    widget.validator!(value),
+                    l10n,
+                  ),
+          obscureText: _obscureText,
           enabled: widget.enabled,
           keyboardType: widget.keyboardType,
           textInputAction: widget.textInputAction,
           inputFormatters: widget.inputFormatters,
           onChanged: widget.onChanged,
-          maxLines: widget.obscureText ? 1 : widget.maxLines,
+          maxLines: _obscureText ? 1 : widget.maxLines,
           focusNode: widget.focusNode,
           style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.black),
           decoration: InputDecoration(
             hintText: widget.hint,
             prefixIcon: widget.prefixIcon,
             suffixIcon: widget.obscureText && widget.suffixIcon == null
-                ? ValueListenableBuilder<bool>(
-                    valueListenable: _obscureText,
-                    builder: (context, obscure, _) {
-                      return IconButton(
-                        icon: Icon(
-                          obscure
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          color: AppColors.grey.shade400,
-                          size: 20.w,
-                        ),
-                        onPressed: () {
-                          _obscureText.value = !obscure;
-                        },
-                      );
+                ? IconButton(
+                    icon: Icon(
+                      _obscureText
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: AppColors.grey.shade400,
+                      size: 20.w,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
                     },
                   )
                 : widget.suffixIcon,
