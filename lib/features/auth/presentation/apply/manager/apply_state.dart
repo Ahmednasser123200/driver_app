@@ -20,7 +20,7 @@ class ApplyState extends Equatable {
   final File? idImage;
 
   const ApplyState({
-    this.countryCode = 'Egypt',
+    this.countryCode = '+20',
     this.firstName = '',
     this.secondName = '',
     this.vehicleType = VehicleType.car,

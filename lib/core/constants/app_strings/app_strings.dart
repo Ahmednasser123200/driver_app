@@ -206,4 +206,7 @@ abstract final class AppStrings {
   static const String graduation = 'Graduation';
   static const String birthday = 'Birthday';
   static const String wedding = 'Wedding';
+  static const String applicationSubmittedTitle = 'Your application has been\nsubmitted!';
+  static const String applicationSubmittedBody =
+      'Thank you for providing your application,\nwe will review your application and will\nget back to you soon.';
 }

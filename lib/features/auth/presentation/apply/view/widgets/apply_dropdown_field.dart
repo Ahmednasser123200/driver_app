@@ -6,11 +6,13 @@ import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 class ApplyDropdownItem<T> {
   final T value;
   final String label;
+  final String? fieldText; // CHANGED: text shown in the closed field; falls back to label
   final Widget? leading;
 
   const ApplyDropdownItem({
     required this.value,
     required this.label,
+    this.fieldText, // CHANGED
     this.leading,
   });
 }
@@ -46,7 +48,7 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: _getLabelForValue(widget.valueNotifier.value));
+    _controller = TextEditingController(text: _getFieldTextForValue(widget.valueNotifier.value)); // CHANGED
     widget.valueNotifier.addListener(_onValueChanged);
     _focusNode.addListener(_onFocusChange);
   }
@@ -62,16 +64,17 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
   }
 
   void _onValueChanged() {
-    final newLabel = _getLabelForValue(widget.valueNotifier.value);
-    if (_controller.text != newLabel) {
-      _controller.text = newLabel;
+    final newText = _getFieldTextForValue(widget.valueNotifier.value); // CHANGED
+    if (_controller.text != newText) {
+      _controller.text = newText;
     }
   }
 
-  String _getLabelForValue(T value) {
+  // CHANGED: new helper, used for the closed field's text
+  String _getFieldTextForValue(T value) {
     try {
       final match = widget.items.firstWhere((item) => item.value == value);
-      return match.label;
+      return match.fieldText ?? match.label;
     } catch (_) {
       return '';
     }
@@ -95,7 +98,7 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
     if (_isOpen) return;
     setState(() {
       _isOpen = true;
-      _searchQuery = widget.searchable ? _controller.text : '';
+      _searchQuery = '';
     });
     _overlayEntry = _createOverlayEntry();
     Overlay.of(context).insert(_overlayEntry!);
@@ -104,7 +107,7 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
   void _closeMenu(bool revert) {
     if (!_isOpen) return;
     if (revert) {
-      _controller.text = _getLabelForValue(widget.valueNotifier.value);
+      _controller.text = _getFieldTextForValue(widget.valueNotifier.value); // CHANGED
     }
     _overlayEntry?.remove();
     _overlayEntry = null;
@@ -161,8 +164,8 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
                           child: Text(
                             'No results',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.grey.shade400,
-                                ),
+                              color: AppColors.grey.shade400,
+                            ),
                           ),
                         );
                       }
@@ -178,7 +181,7 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
                           return InkWell(
                             onTap: () {
                               widget.valueNotifier.value = item.value;
-                              _controller.text = item.label;
+                              _controller.text = item.fieldText ?? item.label; // CHANGED
                               _closeMenu(false);
                             },
                             child: Container(
@@ -194,8 +197,8 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
                                     child: Text(
                                       item.label,
                                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                            color: AppColors.black,
-                                          ),
+                                        color: AppColors.black,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -232,16 +235,16 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
         },
         onChanged: widget.searchable
             ? (val) {
-                setState(() {
-                  _searchQuery = val;
-                });
-                if (!_isOpen) _openMenu();
-                _overlayEntry?.markNeedsBuild();
-              }
+          setState(() {
+            _searchQuery = val;
+          });
+          if (!_isOpen) _openMenu();
+          _overlayEntry?.markNeedsBuild();
+        }
             : null,
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.black,
-            ),
+          color: AppColors.black,
+        ),
         decoration: InputDecoration(
           labelText: widget.label,
           hintText: widget.hint,

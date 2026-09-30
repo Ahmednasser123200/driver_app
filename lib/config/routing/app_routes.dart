@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../features/auth/presentation/apply/view/apply_success_view.dart';
 import '../../features/auth/presentation/apply/view/apply_view.dart';
 import 'routes.dart';
 
@@ -40,7 +41,7 @@ abstract final class AppRoutes {
       case Routes.successApply:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const _StubScreen('Success Apply'),
+          builder: (_) => const ApplySuccessView(),
         );
       case Routes.home:
         return MaterialPageRoute(

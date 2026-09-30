@@ -18,6 +18,7 @@ class ApplyCountryField extends StatelessWidget {
       return ApplyDropdownItem<Country>(
         value: country,
         label: country.name,
+        fieldText: '${country.flagEmoji} +${country.phoneCode}',
         leading: Text(country.flagEmoji, style: TextStyle(fontSize: 20.sp)),
       );
     }).toList();

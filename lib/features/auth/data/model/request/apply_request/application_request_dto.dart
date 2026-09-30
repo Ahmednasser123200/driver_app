@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import '../../../../../../config/utils/phone_number_formatter.dart';
 import '../../../../domain/entities/apply_entity/applications_entity.dart';
 
 class ApplicationRequestDto {
@@ -41,7 +42,7 @@ class ApplicationRequestDto {
       vehicleType: entity.vehicleType.apiValue,
       vehicleNumber: entity.vehicleNumber,
       email: entity.email,
-      phoneNumber: entity.phoneNumber,
+      phoneNumber: PhoneNumberFormatter.stripLeadingTrunkZero(entity.phoneNumber),
       nationalId: entity.nationalId,
       password: entity.password,
       confirmPassword: entity.confirmPassword,
