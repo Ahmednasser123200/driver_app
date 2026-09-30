@@ -28,6 +28,11 @@
   "didntReceiveCode": "لم يصلك الرمز؟",
   "resend": "إعادة الإرسال",
   "invalidCode": "رمز غير صالح",
+  "resendInSeconds": "إعادة الإرسال خلال {seconds} ث",
+  "resendAvailable": "إعادة الإرسال الآن",
+  "otpAttemptsRemaining": "{count, plural, =1{محاولة واحدة متبقية} =2{محاولتان متبقيتان} few{{count} محاولات متبقية} other{{count} محاولة متبقية}}",
+  "otpMaxAttemptsReached": "تم إدخال رموز خاطئة كثيرة.",
+  "requestNewCode": "طلب رمز جديد",
 
   "resetPasswordTitle": "إعادة تعيين كلمة المرور",
   "resetPasswordDescription": "يجب ألا تكون كلمة المرور فارغة وأن تحتوي على 6 أحرف على الأقل مع حرف كبير ورقم واحد على الأقل",

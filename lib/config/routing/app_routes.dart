@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:driver_app/features/auth/presentation/forget_password/view/forget_password_view.dart';
+import 'package:driver_app/features/auth/presentation/forget_password/view/reset_password_view.dart';
+import 'package:driver_app/features/auth/presentation/forget_password/view/verification_view.dart';
+
 import 'routes.dart';
 
 abstract final class AppRoutes {
@@ -19,17 +23,21 @@ abstract final class AppRoutes {
       case Routes.forgetPassword:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const _StubScreen('Forget Password'),
+          builder: (_) => const ForgetPasswordView(),
         );
       case Routes.verificationCode:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const _StubScreen('Verification Code'),
+          builder: (_) =>
+              VerificationView(email: _argString(settings.arguments, 'email')),
         );
       case Routes.resetPassword:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const _StubScreen('Reset Password'),
+          builder: (_) => ResetPasswordView(
+            email: _argString(settings.arguments, 'email'),
+            otpcode: _argString(settings.arguments, 'otpcode'),
+          ),
         );
       case Routes.apply:
         return MaterialPageRoute(
@@ -82,6 +90,14 @@ abstract final class AppRoutes {
           builder: (_) => const _StubScreen('Not Found'),
         );
     }
+  }
+
+  static String _argString(Object? arguments, String key) {
+    if (arguments is Map) {
+      final value = arguments[key];
+      if (value is String) return value;
+    }
+    return '';
   }
 }
 

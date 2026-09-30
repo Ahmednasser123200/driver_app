@@ -236,6 +236,36 @@ abstract class AppLocalizations {
   /// **'Invalid code'**
   String get invalidCode;
 
+  /// No description provided for @resendInSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend in {seconds}s'**
+  String resendInSeconds(Object seconds);
+
+  /// No description provided for @resendAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend now'**
+  String get resendAvailable;
+
+  /// No description provided for @otpAttemptsRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 attempt remaining} other{{count} attempts remaining}}'**
+  String otpAttemptsRemaining(num count);
+
+  /// No description provided for @otpMaxAttemptsReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many incorrect codes entered.'**
+  String get otpMaxAttemptsReached;
+
+  /// No description provided for @requestNewCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Request a new code'**
+  String get requestNewCode;
+
   /// No description provided for @resetPasswordTitle.
   ///
   /// In en, this message translates to:

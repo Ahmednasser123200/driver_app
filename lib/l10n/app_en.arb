@@ -28,6 +28,11 @@
   "didntReceiveCode": "Didn''t receive code?",
   "resend": "Resend",
   "invalidCode": "Invalid code",
+  "resendInSeconds": "Resend in {seconds}s",
+  "resendAvailable": "Resend now",
+  "otpAttemptsRemaining": "{count, plural, =1{1 attempt remaining} other{{count} attempts remaining}}",
+  "otpMaxAttemptsReached": "Too many incorrect codes entered.",
+  "requestNewCode": "Request a new code",
 
   "resetPasswordTitle": "Reset password",
   "resetPasswordDescription": "Password must not be empty and must contain 6 characters with upper case letter and one number at least",
