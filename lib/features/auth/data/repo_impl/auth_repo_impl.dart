@@ -67,7 +67,6 @@ class AuthRepoImpl implements AuthRepo {
     };
   }
 
-
   @override
   Future<void> saveRememberedEmail(String email) =>
       _secureStorage.saveRememberedEmail(email);
