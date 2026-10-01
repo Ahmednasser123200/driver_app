@@ -1,3 +1,4 @@
+import 'package:driver_app/features/order_details/presentation/view/order_details_view.dart';
 import 'package:flutter/material.dart';
 
 import 'routes.dart';
@@ -52,10 +53,10 @@ abstract final class AppRoutes {
           builder: (_) => const _StubScreen('Orders'),
         );
       case Routes.orderDetails:
-        return MaterialPageRoute(
-          settings: settings,
-          builder: (_) => const _StubScreen('Order Details'),
-        );
+  return MaterialPageRoute(
+    settings: settings,
+    builder: (_) => const OrderDetailsView(),
+  );
       case Routes.tracking:
         return MaterialPageRoute(
           settings: settings,
