@@ -53,7 +53,7 @@ class AuthRepoImpl implements AuthRepo {
         await _secureStorage.saveAccessToken(entity.accessToken);
         await _secureStorage.saveRefreshToken(entity.refreshToken);
 
-        //todo refactoring remember me
+
         // if (rememberMe) {
         //   await _secureStorage.saveRememberedEmail(credentials.email);
         // } else {

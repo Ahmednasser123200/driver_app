@@ -17,6 +17,5 @@ class LoginEntity extends Equatable{
   });
 
   @override
-  // TODO: implement props
   List<Object?> get props => [accessToken,refreshToken,expiresIn,driverStatus,user];
 }
