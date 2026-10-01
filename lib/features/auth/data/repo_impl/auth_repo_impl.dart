@@ -20,16 +20,16 @@ class AuthRepoImpl implements AuthRepo {
 
   @override
   Future<BaseResponse<LoginEntity>> login(
-      LoginCredentials credentials, {
-        bool rememberMe = false,
-      }) async {
+    LoginCredentials credentials, {
+    bool rememberMe = false,
+  }) async {
     try {
       final response = await _remoteDataSource.login(
         LoginRequest(
           email: credentials.email,
           password: credentials.password,
-          deviceId: 'driver_device_id',
-          fcmToken: 'driver_fcm_token',
+          deviceId: '',
+          fcmToken: '',
         ),
       );
 
@@ -41,9 +41,11 @@ class AuthRepoImpl implements AuthRepo {
         final role = entity.user?.role.toLowerCase();
         if (role != 'driver') {
           return Error(
-            BadRequestFailure(
-              serverMessage: AppStrings.notDriverAccount,
-            ),
+            // BadRequestFailure(
+            //   serverMessage: AppStrings.notDriverAccount,
+            // ),
+            //
+            NotDriverAccountFailure(),
           );
         }
 
@@ -51,19 +53,21 @@ class AuthRepoImpl implements AuthRepo {
         await _secureStorage.saveAccessToken(entity.accessToken);
         await _secureStorage.saveRefreshToken(entity.refreshToken);
 
-        if (rememberMe) {
-          await _secureStorage.saveRememberedEmail(credentials.email);
-        } else {
-          await _secureStorage.deleteRememberedEmail();
-        }
+        //todo refactoring remember me
+        // if (rememberMe) {
+        //   await _secureStorage.saveRememberedEmail(credentials.email);
+        // } else {
+        //   await _secureStorage.deleteRememberedEmail();
+        // }
 
         return Success(entity);
       }
 
       return Error(
-        BadRequestFailure(
-          serverMessage: response.message ?? 'فشل تسجيل الدخول.',
-        ),
+        // BadRequestFailure(
+        //   serverMessage: response.message ?? 'فشل تسجيل الدخول.',
+        // ),
+        BadResponse()
       );
     } on DioException catch (e) {
       return Error(mapDioExceptionToAppFailure(e));
@@ -71,4 +75,10 @@ class AuthRepoImpl implements AuthRepo {
       return const Error(UnknownFailure());
     }
   }
+  @override
+  Future<void> saveRememberedEmail(String email)=>_secureStorage.saveRememberedEmail(email);
+  @override
+  Future<String?> getRememberedEmail()=>_secureStorage.getRememberedEmail();
+  @override
+  Future<void> deleteRememberedEmail()=>_secureStorage.deleteRememberedEmail();
 }

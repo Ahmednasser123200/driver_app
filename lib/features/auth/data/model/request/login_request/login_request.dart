@@ -10,17 +10,17 @@ String loginRequestToJson(LoginRequest data) => json.encode(data.toJson());
 @JsonSerializable()
 class LoginRequest {
   @JsonKey(name: 'email')
-  String? email;
+   String email;
   @JsonKey(name: 'password')
-  String? password;
-  @JsonKey(name: 'deviceId')
+  String password;
+  @JsonKey(name: 'deviceId',includeIfNull: false)
   String? deviceId;
-  @JsonKey(name: 'fcmToken')
+  @JsonKey(name: 'fcmToken',includeIfNull: false)
   String? fcmToken;
 
   LoginRequest({
-    this.email,
-    this.password,
+   required this.email,
+   required this.password,
     this.deviceId,
     this.fcmToken,
   });

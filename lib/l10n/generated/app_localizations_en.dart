@@ -483,4 +483,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failureUnknown => 'Something went wrong. Please try again.';
+  @override
+
+  String get BadResponse => 'Something went wrong on our server response. Please try again later.';
 }

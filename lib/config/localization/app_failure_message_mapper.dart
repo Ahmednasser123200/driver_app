@@ -25,5 +25,6 @@ String mapAppFailureToMessage(AppFailure failure, AppLocalizations l10n) {
     ServerFailure() => l10n.failureServerError,
     NotDriverAccountFailure() => l10n.notDriverAccount,
     UnknownFailure() => l10n.failureUnknown,
+    BadResponse()=>l10n.BadResponse,
   };
 }

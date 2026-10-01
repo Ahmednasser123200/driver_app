@@ -19,9 +19,9 @@ class BadCertificateFailure extends AppFailure {
 }
 
 class BadRequestFailure extends AppFailure {
-  const BadRequestFailure({this.serverMessage});
-
   final String? serverMessage;
+
+  const BadRequestFailure({this.serverMessage});
 }
 
 class UnauthorizedFailure extends AppFailure {
@@ -63,9 +63,15 @@ class ServerFailure extends AppFailure {
 }
 
 class NotDriverAccountFailure extends AppFailure {
-  const NotDriverAccountFailure();
+  // final String? serverMessage;
+  //
+  //
+  // const NotDriverAccountFailure({this.serverMessage});
 }
 
 class UnknownFailure extends AppFailure {
   const UnknownFailure();
+}
+class BadResponse extends AppFailure{
+  const BadResponse();
 }

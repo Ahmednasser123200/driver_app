@@ -80,6 +80,8 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
       case PopRoute():
         Navigator.of(context).pop(event.result);
     }
+
+    widget.onCustomEvent?.call(context, event);
   }
 
   void _unsubscribe() {

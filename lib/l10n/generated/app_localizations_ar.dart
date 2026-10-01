@@ -477,4 +477,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get failureUnknown => 'حدث خطأ ما. يرجى المحاولة مرة أخرى.';
+  @override
+
+  String get BadResponse => ' حدث خطأ فى استجابة الخادم.يرجى المحاولة مرة اخرى لاحقاً.';
 }
