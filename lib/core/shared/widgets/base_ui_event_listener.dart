@@ -1,28 +1,34 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../config/base/base_cubit.dart';
+import '../../../config/base/base_ui_event.dart';
+import '../../../config/localization/app_failure_message_mapper.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
-class BaseUiEventListener<CubitState, UiEvent> extends StatefulWidget {
+class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
+    extends StatefulWidget {
   const BaseUiEventListener({
     super.key,
-    required this.cubit,
-    required this.onEvent,
+    this.cubit,
+    this.onCustomEvent,
     required this.child,
   });
 
-  final BaseCubit<CubitState, UiEvent> cubit;
-  final void Function(BuildContext context, UiEvent event) onEvent;
+  final C? cubit;
+  final void Function(BuildContext context, E event)? onCustomEvent;
   final Widget child;
+
   @override
-  State<BaseUiEventListener<CubitState, UiEvent>> createState() =>
-      _BaseUiEventListenerState<CubitState, UiEvent>();
+  State<BaseUiEventListener<C, S, E>> createState() =>
+      _BaseUiEventListenerState<C, S, E>();
 }
 
-class _BaseUiEventListenerState<CubitState, UiEvent>
-    extends State<BaseUiEventListener<CubitState, UiEvent>> {
-  StreamSubscription<UiEvent>? _subscription;
+class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
+    extends State<BaseUiEventListener<C, S, E>> {
+  StreamSubscription<E>? _subscription;
 
   @override
   void initState() {
@@ -32,7 +38,7 @@ class _BaseUiEventListenerState<CubitState, UiEvent>
 
   @override
   void didUpdateWidget(
-    covariant BaseUiEventListener<CubitState, UiEvent> oldWidget,
+    covariant BaseUiEventListener<C, S, E> oldWidget,
   ) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.cubit != widget.cubit) {
@@ -42,11 +48,46 @@ class _BaseUiEventListenerState<CubitState, UiEvent>
   }
 
   void _subscribe() {
-    _subscription = widget.cubit.uiEventStream.listen((event) {
+    final targetCubit = widget.cubit ?? context.read<C>();
+    _subscription = targetCubit.uiEventStream.listen((event) {
       if (mounted) {
-        widget.onEvent(context, event);
+        _handleEvent(context, event);
       }
     });
+  }
+
+  void _handleEvent(BuildContext context, E event) {
+    widget.onCustomEvent?.call(context, event);
+
+    switch (event) {
+      case ShowSuccessMessage():
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(event.message),
+            backgroundColor: Colors.green,
+          ),
+        );
+      case ShowErrorMessage():
+        final l10n = AppLocalizations.of(context)!;
+        final errorMessage = event.failure != null
+            ? mapAppFailureToMessage(event.failure!, l10n)
+            : (event.message ?? '');
+        if (errorMessage.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      case NavigateTo():
+        Navigator.of(context).pushNamed(
+          event.routeName,
+          arguments: event.arguments,
+        );
+      case PopRoute():
+        Navigator.of(context).pop(event.result);
+    }
   }
 
   void _unsubscribe() {
