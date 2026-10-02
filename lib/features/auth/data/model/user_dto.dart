@@ -52,7 +52,7 @@ class UserDto {
       phoneNumber: phoneNumber ?? '',
       gender: gender ?? '',
       role: role ?? '',
-      status: status ?? (isActive == true ? 'Active' : ''),
+      status: status ?? (isActive == true ? 'Active' : 'Inactive'),
     );
   }
 }

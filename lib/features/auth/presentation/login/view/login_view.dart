@@ -15,14 +15,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
-class LoginView extends StatefulWidget {
+class LoginView extends StatelessWidget {
   const LoginView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => getIt<LoginCubit>(),
+      child: const _LoginViewContent(),
+    );
+  }
 }
 
-class _LoginViewState extends State<LoginView> {
+class _LoginViewContent extends StatefulWidget {
+  const _LoginViewContent();
+
+  @override
+  State<_LoginViewContent> createState() => _LoginViewContentState();
+}
+
+class _LoginViewContentState extends State<_LoginViewContent> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
@@ -32,6 +44,11 @@ class _LoginViewState extends State<LoginView> {
     super.initState();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<LoginCubit>().handle(LoadRememberedEmail());
+      }
+    });
   }
 
   @override
@@ -43,157 +60,154 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<LoginCubit>()..handle(LoadRememberedEmail()),
-      child: Scaffold(
-        appBar: AppBar(
-          leadingWidth: 40.w,
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: AppColors.black,
-              size: 20.w,
-            ),
-            onPressed: () => Navigator.maybePop(context),
+    return Scaffold(
+      appBar: AppBar(
+        leadingWidth: 40.w,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.black,
+            size: 20.w,
           ),
-          title: Text(
-            AppStrings.login,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: AppColors.black,
-            ),
-          ),
-          centerTitle: false,
+          onPressed: () => Navigator.maybePop(context),
         ),
-        body: SafeArea(
-          child: BaseUiEventListener<LoginCubit, LoginState, BaseUiEvent>(
-            onCustomEvent: (context, event) {
-              if (event is EmailPreFilledEvent) {
-                _emailController.text = event.email;
-              }
-            },
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: 16.w,
-                vertical: 24.h,
-              ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Email Field
-                    CustomTextFormField(
-                      label: AppStrings.email,
-                      hint: AppStrings.enterEmail,
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: AuthValidators.email,
-                      onChanged: (val) =>
-                          context.read<LoginCubit>().handle(EmailChanged(val)),
-                    ),
-                    SizedBox(height: 20.h),
+        title: Text(
+          AppStrings.login,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: AppColors.black,
+          ),
+        ),
+        centerTitle: false,
+      ),
+      body: SafeArea(
+        child: BaseUiEventListener<LoginCubit, LoginState, BaseUiEvent>(
+          onCustomEvent: (context, event) {
+            if (event is EmailPreFilledEvent) {
+              _emailController.text = event.email;
+            }
+          },
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(
+              horizontal: 16.w,
+              vertical: 24.h,
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Email Field
+                  CustomTextFormField(
+                    label: AppStrings.email,
+                    hint: AppStrings.enterEmail,
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: AuthValidators.email,
+                    onChanged: (val) =>
+                        context.read<LoginCubit>().handle(EmailChanged(val)),
+                  ),
+                  SizedBox(height: 20.h),
 
-                    // Password Field
-                    BlocSelector<LoginCubit, LoginState, bool>(
-                      selector: (state) => state.obscurePassword,
-                      builder: (context, obscurePassword) {
-                        return CustomTextFormField(
-                          label: AppStrings.password,
-                          hint: AppStrings.enterPassword,
-                          controller: _passwordController,
-                          obscureText: obscurePassword,
-                          validator: AuthValidators.password,
-                          onChanged: (val) => context
+                  // Password Field
+                  BlocSelector<LoginCubit, LoginState, bool>(
+                    selector: (state) => state.obscurePassword,
+                    builder: (context, obscurePassword) {
+                      return CustomTextFormField(
+                        label: AppStrings.password,
+                        hint: AppStrings.enterPassword,
+                        controller: _passwordController,
+                        obscureText: obscurePassword,
+                        validator: AuthValidators.password,
+                        onChanged: (val) => context
+                            .read<LoginCubit>()
+                            .handle(PasswordChanged(val)),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            obscurePassword
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            color: AppColors.grey.shade400,
+                            size: 20.w,
+                          ),
+                          onPressed: () => context
                               .read<LoginCubit>()
-                              .handle(PasswordChanged(val)),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              obscurePassword
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                              color: AppColors.grey.shade400,
-                              size: 20.w,
-                            ),
-                            onPressed: () => context
-                                .read<LoginCubit>()
-                                .handle(TogglePasswordVisibility()),
-                          ),
-                        );
-                      },
-                    ),
-                    SizedBox(height: 12.h),
+                              .handle(TogglePasswordVisibility()),
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 12.h),
 
-                    // Remember Me & Forget Password
-                    Row(
-                      children: [
-                        SizedBox(
-                          height: 24.w,
-                          width: 24.w,
-                          child: BlocSelector<LoginCubit, LoginState, bool>(
-                            selector: (state) => state.rememberMe,
-                            builder: (context, rememberMe) {
-                              return Checkbox(
-                                value: rememberMe,
-                                activeColor: AppColors.primary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(3.r),
-                                ),
-                                side: BorderSide(
-                                  color: AppColors.grey.shade400,
-                                  width: 1.5,
-                                ),
-                                onChanged: (val) => context
-                                    .read<LoginCubit>()
-                                    .handle(RememberMeChanged(val ?? false)),
-                              );
-                            },
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          AppStrings.rememberMe,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: AppColors.black),
-                        ),
-                        const Spacer(),
-                        InkWell(
-                          onTap: () => Navigator.pushNamed(
-                            context,
-                            Routes.forgetPassword,
-                          ),
-                          child: Text(
-                            AppStrings.forgetPassword,
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: AppColors.black,
-                                  decoration: TextDecoration.underline,
-                                ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 32.h),
-
-                    // Continue Button
-                    BlocBuilder<LoginCubit, LoginState>(
-                      builder: (context, state) {
-                        return CustomButton(
-                          label: AppStrings.continueLabel,
-                          isLoading: state.isLoading,
-                          enabled: state.isFormFilled,
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              context
+                  // Remember Me & Forget Password
+                  Row(
+                    children: [
+                      SizedBox(
+                        height: 24.w,
+                        width: 24.w,
+                        child: BlocSelector<LoginCubit, LoginState, bool>(
+                          selector: (state) => state.rememberMe,
+                          builder: (context, rememberMe) {
+                            return Checkbox(
+                              value: rememberMe,
+                              activeColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(3.r),
+                              ),
+                              side: BorderSide(
+                                color: AppColors.grey.shade400,
+                                width: 1.5,
+                              ),
+                              onChanged: (val) => context
                                   .read<LoginCubit>()
-                                  .handle(LoginSubmitted());
-                            }
+                                  .handle(RememberMeChanged(val ?? false)),
+                            );
                           },
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        AppStrings.rememberMe,
+                        style: Theme.of(context).textTheme.bodySmall
+                            ?.copyWith(color: AppColors.black),
+                      ),
+                      const Spacer(),
+                      InkWell(
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          Routes.forgetPassword,
+                        ),
+                        child: Text(
+                          AppStrings.forgetPassword,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: AppColors.black,
+                                decoration: TextDecoration.underline,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 32.h),
+
+                  // Continue Button
+                  BlocBuilder<LoginCubit, LoginState>(
+                    builder: (context, state) {
+                      return CustomButton(
+                        label: AppStrings.continueLabel,
+                        isLoading: state.isLoading,
+                        enabled: state.isFormFilled,
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            context
+                                .read<LoginCubit>()
+                                .handle(LoginSubmitted());
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ),
