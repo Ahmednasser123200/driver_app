@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:driver_app/config/base/base_cubit.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_state.dart';
+import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/features/auth/domain/entities/apply_entity/applications_entity.dart';
 import 'package:driver_app/features/auth/presentation/apply/manager/apply_state.dart';
 import 'package:injectable/injectable.dart';
@@ -11,11 +13,21 @@ import '../../../domain/use_case/add_application_use_case.dart';
 import 'apply_event.dart';
 
 @injectable
-class ApplyCubit extends BaseCubit<BaseState<ApplyState>, ApplyEvent> {
-  final AddApplicationUseCase _addApplicationUseCase;
-
+class ApplyCubit extends BaseCubit<BaseState<ApplyState>, BaseUiEvent> {
   ApplyCubit(this._addApplicationUseCase)
       : super(const BaseState(data: ApplyState()));
+
+  final AddApplicationUseCase _addApplicationUseCase;
+
+  final StreamController<ApplyEvent> _applyEventController =
+  StreamController<ApplyEvent>.broadcast();
+
+  Stream<ApplyEvent> get applyEventStream => _applyEventController.stream;
+
+  void _emitApplyEvent(ApplyEvent event) {
+    if (_applyEventController.isClosed) return;
+    _applyEventController.add(event);
+  }
 
   ApplyState get _data => state.data!;
 
@@ -49,15 +61,15 @@ class ApplyCubit extends BaseCubit<BaseState<ApplyState>, ApplyEvent> {
     final data = _data;
 
     if (data.gender == null) {
-      emitEvent(const ApplyGenderMissingEvent());
+      _emitApplyEvent(const ApplyGenderMissingEvent());
       return;
     }
     if (data.vehicleLicenceFile == null) {
-      emitEvent(const ApplyLicenseMissingEvent());
+      _emitApplyEvent(const ApplyLicenseMissingEvent());
       return;
     }
     if (data.idImage == null) {
-      emitEvent(const ApplyIdImageMissingEvent());
+      _emitApplyEvent(const ApplyIdImageMissingEvent());
       return;
     }
 
@@ -85,9 +97,15 @@ class ApplyCubit extends BaseCubit<BaseState<ApplyState>, ApplyEvent> {
 
     switch (response) {
       case Success<void>():
-        emitEvent(const ApplySuccessEvent());
+        _emitApplyEvent(const ApplySuccessEvent());
       case Error<void>(:final failure):
-        emitEvent(ApplyFailureEvent(failure));
+        _emitApplyEvent(ApplyFailureEvent(failure));
     }
+  }
+
+  @override
+  Future<void> close() async {
+    await _applyEventController.close();
+    return super.close();
   }
 }
