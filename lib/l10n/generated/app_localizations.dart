@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -1016,7 +1015,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get failureUnknown;
-  String get  BadResponse;
+
+  /// No description provided for @badResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid response received from the server.'**
+  String get badResponse;
 }
 
 class _AppLocalizationsDelegate

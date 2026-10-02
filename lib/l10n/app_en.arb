@@ -170,5 +170,6 @@
   "loginSuccess": "Logged in successfully",
   "notDriverAccount": "This account is not registered as a driver in the system.",
   "failureTooManyRequests": "Too many requests. Please try again later.",
-  "failureUnknown": "Something went wrong. Please try again."
+  "failureUnknown": "Something went wrong. Please try again.",
+  "badResponse": "Invalid response received from the server."
 }

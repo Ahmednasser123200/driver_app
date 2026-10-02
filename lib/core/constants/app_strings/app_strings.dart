@@ -202,6 +202,8 @@ abstract final class AppStrings {
   static const String birthday = 'Birthday';
   static const String wedding = 'Wedding';
   static const String invalidCredentials = 'Invalid email or password';
+  static const String loggedInSuccessfully = 'Logged in successfully';
+  static const String loginFailed = 'Login failed';
   //auth strings
   static const String refreshToken = 'refresh_token';
   static const String accessToken = 'access_token';

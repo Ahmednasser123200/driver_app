@@ -5,6 +5,7 @@ class LoginState extends BaseState<LoginEntity> {
   final String email;
   final String password;
   final bool rememberMe;
+  final bool loginSuccess;
   final bool obscurePassword;
 
   const LoginState({
@@ -12,16 +13,20 @@ class LoginState extends BaseState<LoginEntity> {
     this.password = '',
     this.rememberMe = false,
     this.obscurePassword = true,
+    this.loginSuccess = false,
     super.isLoading,
     super.errorMessage,
     super.data,
   });
+
+  bool get isFormFilled => email.trim().isNotEmpty && password.isNotEmpty;
 
   @override
   LoginState copyWith({
     String? email,
     String? password,
     bool? rememberMe,
+    bool? loginSuccess,
     bool? obscurePassword,
     bool? isLoading,
     String? errorMessage,
@@ -31,6 +36,7 @@ class LoginState extends BaseState<LoginEntity> {
       email: email ?? this.email,
       password: password ?? this.password,
       rememberMe: rememberMe ?? this.rememberMe,
+      loginSuccess: loginSuccess ?? this.loginSuccess,
       obscurePassword: obscurePassword ?? this.obscurePassword,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
@@ -44,6 +50,7 @@ class LoginState extends BaseState<LoginEntity> {
     email,
     password,
     rememberMe,
+    loginSuccess,
     obscurePassword,
   ];
 }

@@ -88,7 +88,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i889.LoginCubit>(
       () => _i889.LoginCubit(
         gh<_i973.LoginUseCase>(),
-        gh<_i688.SecureStorageService>(),
+        gh<_i705.SaveRememberedEmailUseCase>(),
+        gh<_i25.DeleteRememberedEmailUseCase>(),
+        gh<_i481.LoadRememberedEmailUseCase>(),
       ),
     );
     return this;
