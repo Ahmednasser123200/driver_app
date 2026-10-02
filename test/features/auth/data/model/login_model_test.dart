@@ -1,23 +1,21 @@
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:driver_app/features/auth/data/model/data_dto.dart';
 import 'package:driver_app/features/auth/data/model/request/login_request/login_request.dart';
 import 'package:driver_app/features/auth/data/model/response/login_response/login_response.dart';
-import 'package:driver_app/features/auth/data/model/data_dto.dart';
 import 'package:driver_app/features/auth/data/model/user_dto.dart';
 import 'package:driver_app/features/auth/domain/entities/login_entity/login_credentials.dart';
-import 'package:driver_app/features/auth/domain/entities/login_entity/login_entity.dart';
-import 'package:driver_app/features/auth/domain/entities/login_entity/user_entity.dart';
 
 void main() {
   group('LoginCredentials', () {
-    test('creates LoginCredentials instance correctly', () {
+    test('creates LoginCredentials instance correctly with given properties', () {
       const credentials = LoginCredentials(
         email: 'test@driver.com',
         password: 'password123',
       );
 
-      expect(credentials.email, 'test@driver.com');
-      expect(credentials.password, 'password123');
+      expect(credentials.email, equals('test@driver.com'));
+      expect(credentials.password, equals('password123'));
     });
   });
 
@@ -32,16 +30,16 @@ void main() {
 
       final request = LoginRequest.fromJson(jsonMap);
 
-      expect(request.email, 'driver@test.com');
-      expect(request.password, 'password123');
-      expect(request.deviceId, 'device_123');
-      expect(request.fcmToken, 'fcm_token_123');
+      expect(request.email, equals('driver@test.com'));
+      expect(request.password, equals('password123'));
+      expect(request.deviceId, equals('device_123'));
+      expect(request.fcmToken, equals('fcm_token_123'));
 
       final serialized = request.toJson();
-      expect(serialized['email'], 'driver@test.com');
-      expect(serialized['password'], 'password123');
-      expect(serialized['deviceId'], 'device_123');
-      expect(serialized['fcmToken'], 'fcm_token_123');
+      expect(serialized['email'], equals('driver@test.com'));
+      expect(serialized['password'], equals('password123'));
+      expect(serialized['deviceId'], equals('device_123'));
+      expect(serialized['fcmToken'], equals('fcm_token_123'));
     });
 
     test('loginRequestFromJson and loginRequestToJson helper functions work correctly', () {
@@ -53,7 +51,7 @@ void main() {
       });
 
       final request = loginRequestFromJson(jsonString);
-      expect(request.email, 'test@test.com');
+      expect(request.email, equals('test@test.com'));
 
       final stringOutput = loginRequestToJson(request);
       expect(stringOutput, contains('test@test.com'));
@@ -75,12 +73,37 @@ void main() {
       };
 
       final dto1 = UserDto.fromJson(jsonMap1);
-      expect(dto1.id, '123');
-      expect(dto1.fullName, 'John Driver');
+      expect(dto1.id, equals('123'));
+      expect(dto1.fullName, equals('John Driver'));
 
       final jsonMap2 = {'id': 456};
       final dto2 = UserDto.fromJson(jsonMap2);
-      expect(dto2.id, '456');
+      expect(dto2.id, equals('456'));
+    });
+
+    test('toJson serializes UserDto correctly', () {
+      final dto = UserDto(
+        id: 'usr_100',
+        fullName: 'Test Driver',
+        email: 'test@driver.com',
+        phoneNumber: '0123456789',
+        gender: 'Male',
+        role: 'Driver',
+        photoUrl: 'http://example.com/photo.jpg',
+        status: 'Active',
+        isActive: true,
+      );
+
+      final jsonMap = dto.toJson();
+      expect(jsonMap['id'], equals('usr_100'));
+      expect(jsonMap['fullName'], equals('Test Driver'));
+      expect(jsonMap['email'], equals('test@driver.com'));
+      expect(jsonMap['phoneNumber'], equals('0123456789'));
+      expect(jsonMap['gender'], equals('Male'));
+      expect(jsonMap['role'], equals('Driver'));
+      expect(jsonMap['photoUrl'], equals('http://example.com/photo.jpg'));
+      expect(jsonMap['status'], equals('Active'));
+      expect(jsonMap['isActive'], isTrue);
     });
 
     test('toUserEntity converts UserDto to UserEntity accurately', () {
@@ -97,13 +120,13 @@ void main() {
       );
 
       final entity = dto.toUserEntity();
-      expect(entity.id, 'usr_1');
-      expect(entity.fullName, 'Jane Driver');
-      expect(entity.email, 'jane@driver.com');
-      expect(entity.phoneNumber, '0987654321');
-      expect(entity.gender, 'Female');
-      expect(entity.role, 'Driver');
-      expect(entity.status, 'Active');
+      expect(entity.id, equals('usr_1'));
+      expect(entity.fullName, equals('Jane Driver'));
+      expect(entity.email, equals('jane@driver.com'));
+      expect(entity.phoneNumber, equals('0987654321'));
+      expect(entity.gender, equals('Female'));
+      expect(entity.role, equals('Driver'));
+      expect(entity.status, equals('Active'));
     });
 
     test('toUserEntity handles status fallback to isActive when status is null', () {
@@ -119,12 +142,24 @@ void main() {
       );
 
       final entity = dto.toUserEntity();
-      expect(entity.status, 'Active');
+      expect(entity.status, equals('Active'));
+    });
+
+    test('toUserEntity handles status fallback to Inactive when status is null and isActive is false', () {
+      final dto = UserDto(
+        id: 'usr_3',
+        fullName: 'Driver Three',
+        status: null,
+        isActive: false,
+      );
+
+      final entity = dto.toUserEntity();
+      expect(entity.status, equals('Inactive'));
     });
   });
 
   group('LoginDataDto', () {
-    test('fromJson and toLoginEntity work as expected', () {
+    test('fromJson, toJson and toLoginEntity work as expected', () {
       final jsonMap = {
         'accessToken': 'access_123',
         'refreshToken': 'refresh_123',
@@ -142,28 +177,31 @@ void main() {
       };
 
       final dataDto = LoginDataDto.fromJson(jsonMap);
-      expect(dataDto.accessToken, 'access_123');
-      expect(dataDto.refreshToken, 'refresh_123');
-      expect(dataDto.expiresIn, 3600);
-      expect(dataDto.driverStatus, 'Approved');
-      expect(dataDto.user?.fullName, 'Driver One');
+      expect(dataDto.accessToken, equals('access_123'));
+      expect(dataDto.refreshToken, equals('refresh_123'));
+      expect(dataDto.expiresIn, equals(3600));
+      expect(dataDto.driverStatus, equals('Approved'));
+      expect(dataDto.user?.fullName, equals('Driver One'));
+
+      final jsonOutput = dataDto.toJson();
+      expect(jsonOutput['accessToken'], equals('access_123'));
 
       final loginEntity = dataDto.toLoginEntity();
-      expect(loginEntity.accessToken, 'access_123');
-      expect(loginEntity.refreshToken, 'refresh_123');
-      expect(loginEntity.expiresIn, 3600);
-      expect(loginEntity.driverStatus, 'Approved');
-      expect(loginEntity.user?.fullName, 'Driver One');
+      expect(loginEntity.accessToken, equals('access_123'));
+      expect(loginEntity.refreshToken, equals('refresh_123'));
+      expect(loginEntity.expiresIn, equals(3600));
+      expect(loginEntity.driverStatus, equals('Approved'));
+      expect(loginEntity.user?.fullName, equals('Driver One'));
     });
 
-    test('toLoginEntity handles null fields gracefully', () {
+    test('toLoginEntity handles null fields gracefully with default values', () {
       final dataDto = LoginDataDto();
       final entity = dataDto.toLoginEntity();
 
-      expect(entity.accessToken, '');
-      expect(entity.refreshToken, '');
-      expect(entity.expiresIn, 0);
-      expect(entity.driverStatus, '');
+      expect(entity.accessToken, isEmpty);
+      expect(entity.refreshToken, isEmpty);
+      expect(entity.expiresIn, equals(0));
+      expect(entity.driverStatus, isEmpty);
       expect(entity.user, isNull);
     });
   });
@@ -184,9 +222,9 @@ void main() {
 
       final response = LoginResponse.fromJson(jsonMap);
       expect(response.isSuccess, isTrue);
-      expect(response.errorCode, 200);
-      expect(response.message, 'Success');
-      expect(response.data?.accessToken, 'token_abc');
+      expect(response.errorCode, equals(200));
+      expect(response.message, equals('Success'));
+      expect(response.data?.accessToken, equals('token_abc'));
     });
 
     test('fromJson handles direct accessToken root response json', () {
@@ -199,10 +237,10 @@ void main() {
 
       final response = LoginResponse.fromJson(jsonMap);
       expect(response.isSuccess, isTrue);
-      expect(response.errorCode, 200);
-      expect(response.message, 'Login successful.');
-      expect(response.data?.accessToken, 'direct_access_token');
-      expect(response.data?.driverStatus, 'Approved');
+      expect(response.errorCode, equals(200));
+      expect(response.message, equals('Login successful.'));
+      expect(response.data?.accessToken, equals('direct_access_token'));
+      expect(response.data?.driverStatus, equals('Approved'));
     });
 
     test('toJson serializes correctly', () {
@@ -215,8 +253,8 @@ void main() {
 
       final jsonMap = response.toJson();
       expect(jsonMap['isSuccess'], isTrue);
-      expect(jsonMap['errorCode'], 200);
-      expect(jsonMap['message'], 'OK');
+      expect(jsonMap['errorCode'], equals(200));
+      expect(jsonMap['message'], equals('OK'));
       expect(jsonMap['data'], isNotNull);
     });
   });

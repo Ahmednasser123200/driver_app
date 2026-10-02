@@ -41,9 +41,9 @@ class LoginCubit extends BaseCubit<LoginState, BaseUiEvent> {
       case TogglePasswordVisibility():
         emit(state.copyWith(obscurePassword: !state.obscurePassword));
       case LoginSubmitted():
-        _login();
+        await _login();
       case LoadRememberedEmail():
-        _loadRememberedEmail();
+        await _loadRememberedEmail();
     }
   }
 
@@ -75,7 +75,8 @@ class LoginCubit extends BaseCubit<LoginState, BaseUiEvent> {
         emit(state.copyWith(isLoading: false, data: login, loginSuccess: true));
         emitEvent(const ShowSuccessMessage(AppStrings.loggedInSuccessfully));
 
-        if (login.driverStatus.toLowerCase() == AppStrings.statusPending) {
+        if (login.driverStatus.toLowerCase() ==
+            AppStrings.statusPending.toLowerCase()) {
           emitEvent(const ShowErrorMessage(message: AppStrings.loginFailed));
         } else {
           emitEvent(const NavigateTo(Routes.home));

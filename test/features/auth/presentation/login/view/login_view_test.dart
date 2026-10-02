@@ -35,11 +35,11 @@ void main() {
     registerFallbackValue(RememberMeChanged(false));
     registerFallbackValue(TogglePasswordVisibility());
     registerFallbackValue(LoginSubmitted());
-    registerFallbackValue(LoadSavedEmail());
+    registerFallbackValue(LoadRememberedEmail());
   });
 
-  setUp(() {
-    getIt.reset();
+  setUp(() async {
+    await getIt.reset();
     mockLoginCubit = MockLoginCubit();
 
     when(() => mockLoginCubit.state).thenReturn(const LoginState());
@@ -51,25 +51,20 @@ void main() {
   });
 
   group('LoginView Widget Tests', () {
-    testWidgets('renders all initial UI elements correctly', (tester) async {
+    testWidgets('renders initial UI elements correctly', (tester) async {
       await tester.pumpWidget(createTestableWidget(const LoginView()));
       await tester.pumpAndSettle();
 
-      // Verify text fields
       expect(find.byType(TextFormField), findsNWidgets(2));
-
-      // Verify checkbox
       expect(find.byType(Checkbox), findsOneWidget);
-
-      // Verify custom button
       expect(find.byType(ElevatedButton), findsOneWidget);
     });
 
-    testWidgets('dispatches LoadSavedEmail on init', (tester) async {
+    testWidgets('dispatches LoadRememberedEmail on view initialization', (tester) async {
       await tester.pumpWidget(createTestableWidget(const LoginView()));
       await tester.pumpAndSettle();
 
-      verify(() => mockLoginCubit.handle(any(that: isA<LoadSavedEmail>()))).called(1);
+      verify(() => mockLoginCubit.handle(any(that: isA<LoadRememberedEmail>()))).called(1);
     });
 
     testWidgets('dispatches EmailChanged when email input changes', (tester) async {
@@ -78,6 +73,7 @@ void main() {
 
       final emailField = find.byType(TextFormField).first;
       await tester.enterText(emailField, 'driver@test.com');
+      await tester.pumpAndSettle();
 
       verify(() => mockLoginCubit.handle(any(that: isA<EmailChanged>())))
           .called(greaterThanOrEqualTo(1));
@@ -89,6 +85,7 @@ void main() {
 
       final passwordField = find.byType(TextFormField).at(1);
       await tester.enterText(passwordField, 'password123');
+      await tester.pumpAndSettle();
 
       verify(() => mockLoginCubit.handle(any(that: isA<PasswordChanged>())))
           .called(greaterThanOrEqualTo(1));
@@ -102,7 +99,7 @@ void main() {
       expect(visibilityIcon, findsOneWidget);
 
       await tester.tap(visibilityIcon);
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       verify(() => mockLoginCubit.handle(any(that: isA<TogglePasswordVisibility>()))).called(1);
     });
@@ -113,12 +110,12 @@ void main() {
 
       final checkbox = find.byType(Checkbox);
       await tester.tap(checkbox);
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       verify(() => mockLoginCubit.handle(any(that: isA<RememberMeChanged>()))).called(1);
     });
 
-    testWidgets('dispatches LoginSubmitted when form is filled, valid and button is pressed', (tester) async {
+    testWidgets('dispatches LoginSubmitted when form is filled and button is pressed', (tester) async {
       when(() => mockLoginCubit.state).thenReturn(
         const LoginState(
           email: 'valid@email.com',

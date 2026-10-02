@@ -21,6 +21,7 @@ class LoginView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
+      lazy: false,
       create: (context) => getIt<LoginCubit>(),
       child: const _LoginViewContent(),
     );
