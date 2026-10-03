@@ -20,9 +20,12 @@ void main() {
       cubit.close();
     });
 
-    testWidgets('handles ShowSuccessMessage and NavigateTo events', (tester) async {
-      final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-      
+    testWidgets('handles ShowSuccessMessage and NavigateTo events', (
+      tester,
+    ) async {
+      final GlobalKey<NavigatorState> navigatorKey =
+          GlobalKey<NavigatorState>();
+
       await tester.pumpWidget(
         MaterialApp(
           navigatorKey: navigatorKey,

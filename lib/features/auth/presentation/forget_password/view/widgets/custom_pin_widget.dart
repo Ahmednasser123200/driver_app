@@ -102,43 +102,43 @@ class CustomPinWidget extends StatelessWidget {
                 },
               ),
             ],
-)
-      else ...[
-        Text(
-          l10n.otpAttemptsRemaining(state.verifyAttemptsRemaining),
-          style: textTheme.bodySmall?.copyWith(
-            color: AppColors.black.withValues(alpha: 0.54),
+          )
+        else ...[
+          Text(
+            l10n.otpAttemptsRemaining(state.verifyAttemptsRemaining),
+            style: textTheme.bodySmall?.copyWith(
+              color: AppColors.black.withValues(alpha: 0.54),
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          alignment: WrapAlignment.center,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Text('${l10n.didntReceiveCode} ', style: textTheme.bodyLarge),
-            if (state.canResendOtp)
-              _ActionLink(
-                text: l10n.resendAvailable,
-                textTheme: textTheme,
-                onTap: () {
-                  cubit.doEvent(ResendOtpEvent(email: email));
-                },
-              )
-            else
-              BlocSelector<ForgetPasswordCubit, ForgetPasswordState, int>(
-                selector: (state) => state.resendSecondsRemaining,
-                builder: (context, secondsRemaining) {
-                  return Text(
-                    l10n.resendInSeconds(secondsRemaining),
-                    style: textTheme.bodyLarge?.copyWith(
-                      color: AppColors.black.withValues(alpha: 0.54),
-                    ),
-                  );
-                },
-              ),
-          ],
-        ),
-      ],
+          const SizedBox(height: 8),
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text('${l10n.didntReceiveCode} ', style: textTheme.bodyLarge),
+              if (state.canResendOtp)
+                _ActionLink(
+                  text: l10n.resendAvailable,
+                  textTheme: textTheme,
+                  onTap: () {
+                    cubit.doEvent(ResendOtpEvent(email: email));
+                  },
+                )
+              else
+                BlocSelector<ForgetPasswordCubit, ForgetPasswordState, int>(
+                  selector: (state) => state.resendSecondsRemaining,
+                  builder: (context, secondsRemaining) {
+                    return Text(
+                      l10n.resendInSeconds(secondsRemaining),
+                      style: textTheme.bodyLarge?.copyWith(
+                        color: AppColors.black.withValues(alpha: 0.54),
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ],
       ],
     );
   }

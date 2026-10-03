@@ -129,11 +129,7 @@ ForgetPasswordCubit createForgetPasswordCubit({
   required VerifyOtpUseCase verifyUserCase,
   required ResetPasswordUserCase resetUserCase,
 }) {
-  return ForgetPasswordCubit(
-    forgetUserCase,
-    verifyUserCase,
-    resetUserCase,
-  );
+  return ForgetPasswordCubit(forgetUserCase, verifyUserCase, resetUserCase);
 }
 
 /// Clears the global container and re-registers the generic response dummies.
