@@ -3,7 +3,7 @@ import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/auth/api/client/auth_api_client.dart';
 import 'package:driver_app/features/auth/api/data_source_impl/remote/remote_data_source_impl.dart';
-import 'package:driver_app/features/auth/data/model/data_dto.dart';
+import 'package:driver_app/features/auth/data/model/verify_otp_data_dto.dart';
 import 'package:driver_app/features/auth/data/model/request/forget_request/forgot_password_request_dto.dart';
 import 'package:driver_app/features/auth/data/model/request/forget_request/reset_password_request_dto.dart';
 import 'package:driver_app/features/auth/data/model/request/forget_request/verify_otp_request.dart';
@@ -74,7 +74,7 @@ void main() {
       expect((result as Success<ForgotPasswordResponseDto>).data, dto);
     });
 
-    test('returns BadRequestFailure carrying the server message', () async {
+    test('returns ServerFailure carrying the server message', () async {
       when(apiClient.forgotPassword(any)).thenAnswer(
         (_) async => ForgotPasswordResponseDto(
           data: '',
@@ -87,9 +87,9 @@ void main() {
       final result = await dataSource.forgotPassword(request);
 
       final failure = (result as Error<ForgotPasswordResponseDto>).failure;
-      expect(failure, isA<BadRequestFailure>());
+      expect(failure, isA<ServerFailure>());
       expect(
-        (failure as BadRequestFailure).serverMessage,
+        (failure as ServerFailure).serverMessage,
         'Email does not exist',
       );
     });
@@ -108,7 +108,7 @@ void main() {
 
       expect(
         ((result as Error<ForgotPasswordResponseDto>).failure
-                as BadRequestFailure)
+                as ServerFailure)
             .serverMessage,
         isNull,
       );
@@ -160,7 +160,7 @@ void main() {
           isSuccess: true,
           errorCode: 0,
           message: 'ok',
-          data: Datadto(resetToken: 'token-abc'),
+          data: VerifyOtpDataDto(resetToken: 'token-abc'),
         );
         when(apiClient.verifyOtp(any)).thenAnswer((_) async => response);
 
@@ -173,7 +173,7 @@ void main() {
       },
     );
 
-    test('returns BadRequestFailure when isSuccess is not true', () async {
+    test('returns UnauthorizedFailure when isSuccess is not true', () async {
       when(apiClient.verifyOtp(any)).thenAnswer(
         (_) async => VerifyOtpResponse(
           isSuccess: false,
@@ -187,8 +187,8 @@ void main() {
       );
 
       final failure = (result as Error<VerifyOtpResponse>).failure;
-      expect(failure, isA<BadRequestFailure>());
-      expect((failure as BadRequestFailure).serverMessage, 'Invalid code');
+      expect(failure, isA<UnauthorizedFailure>());
+      expect((failure as UnauthorizedFailure).serverMessage, 'Invalid code');
     });
 
     test(
@@ -199,7 +199,7 @@ void main() {
             isSuccess: true,
             errorCode: 0,
             message: 'ok',
-            data: Datadto(),
+            data: VerifyOtpDataDto(),
           ),
         );
 
@@ -246,7 +246,7 @@ void main() {
       expect((result as Success<ResetPasswordResponseDto>).data, dto);
     });
 
-    test('returns BadRequestFailure when isSuccess is false', () async {
+    test('returns UnauthorizedFailure when isSuccess is false', () async {
       when(apiClient.resetPassword(any)).thenAnswer(
         (_) async => ResetPasswordResponseDto(
           data: '',
@@ -259,8 +259,8 @@ void main() {
       final result = await dataSource.resetPassword(resetRequest);
 
       final failure = (result as Error<ResetPasswordResponseDto>).failure;
-      expect(failure, isA<BadRequestFailure>());
-      expect((failure as BadRequestFailure).serverMessage, 'Token expired');
+      expect(failure, isA<UnauthorizedFailure>());
+      expect((failure as UnauthorizedFailure).serverMessage, 'Token expired');
     });
 
     test('maps a DioException to a typed failure', () async {

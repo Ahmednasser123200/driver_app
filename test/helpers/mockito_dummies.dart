@@ -1,6 +1,6 @@
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
-import 'package:driver_app/features/auth/data/model/data_dto.dart';
+import 'package:driver_app/features/auth/data/model/verify_otp_data_dto.dart';
 import 'package:driver_app/features/auth/data/model/response/forget_response/forgot_password_response_dto.dart';
 import 'package:driver_app/features/auth/data/model/response/forget_response/reset_password_response_dto.dart';
 import 'package:driver_app/features/auth/data/model/response/forget_response/verify_otp_response.dart';
@@ -27,8 +27,8 @@ void registerAuthDummies() {
   provideDummy<BaseResponse<VerifyOtpEntity>>(
     Error<VerifyOtpEntity>(const NotFoundFailure()),
   );
-  provideDummy<BaseResponse<ResetPassswordEntity>>(
-    Error<ResetPassswordEntity>(const NotFoundFailure()),
+  provideDummy<BaseResponse<ResetPasswordEntity>>(
+    Error<ResetPasswordEntity>(const NotFoundFailure()),
   );
 
   provideDummy<ForgotPasswordResponseDto>(
@@ -50,7 +50,7 @@ void registerAuthDummies() {
       isSuccess: false,
     ),
   );
-  provideDummy<Datadto>(Datadto());
+  provideDummy<VerifyOtpDataDto>(VerifyOtpDataDto());
 
   // The remote data source returns the generic wrapper around the raw DTOs.
   provideDummy<BaseResponse<ForgotPasswordResponseDto>>(

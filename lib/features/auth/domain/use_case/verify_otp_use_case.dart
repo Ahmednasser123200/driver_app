@@ -1,15 +1,16 @@
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:injectable/injectable.dart';
 
+import '../entities/forget_entity/verify_oto_entity.dart';
 import '../repo/auth_repo.dart';
 
 @injectable
-class VerifyOtpUserCase {
+class VerifyOtpUseCase {
   final AuthRepo authRepo;
 
-  VerifyOtpUserCase(this.authRepo);
+  VerifyOtpUseCase(this.authRepo);
 
-  Future<BaseResponse<dynamic>> call({
+  Future<BaseResponse<VerifyOtpEntity>> call({
     required String email,
     required String otp,
   }) {

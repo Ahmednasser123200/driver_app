@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'dart:convert';
 
-import '../../data_dto.dart';
+import '../../verify_otp_data_dto.dart';
 
 part 'verify_otp_response.g.dart';
 
@@ -14,21 +14,21 @@ String verifyotpresponseToJson(VerifyOtpResponse data) =>
 @JsonSerializable()
 class VerifyOtpResponse {
   @JsonKey(name: 'isSuccess')
-  bool? isSuccess;
+  final bool? isSuccess;
   @JsonKey(name: 'errorCode')
-  int? errorCode;
+  final int? errorCode;
   @JsonKey(name: 'message')
-  String? message;
+  final String? message;
   @JsonKey(name: 'data')
-  Datadto? data;
+  final VerifyOtpDataDto? data;
 
-  VerifyOtpResponse({this.isSuccess, this.errorCode, this.message, this.data});
+  const VerifyOtpResponse({this.isSuccess, this.errorCode, this.message, this.data});
 
   factory VerifyOtpResponse.fromJson(Map<String, dynamic> json) {
     if (json.containsKey('value')) {
       final value = json['value'];
       final data = value is Map<String, dynamic>
-          ? Datadto.fromJson(value)
+          ? VerifyOtpDataDto.fromJson(value)
           : null;
       return VerifyOtpResponse(
         isSuccess: json['isSuccess'] == true,
@@ -46,7 +46,7 @@ class VerifyOtpResponse {
         isSuccess: true,
         errorCode: 0,
         message: 'Operation completed successfully.',
-        data: Datadto.fromJson(json),
+        data: VerifyOtpDataDto.fromJson(json),
       );
     }
     return _$VerifyOtpResponseFromJson(json);

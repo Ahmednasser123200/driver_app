@@ -10,7 +10,7 @@ class ResetPasswordUserCase {
 
   ResetPasswordUserCase(this.authRepo);
 
-  Future<BaseResponse<ResetPassswordEntity>> call({
+  Future<BaseResponse<ResetPasswordEntity>> call({
     required String email,
     required String otp,
     required String password,

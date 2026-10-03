@@ -5,25 +5,23 @@ import 'package:driver_app/config/routing/routes.dart';
 import 'package:driver_app/features/auth/domain/entities/forget_entity/forget_password_entity.dart';
 import 'package:driver_app/features/auth/domain/entities/forget_entity/reset_passsword_entity.dart';
 import 'package:driver_app/features/auth/domain/entities/forget_entity/verify_oto_entity.dart';
-import 'package:driver_app/features/auth/domain/use_case/forget_password_user_case.dart';
-import 'package:driver_app/features/auth/domain/use_case/reset_password_user_case.dart';
-import 'package:driver_app/features/auth/domain/use_case/verify_otp_user_case.dart';
+import 'package:driver_app/features/auth/domain/use_case/forget_password_use_case.dart';
+import 'package:driver_app/features/auth/domain/use_case/reset_password_use_case.dart';
+import 'package:driver_app/features/auth/domain/use_case/verify_otp_use_case.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_cubit.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_event.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_state.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 
-import '../../../../../../helpers/mockito_dummies.dart';
-import 'forget_password_cubit_test.mocks.dart';
+class MockForgetPasswordUserCase extends Mock
+    implements ForgetPasswordUserCase {}
 
-@GenerateNiceMocks(<MockSpec<Object>>[
-  MockSpec<ForgetPasswordUserCase>(),
-  MockSpec<VerifyOtpUserCase>(),
-  MockSpec<ResetPasswordUserCase>(),
-])
+class MockVerifyOtpUserCase extends Mock implements VerifyOtpUseCase {}
+
+class MockResetPasswordUserCase extends Mock implements ResetPasswordUserCase {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -37,43 +35,46 @@ void main() {
   late ForgetPasswordCubit cubit;
   late List<BaseUiEvent> uiEvents;
 
-  void stubVerifyOtp(Future<BaseResponse<dynamic>> Function() answer) {
+  void stubVerifyOtp(Future<BaseResponse<VerifyOtpEntity>> Function() answer) {
     when(
-      verifyUserCase.call(email: anyNamed('email'), otp: anyNamed('otp')),
+      () => verifyUserCase.call(email: any(named: 'email'), otp: any(named: 'otp')),
     ).thenAnswer((_) => answer());
   }
 
-  void stubForgetPassword(Future<BaseResponse<dynamic>> Function() answer) {
+  void stubForgetPassword(Future<BaseResponse<ForgetPasswordEntity>> Function() answer) {
     when(
-      forgetUserCase.call(email: anyNamed('email')),
+      () => forgetUserCase.call(email: any(named: 'email')),
     ).thenAnswer((_) => answer());
   }
 
   void stubResetPassword(
-    Future<BaseResponse<ResetPassswordEntity>> Function() answer,
+    Future<BaseResponse<ResetPasswordEntity>> Function() answer,
   ) {
     when(
-      resetUserCase.call(
-        email: anyNamed('email'),
-        otp: anyNamed('otp'),
-        password: anyNamed('password'),
+      () => resetUserCase.call(
+        email: any(named: 'email'),
+        otp: any(named: 'otp'),
+        password: any(named: 'password'),
       ),
     ).thenAnswer((_) => answer());
   }
 
-  Future<BaseResponse<dynamic>> sentOk() async =>
-      Success<dynamic>(ForgetPasswordEntity(isSuccess: true, message: 'sent'));
+  Future<BaseResponse<ForgetPasswordEntity>> sentOk() async =>
+      Success<ForgetPasswordEntity>(ForgetPasswordEntity(isSuccess: true, message: 'sent'));
 
   setUp(() {
-    registerAuthDummies();
     forgetUserCase = MockForgetPasswordUserCase();
     verifyUserCase = MockVerifyOtpUserCase();
     resetUserCase = MockResetPasswordUserCase();
-    cubit = ForgetPasswordCubit(forgetUserCase, verifyUserCase, resetUserCase);
+    cubit = ForgetPasswordCubit(
+      forgetUserCase,
+      verifyUserCase,
+      resetUserCase,
+    );
     uiEvents = [];
     cubit.uiEventStream.listen(uiEvents.add);
 
-    stubVerifyOtp(() async => const Error<dynamic>(BadRequestFailure()));
+    stubVerifyOtp(() async => const Error<VerifyOtpEntity>(BadRequestFailure()));
   });
 
   tearDown(() => cubit.close());
@@ -86,32 +87,25 @@ void main() {
   T firstEventOfType<T extends BaseUiEvent>() => uiEvents.whereType<T>().first;
 
   group('forget password', () {
-    test('rejects an empty email without calling the repo', () async {
-      await cubit.doEvent(ForgetBassEvent(email: ''));
+    test('delegates to the use case (input validation lives in the UI Form)', () async {
+      stubForgetPassword(sentOk);
+
+      await cubit.doEvent(ForgetPasswordEvent(email: email));
       await pumpEventQueue();
 
-      expect(cubit.state.forgotstate.errorMessage, isNotEmpty);
-      expect(cubit.state.forgotstate.isLoading, isFalse);
-      verifyNever(forgetUserCase.call(email: anyNamed('email')));
-      expect(firstEventOfType<ShowErrorMessage>(), isA<ShowErrorMessage>());
-    });
-
-    test('rejects a malformed email without calling the repo', () async {
-      await cubit.doEvent(ForgetBassEvent(email: 'not-an-email'));
-      await pumpEventQueue();
-
-      expect(cubit.state.forgotstate.errorMessage, isNotEmpty);
-      verifyNever(forgetUserCase.call(email: anyNamed('email')));
+      verify(() => forgetUserCase.call(email: email)).called(1);
+      expect(cubit.state.forgotState.isLoading, isFalse);
+      expect(cubit.state.forgotState.failure, isNull);
     });
 
     test('navigates to verification carrying the email', () async {
       stubForgetPassword(sentOk);
 
-      await cubit.doEvent(ForgetBassEvent(email: email));
+      await cubit.doEvent(ForgetPasswordEvent(email: email));
       await pumpEventQueue();
 
-      expect(cubit.state.forgotstate.isLoading, isFalse);
-      expect(cubit.state.forgotstate.errorMessage, isEmpty);
+      expect(cubit.state.forgotState.isLoading, isFalse);
+      expect(cubit.state.forgotState.failure, isNull);
 
       final navigate = firstEventOfType<NavigateTo>();
       expect(navigate.routeName, Routes.verificationCode);
@@ -120,13 +114,13 @@ void main() {
     });
 
     test('surfaces a server failure', () async {
-      stubForgetPassword(() async => const Error<dynamic>(NotFoundFailure()));
+      stubForgetPassword(() async => const Error<ForgetPasswordEntity>(NotFoundFailure()));
 
-      await cubit.doEvent(ForgetBassEvent(email: email));
+      await cubit.doEvent(ForgetPasswordEvent(email: email));
       await pumpEventQueue();
 
-      expect(cubit.state.forgotstate.errorMessage, isNotEmpty);
-      expect(firstEventOfType<ShowErrorMessage>(), isA<ShowErrorMessage>());
+      expect(cubit.state.forgotState.failure, isA<NotFoundFailure>());
+      expect(firstEventOfType<ShowErrorMessage>().failure, isA<NotFoundFailure>());
       expect(uiEvents.whereType<NavigateTo>(), isEmpty);
     });
   });
@@ -154,14 +148,14 @@ void main() {
 
     test('leaves the attempt budget untouched on failure', () async {
       stubForgetPassword(
-        () async => const Error<dynamic>(TooManyRequestsFailure()),
+        () async => const Error<ForgetPasswordEntity>(TooManyRequestsFailure()),
       );
 
       await cubit.doEvent(ResendOtpEvent(email: email));
       await pumpEventQueue();
 
       expect(cubit.state.verifyAttemptsRemaining, OtpPolicy.maxVerifyAttempts);
-      expect(cubit.state.resendOtpState.errorMessage, isNotEmpty);
+      expect(cubit.state.resendOtpState.failure, isA<TooManyRequestsFailure>());
     });
   });
 
@@ -202,19 +196,25 @@ void main() {
   });
 
   group('verify otp', () {
-    test('rejects an empty otp without calling the repo', () async {
-      await cubit.doEvent(VerifyOtpEvent(otpCode: '', email: email));
+    test('delegates to the use case (input validation lives in the UI)', () async {
+      stubVerifyOtp(
+        () async => Success<VerifyOtpEntity>(
+          VerifyOtpEntity(
+            resetToken: 'token-abc',
+            expiresAtUtc: DateTime(2026, 1, 1),
+          ),
+        ),
+      );
+
+      await cubit.doEvent(VerifyOtpEvent(otpCode: otp, email: email));
       await pumpEventQueue();
 
-      expect(cubit.state.otpState.errorMessage, isNotEmpty);
-      verifyNever(
-        verifyUserCase.call(email: anyNamed('email'), otp: anyNamed('otp')),
-      );
+      verify(() => verifyUserCase.call(email: email, otp: otp)).called(1);
     });
 
     test('navigates to reset carrying the email and the reset token', () async {
       stubVerifyOtp(
-        () async => Success<dynamic>(
+        () async => Success<VerifyOtpEntity>(
           VerifyOtpEntity(
             resetToken: 'token-abc',
             expiresAtUtc: DateTime(2026, 1, 1),
@@ -264,34 +264,41 @@ void main() {
       await verifyOnce();
 
       verifyNever(
-        verifyUserCase.call(email: anyNamed('email'), otp: anyNamed('otp')),
+        () => verifyUserCase.call(email: any(named: 'email'), otp: any(named: 'otp')),
       );
       expect(cubit.state.verifyAttemptsRemaining, 0);
-      expect(firstEventOfType<ShowErrorMessage>().message, isNotEmpty);
+      expect(
+        uiEvents.whereType<ShowErrorMessage>().last.failure,
+        isA<TooManyRequestsFailure>(),
+      );
     });
   });
 
   group('reset password', () {
-    test('rejects an empty reset code without calling the repo', () async {
+    test('delegates to the use case (input validation lives in the UI Form)', () async {
+      stubResetPassword(
+        () async => const Error<ResetPasswordEntity>(BadRequestFailure()),
+      );
+
       await cubit.doEvent(
         ResetPasswordEvent(email: email, newPassword: password, resetCode: ''),
       );
       await pumpEventQueue();
 
-      expect(cubit.state.resetstate.errorMessage, isNotEmpty);
-      verifyNever(
-        resetUserCase.call(
-          email: anyNamed('email'),
-          otp: anyNamed('otp'),
-          password: anyNamed('password'),
+      verify(
+        () => resetUserCase.call(
+          email: any(named: 'email'),
+          otp: any(named: 'otp'),
+          password: any(named: 'password'),
         ),
-      );
+      ).called(1);
+      expect(cubit.state.resetState.failure, isA<BadRequestFailure>());
     });
 
     test('navigates to login on success', () async {
       stubResetPassword(
-        () async => Success<ResetPassswordEntity>(
-          ResetPassswordEntity(isSuccess: true, message: 'Password updated'),
+        () async => Success<ResetPasswordEntity>(
+          ResetPasswordEntity(isSuccess: true, message: 'Password updated'),
         ),
       );
 
@@ -304,8 +311,8 @@ void main() {
       );
       await pumpEventQueue();
 
-      expect(cubit.state.resetstate.isLoading, isFalse);
-      expect(cubit.state.resetstate.errorMessage, isEmpty);
+      expect(cubit.state.resetState.isLoading, isFalse);
+      expect(cubit.state.resetState.failure, isNull);
       expect(
         firstEventOfType<ShowSuccessMessage>().message,
         'Password updated',
@@ -315,7 +322,7 @@ void main() {
 
     test('surfaces a server failure', () async {
       stubResetPassword(
-        () async => const Error<ResetPassswordEntity>(ConflictFailure()),
+        () async => const Error<ResetPasswordEntity>(ConflictFailure()),
       );
 
       await cubit.doEvent(
@@ -327,7 +334,7 @@ void main() {
       );
       await pumpEventQueue();
 
-      expect(cubit.state.resetstate.errorMessage, isNotEmpty);
+      expect(cubit.state.resetState.failure, isA<ConflictFailure>());
       expect(uiEvents.whereType<NavigateTo>(), isEmpty);
     });
   });

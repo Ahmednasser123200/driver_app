@@ -1,22 +1,22 @@
-sealed class ForgetPasswordEvent {}
+sealed class ForgetPasswordAbstractEvent {}
 
-class VerifyOtpEvent extends ForgetPasswordEvent {
+class VerifyOtpEvent extends ForgetPasswordAbstractEvent {
   final String email;
   final String otpCode;
   VerifyOtpEvent({required this.otpCode, required this.email});
 }
 
-class ResendOtpEvent extends ForgetPasswordEvent {
+class ResendOtpEvent extends ForgetPasswordAbstractEvent {
   final String email;
   ResendOtpEvent({required this.email});
 }
 
-class ForgetBassEvent extends ForgetPasswordEvent {
+class ForgetPasswordEvent extends ForgetPasswordAbstractEvent {
   final String email;
-  ForgetBassEvent({required this.email});
+  ForgetPasswordEvent({required this.email});
 }
 
-class ResetPasswordEvent extends ForgetPasswordEvent {
+class ResetPasswordEvent extends ForgetPasswordAbstractEvent {
   final String newPassword;
   final String resetCode;
   final String email;

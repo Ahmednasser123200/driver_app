@@ -1,6 +1,7 @@
 import 'package:driver_app/features/auth/domain/entities/login_entity/user_entity.dart';
+import 'package:equatable/equatable.dart';
 
-class LoginEntity {
+class LoginEntity extends Equatable {
   final String accessToken;
   final String refreshToken;
   final int expiresIn;
@@ -14,4 +15,13 @@ class LoginEntity {
     required this.driverStatus,
     this.user,
   });
+
+  @override
+  List<Object?> get props => [
+    accessToken,
+    refreshToken,
+    expiresIn,
+    driverStatus,
+    user
+  ];
 }

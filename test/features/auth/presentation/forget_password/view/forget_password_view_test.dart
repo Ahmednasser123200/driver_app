@@ -1,22 +1,25 @@
 import 'package:driver_app/config/base/base_state.dart';
-import 'package:driver_app/config/di/di.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_cubit.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_event.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_state.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/view/forget_password_view.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockForgetPasswordCubit extends Mock implements ForgetPasswordCubit {}
+class MockForgetPasswordCubit extends Mock implements ForgetPasswordCubit {
+  @override
+  Future<void> close() async {}
+}
 
 void main() {
   late MockForgetPasswordCubit mockCubit;
 
   setUpAll(() {
-    registerFallbackValue(ForgetBassEvent(email: 'test@example.com'));
+    registerFallbackValue(ForgetPasswordEvent(email: 'test@example.com'));
   });
 
   setUp(() {
@@ -24,21 +27,15 @@ void main() {
     // Setting up an initial state
     when(
       () => mockCubit.state,
-    ).thenReturn(const ForgetPasswordState(forgotstate: BaseState()));
+    ).thenReturn(const ForgetPasswordState(forgotState: BaseState()));
     // Mock the streams and methods
     when(() => mockCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockCubit.uiEventStream).thenAnswer((_) => const Stream.empty());
-    when(() => mockCubit.close()).thenAnswer((_) async {});
     when(() => mockCubit.doEvent(any())).thenAnswer((_) async {});
-
-    // Setup GetIt
-    getIt.allowReassignment = true;
-    getIt.registerFactory<ForgetPasswordCubit>(() => mockCubit);
   });
 
-  tearDown(() {
-    mockCubit.close();
-    getIt.reset();
+  tearDown(() async {
+    await mockCubit.close();
   });
 
   Widget buildTestWidget() {
@@ -48,7 +45,10 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('en'),
-        home: const ForgetPasswordView(),
+        home: BlocProvider.value(
+          value: mockCubit,
+          child: ForgetPasswordView(cubit: mockCubit),
+        ),
       ),
     );
   }
@@ -72,6 +72,8 @@ void main() {
       await tester.tap(find.byType(ElevatedButton).first);
       await tester.pumpAndSettle();
 
+      expect(find.text('Email is required'), findsOneWidget);
+
       // Verify that cubit event wasn't dispatched
       verifyNever(() => mockCubit.doEvent(any()));
     },
@@ -93,7 +95,7 @@ void main() {
     verify(
       () => mockCubit.doEvent(
         any(
-          that: isA<ForgetBassEvent>().having(
+          that: isA<ForgetPasswordEvent>().having(
             (e) => e.email,
             'email',
             'test@example.com',
@@ -101,5 +103,34 @@ void main() {
         ),
       ),
     ).called(1);
+  });
+
+  testWidgets('shows loading indicator when cubit state is loading', (tester) async {
+    // Create a new mock with loading state
+    final loadingMockCubit = MockForgetPasswordCubit();
+    when(() => loadingMockCubit.state).thenReturn(
+      const ForgetPasswordState(forgotState: BaseState(isLoading: true)),
+    );
+    when(() => loadingMockCubit.stream).thenAnswer((_) => const Stream.empty());
+    when(() => loadingMockCubit.uiEventStream).thenAnswer((_) => const Stream.empty());
+    when(() => loadingMockCubit.doEvent(any())).thenAnswer((_) async {});
+
+    await tester.pumpWidget(
+      ScreenUtilPlusInit(
+        designSize: const Size(375, 812),
+        builder: (context, child) => MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+          home: BlocProvider.value(
+            value: loadingMockCubit,
+            child: ForgetPasswordView(cubit: loadingMockCubit),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 }

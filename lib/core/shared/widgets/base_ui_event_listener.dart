@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../config/base/base_cubit.dart';
 import '../../../config/base/base_ui_event.dart';
+import '../../../config/localization/app_failure_message_mapper.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
     extends StatefulWidget {
@@ -57,16 +59,18 @@ class _BaseUiEventListenerState<
   }
 
   void _handleEvent(BuildContext context, E event) {
-    widget.onCustomEvent?.call(context, event);
-
     switch (event) {
       case ShowSuccessMessage():
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(event.message), backgroundColor: Colors.green),
         );
-      case ShowErrorMessage():
+      case ShowErrorMessage(:final failure):
+        final l10n = AppLocalizations.of(context);
+        final message = l10n == null
+            ? failure.toString()
+            : mapAppFailureToMessage(failure, l10n);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(event.message), backgroundColor: Colors.red),
+          SnackBar(content: Text(message), backgroundColor: Colors.red),
         );
       case NavigateTo():
         Navigator.of(
@@ -74,6 +78,9 @@ class _BaseUiEventListenerState<
         ).pushNamed(event.routeName, arguments: event.arguments);
       case PopRoute():
         Navigator.of(context).pop(event.result);
+      case ClearOtpField():
+        widget.onCustomEvent?.call(context, event);
+        break;
     }
   }
 

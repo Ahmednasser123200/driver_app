@@ -4,6 +4,8 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:pinput/pinput.dart';
 
 abstract final class OtpPinTheme {
+  OtpPinTheme._();
+
   static PinTheme themeDefaultPin(TextTheme textTheme) {
     return PinTheme(
       width: 40.w,

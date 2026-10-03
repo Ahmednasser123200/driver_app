@@ -11,7 +11,7 @@ class ForgotPasswordResponseDto {
   final String message;
   @JsonKey(name: 'errorCode')
   final String errorCode;
-  @JsonKey(name: 'isSuccess')
+  @JsonKey(name: 'isSuccess', defaultValue: false)
   final bool isSuccess;
 
   ForgotPasswordResponseDto({

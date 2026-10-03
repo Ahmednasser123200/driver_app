@@ -1,3 +1,4 @@
+import 'package:driver_app/config/localization/app_failure_message_mapper.dart';
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -27,8 +28,11 @@ class CustomPinWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final cubit = context.read<ForgetPasswordCubit>();
-    final errorMessage = state.otpState.errorMessage;
-    final hasError = errorMessage.isNotEmpty;
+    final failure = state.otpState.failure;
+    final errorMessage = failure == null
+        ? ''
+        : mapAppFailureToMessage(failure, l10n);
+    final hasError = failure != null;
     final isLockedOut = state.isOtpLockedOut;
 
     return Column(
@@ -98,38 +102,43 @@ class CustomPinWidget extends StatelessWidget {
                 },
               ),
             ],
-          )
-        else ...[
-          Text(
-            l10n.otpAttemptsRemaining(state.verifyAttemptsRemaining),
-            style: textTheme.bodySmall?.copyWith(
-              color: AppColors.black.withValues(alpha: 0.54),
-            ),
+)
+      else ...[
+        Text(
+          l10n.otpAttemptsRemaining(state.verifyAttemptsRemaining),
+          style: textTheme.bodySmall?.copyWith(
+            color: AppColors.black.withValues(alpha: 0.54),
           ),
-          const SizedBox(height: 8),
-          Wrap(
-            alignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text('${l10n.didntReceiveCode} ', style: textTheme.bodyLarge),
-              if (state.canResendOtp)
-                _ActionLink(
-                  text: l10n.resendAvailable,
-                  textTheme: textTheme,
-                  onTap: () {
-                    cubit.doEvent(ResendOtpEvent(email: email));
-                  },
-                )
-              else
-                Text(
-                  l10n.resendInSeconds(state.resendSecondsRemaining),
-                  style: textTheme.bodyLarge?.copyWith(
-                    color: AppColors.black.withValues(alpha: 0.54),
-                  ),
-                ),
-            ],
-          ),
-        ],
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text('${l10n.didntReceiveCode} ', style: textTheme.bodyLarge),
+            if (state.canResendOtp)
+              _ActionLink(
+                text: l10n.resendAvailable,
+                textTheme: textTheme,
+                onTap: () {
+                  cubit.doEvent(ResendOtpEvent(email: email));
+                },
+              )
+            else
+              BlocSelector<ForgetPasswordCubit, ForgetPasswordState, int>(
+                selector: (state) => state.resendSecondsRemaining,
+                builder: (context, secondsRemaining) {
+                  return Text(
+                    l10n.resendInSeconds(secondsRemaining),
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: AppColors.black.withValues(alpha: 0.54),
+                    ),
+                  );
+                },
+              ),
+          ],
+        ),
+      ],
       ],
     );
   }
@@ -148,14 +157,23 @@ class _ActionLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Text(
-        text,
-        style: textTheme.bodyLarge?.copyWith(
-          color: AppColors.pinkBase,
-          decoration: TextDecoration.underline,
-          decorationColor: AppColors.pinkBase,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(4),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+          child: Center(
+            child: Text(
+              text,
+              style: textTheme.bodyLarge?.copyWith(
+                color: AppColors.pinkBase,
+                decoration: TextDecoration.underline,
+                decorationColor: AppColors.pinkBase,
+              ),
+            ),
+          ),
         ),
       ),
     );

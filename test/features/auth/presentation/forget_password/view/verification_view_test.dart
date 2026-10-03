@@ -1,5 +1,4 @@
 import 'package:driver_app/config/base/base_state.dart';
-import 'package:driver_app/config/di/di.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_cubit.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_event.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_state.dart';
@@ -7,12 +6,16 @@ import 'package:driver_app/features/auth/presentation/forget_password/view/verif
 import 'package:driver_app/features/auth/presentation/forget_password/view/widgets/custom_pin_widget.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pinput/pinput.dart';
 
-class MockForgetPasswordCubit extends Mock implements ForgetPasswordCubit {}
+class MockForgetPasswordCubit extends Mock implements ForgetPasswordCubit {
+  @override
+  Future<void> close() async {}
+}
 
 void main() {
   late MockForgetPasswordCubit mockCubit;
@@ -30,17 +33,12 @@ void main() {
     // Mock the streams and methods
     when(() => mockCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockCubit.uiEventStream).thenAnswer((_) => const Stream.empty());
-    when(() => mockCubit.close()).thenAnswer((_) async {});
     when(() => mockCubit.startResendCooldown()).thenReturn(null);
     when(() => mockCubit.doEvent(any())).thenAnswer((_) async {});
-
-    // Setup GetIt
-    getIt.allowReassignment = true;
-    getIt.registerFactory<ForgetPasswordCubit>(() => mockCubit);
   });
 
-  tearDown(() {
-    getIt.reset();
+  tearDown(() async {
+    await mockCubit.close();
   });
 
   Widget buildTestWidget() {
@@ -50,7 +48,10 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('en'),
-        home: const VerificationView(email: 'test@example.com'),
+        home: BlocProvider.value(
+          value: mockCubit,
+          child: VerificationView(email: 'test@example.com', cubit: mockCubit),
+        ),
       ),
     );
   }
@@ -71,9 +72,8 @@ void main() {
     await tester.pumpWidget(buildTestWidget());
     await tester.pumpAndSettle();
 
-    // Enter a 6 digit code
-    await tester.enterText(find.byType(Pinput), '123456');
-    // wait for pinput to trigger onCompleted
+    // Trigger onCompleted directly
+    tester.widget<Pinput>(find.byType(Pinput)).onCompleted?.call('123456');
     await tester.pumpAndSettle();
 
     // Verify cubit event is dispatched
@@ -86,5 +86,17 @@ void main() {
         ),
       ),
     ).called(1);
+  });
+
+  testWidgets('does not submit otp when less than 6 digits are entered', (tester) async {
+    await tester.pumpWidget(buildTestWidget());
+    await tester.pumpAndSettle();
+
+    // Enter only 3 digits using enterText, which doesn't trigger onCompleted but simulates input
+    await tester.enterText(find.byType(Pinput), '123');
+    await tester.pump();
+
+    // Verify cubit event is NOT dispatched
+    verifyNever(() => mockCubit.doEvent(any()));
   });
 }

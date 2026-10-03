@@ -2,7 +2,7 @@ import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/auth/api/service/secure_storage.dart';
 import 'package:driver_app/features/auth/data/data_source/remote_data_source/remote_data_source.dart';
-import 'package:driver_app/features/auth/data/model/data_dto.dart';
+import 'package:driver_app/features/auth/data/model/verify_otp_data_dto.dart';
 import 'package:driver_app/features/auth/data/model/request/forget_request/forgot_password_request_dto.dart';
 import 'package:driver_app/features/auth/data/model/request/forget_request/reset_password_request_dto.dart';
 import 'package:driver_app/features/auth/data/model/request/forget_request/verify_otp_request.dart';
@@ -107,7 +107,7 @@ void main() {
       isSuccess: true,
       errorCode: 0,
       message: 'ok',
-      data: Datadto(
+      data: VerifyOtpDataDto(
         resetToken: 'token-abc',
         expiresAtUtc: DateTime(2026, 1, 1),
       ),
@@ -196,9 +196,9 @@ void main() {
         password: password,
       );
 
-      expect(result, isA<Success<ResetPassswordEntity>>());
+      expect(result, isA<Success<ResetPasswordEntity>>());
       expect(
-        (result as Success<ResetPassswordEntity>).data.message,
+        (result as Success<ResetPasswordEntity>).data.message,
         'Password updated',
       );
     });
@@ -244,9 +244,9 @@ void main() {
         password: password,
       );
 
-      expect(result, isA<Error<ResetPassswordEntity>>());
+      expect(result, isA<Error<ResetPasswordEntity>>());
       expect(
-        (result as Error<ResetPassswordEntity>).failure,
+        (result as Error<ResetPasswordEntity>).failure,
         isA<ConflictFailure>(),
       );
     });

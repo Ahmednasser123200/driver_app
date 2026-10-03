@@ -2,7 +2,7 @@ import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/auth/domain/entities/forget_entity/reset_passsword_entity.dart';
 import 'package:driver_app/features/auth/domain/repo/auth_repo.dart';
-import 'package:driver_app/features/auth/domain/use_case/reset_password_user_case.dart';
+import 'package:driver_app/features/auth/domain/use_case/reset_password_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -27,19 +27,19 @@ void main() {
 
   group('ResetPasswordUserCase', () {
     test('returns the entity when the reset succeeds', () async {
-      final entity = ResetPassswordEntity(isSuccess: true, message: 'changed');
+      final entity = ResetPasswordEntity(isSuccess: true, message: 'changed');
       when(
         authRepo.resetPassword(
           email: anyNamed('email'),
           otp: anyNamed('otp'),
           password: anyNamed('password'),
         ),
-      ).thenAnswer((_) async => Success<ResetPassswordEntity>(entity));
+      ).thenAnswer((_) async => Success<ResetPasswordEntity>(entity));
 
       final result = await useCase(email: email, otp: otp, password: password);
 
-      expect(result, isA<Success<ResetPassswordEntity>>());
-      expect((result as Success<ResetPassswordEntity>).data.message, 'changed');
+      expect(result, isA<Success<ResetPasswordEntity>>());
+      expect((result as Success<ResetPasswordEntity>).data.message, 'changed');
     });
 
     test('propagates the failure untouched', () async {
@@ -50,14 +50,14 @@ void main() {
           password: anyNamed('password'),
         ),
       ).thenAnswer(
-        (_) async => const Error<ResetPassswordEntity>(ConflictFailure()),
+        (_) async => const Error<ResetPasswordEntity>(ConflictFailure()),
       );
 
       final result = await useCase(email: email, otp: otp, password: password);
 
-      expect(result, isA<Error<ResetPassswordEntity>>());
+      expect(result, isA<Error<ResetPasswordEntity>>());
       expect(
-        (result as Error<ResetPassswordEntity>).failure,
+        (result as Error<ResetPasswordEntity>).failure,
         isA<ConflictFailure>(),
       );
     });
@@ -70,8 +70,8 @@ void main() {
           password: anyNamed('password'),
         ),
       ).thenAnswer(
-        (_) async => Success<ResetPassswordEntity>(
-          ResetPassswordEntity(isSuccess: true, message: 'ok'),
+        (_) async => Success<ResetPasswordEntity>(
+          ResetPasswordEntity(isSuccess: true, message: 'ok'),
         ),
       );
 

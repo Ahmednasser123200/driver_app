@@ -13,14 +13,14 @@ abstract final class OtpPolicy {
 class ForgetPasswordState extends Equatable {
   final BaseState<VerifyOtpEntity> otpState;
   final BaseState<ForgetPasswordEntity> resendOtpState;
-  final BaseState<ForgetPasswordEntity> forgotstate;
-  final BaseState<ResetPassswordEntity> resetstate;
+  final BaseState<ForgetPasswordEntity> forgotState;
+  final BaseState<ResetPasswordEntity> resetState;
   final int resendSecondsRemaining;
   final int verifyAttemptsRemaining;
 
   const ForgetPasswordState({
-    this.forgotstate = const BaseState<ForgetPasswordEntity>(),
-    this.resetstate = const BaseState<ResetPassswordEntity>(),
+    this.forgotState = const BaseState<ForgetPasswordEntity>(),
+    this.resetState = const BaseState<ResetPasswordEntity>(),
     this.otpState = const BaseState<VerifyOtpEntity>(),
     this.resendOtpState = const BaseState<ForgetPasswordEntity>(),
     this.resendSecondsRemaining = 0,
@@ -33,14 +33,14 @@ class ForgetPasswordState extends Equatable {
   ForgetPasswordState copyWith({
     BaseState<VerifyOtpEntity>? otpState,
     BaseState<ForgetPasswordEntity>? resendOtpState,
-    BaseState<ForgetPasswordEntity>? forgotstate,
-    BaseState<ResetPassswordEntity>? resetstate,
+    BaseState<ForgetPasswordEntity>? forgotState,
+    BaseState<ResetPasswordEntity>? resetState,
     int? resendSecondsRemaining,
     int? verifyAttemptsRemaining,
   }) {
     return ForgetPasswordState(
-      forgotstate: forgotstate ?? this.forgotstate,
-      resetstate: resetstate ?? this.resetstate,
+      forgotState: forgotState ?? this.forgotState,
+      resetState: resetState ?? this.resetState,
       otpState: otpState ?? this.otpState,
       resendOtpState: resendOtpState ?? this.resendOtpState,
       resendSecondsRemaining:
@@ -54,8 +54,8 @@ class ForgetPasswordState extends Equatable {
   List<Object?> get props => [
     otpState,
     resendOtpState,
-    forgotstate,
-    resetstate,
+    forgotState,
+    resetState,
     resendSecondsRemaining,
     verifyAttemptsRemaining,
   ];

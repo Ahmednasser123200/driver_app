@@ -32,7 +32,7 @@ class AuthRepoImpl implements AuthRepo {
   }
 
   @override
-  Future<BaseResponse<ResetPassswordEntity>> resetPassword({
+  Future<BaseResponse<ResetPasswordEntity>> resetPassword({
     required String email,
     required String otp,
     required String password,

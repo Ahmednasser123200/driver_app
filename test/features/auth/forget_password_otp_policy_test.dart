@@ -1,9 +1,10 @@
+
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/auth/domain/entities/forget_entity/forget_password_entity.dart';
-import 'package:driver_app/features/auth/domain/use_case/forget_password_user_case.dart';
-import 'package:driver_app/features/auth/domain/use_case/reset_password_user_case.dart';
-import 'package:driver_app/features/auth/domain/use_case/verify_otp_user_case.dart';
+import 'package:driver_app/features/auth/domain/use_case/forget_password_use_case.dart';
+import 'package:driver_app/features/auth/domain/use_case/reset_password_use_case.dart';
+import 'package:driver_app/features/auth/domain/use_case/verify_otp_use_case.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_cubit.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_event.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_state.dart';
@@ -14,7 +15,7 @@ import 'package:mocktail/mocktail.dart';
 class MockForgetPasswordUserCase extends Mock
     implements ForgetPasswordUserCase {}
 
-class MockVerifyOtpUserCase extends Mock implements VerifyOtpUserCase {}
+class MockVerifyOtpUserCase extends Mock implements VerifyOtpUseCase {}
 
 class MockResetPasswordUserCase extends Mock implements ResetPasswordUserCase {}
 
@@ -32,7 +33,11 @@ void main() {
     forgetUserCase = MockForgetPasswordUserCase();
     verifyUserCase = MockVerifyOtpUserCase();
     resetUserCase = MockResetPasswordUserCase();
-    cubit = ForgetPasswordCubit(forgetUserCase, verifyUserCase, resetUserCase);
+    cubit = ForgetPasswordCubit(
+      forgetUserCase,
+      verifyUserCase,
+      resetUserCase,
+    );
 
     when(
       () => verifyUserCase.call(

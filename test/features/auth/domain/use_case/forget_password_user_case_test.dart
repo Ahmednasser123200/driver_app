@@ -2,7 +2,7 @@ import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/auth/domain/entities/forget_entity/forget_password_entity.dart';
 import 'package:driver_app/features/auth/domain/repo/auth_repo.dart';
-import 'package:driver_app/features/auth/domain/use_case/forget_password_user_case.dart';
+import 'package:driver_app/features/auth/domain/use_case/forget_password_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';

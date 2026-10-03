@@ -11,11 +11,11 @@ class ResetPasswordResponseDto {
   final String message;
   @JsonKey(name: 'errorCode')
   final String errorCode;
-  @JsonKey(name: 'isSuccess')
+  @JsonKey(name: 'isSuccess', defaultValue: false)
   final bool isSuccess;
 
-  ResetPassswordEntity toDomain() {
-    return ResetPassswordEntity(isSuccess: isSuccess, message: message);
+  ResetPasswordEntity toDomain() {
+    return ResetPasswordEntity(isSuccess: isSuccess, message: message);
   }
 
   ResetPasswordResponseDto({
@@ -35,7 +35,7 @@ class ResetPasswordResponseDto {
         data: message,
         message: message,
         errorCode: json['error']?.toString() ?? '0',
-        isSuccess: json['isSuccess'] != false,
+        isSuccess: json['isSuccess'] == true,
       );
     }
     if (json.containsKey('message') && !json.containsKey('data')) {
@@ -44,7 +44,7 @@ class ResetPasswordResponseDto {
         data: message,
         message: message,
         errorCode: json['error']?.toString() ?? '0',
-        isSuccess: json['isSuccess'] != false,
+        isSuccess: json['isSuccess'] == true,
       );
     }
     return _$ResetPasswordResponseDtoFromJson(json);

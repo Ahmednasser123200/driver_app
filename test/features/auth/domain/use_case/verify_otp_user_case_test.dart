@@ -2,7 +2,7 @@ import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/auth/domain/entities/forget_entity/verify_oto_entity.dart';
 import 'package:driver_app/features/auth/domain/repo/auth_repo.dart';
-import 'package:driver_app/features/auth/domain/use_case/verify_otp_user_case.dart';
+import 'package:driver_app/features/auth/domain/use_case/verify_otp_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -18,11 +18,11 @@ void main() {
   const otp = '123456';
 
   late MockAuthRepo authRepo;
-  late VerifyOtpUserCase useCase;
+  late VerifyOtpUseCase useCase;
 
   setUp(() {
     authRepo = MockAuthRepo();
-    useCase = VerifyOtpUserCase(authRepo);
+    useCase = VerifyOtpUseCase(authRepo);
   });
 
   group('VerifyOtpUserCase', () {

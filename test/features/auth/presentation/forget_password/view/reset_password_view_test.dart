@@ -1,16 +1,20 @@
 import 'package:driver_app/config/base/base_state.dart';
-import 'package:driver_app/config/di/di.dart';
+import 'package:driver_app/features/auth/domain/entities/forget_entity/verify_oto_entity.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_cubit.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_event.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_state.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/view/reset_password_view.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockForgetPasswordCubit extends Mock implements ForgetPasswordCubit {}
+class MockForgetPasswordCubit extends Mock implements ForgetPasswordCubit {
+  @override
+  Future<void> close() async {}
+}
 
 void main() {
   late MockForgetPasswordCubit mockCubit;
@@ -24,22 +28,21 @@ void main() {
   setUp(() {
     mockCubit = MockForgetPasswordCubit();
     // Setting up an initial state
+    final initialState = ForgetPasswordState(
+      resetState: const BaseState(),
+      otpState: BaseState(data: VerifyOtpEntity(resetToken: 'valid-token', expiresAtUtc: DateTime.utc(2026, 1, 1))),
+    );
     when(
       () => mockCubit.state,
-    ).thenReturn(const ForgetPasswordState(resetstate: BaseState()));
+    ).thenReturn(initialState);
     // Mock the streams and methods
     when(() => mockCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockCubit.uiEventStream).thenAnswer((_) => const Stream.empty());
-    when(() => mockCubit.close()).thenAnswer((_) async {});
     when(() => mockCubit.doEvent(any())).thenAnswer((_) async {});
-
-    // Setup GetIt
-    getIt.allowReassignment = true;
-    getIt.registerFactory<ForgetPasswordCubit>(() => mockCubit);
   });
 
-  tearDown(() {
-    getIt.reset();
+  tearDown(() async {
+    await mockCubit.close();
   });
 
   Widget buildTestWidget() {
@@ -49,9 +52,13 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('en'),
-        home: const ResetPasswordView(
-          email: 'test@example.com',
-          otpcode: '123456',
+        home: BlocProvider.value(
+          value: mockCubit,
+          child: ResetPasswordView(
+            email: 'test@example.com',
+            otpcode: '123456',
+            cubit: mockCubit,
+          ),
         ),
       ),
     );
@@ -76,6 +83,9 @@ void main() {
       // Tap the update button without entering passwords
       await tester.tap(find.byType(ElevatedButton).first);
       await tester.pumpAndSettle();
+
+      expect(find.text('Password is required'), findsOneWidget);
+      expect(find.text('Confirm password is required'), findsOneWidget);
 
       // Verify cubit event wasn't dispatched
       verifyNever(() => mockCubit.doEvent(any()));

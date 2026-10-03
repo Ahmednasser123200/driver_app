@@ -1,5 +1,7 @@
+import 'package:driver_app/config/di/di.dart';
 import 'package:flutter/material.dart';
 
+import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_cubit.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/view/forget_password_view.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/view/reset_password_view.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/view/verification_view.dart';
@@ -8,6 +10,7 @@ import 'routes.dart';
 
 abstract final class AppRoutes {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
+    final cubit = getIt<ForgetPasswordCubit>();
     switch (settings.name) {
       case Routes.initial:
       case Routes.onboarding:
@@ -23,13 +26,15 @@ abstract final class AppRoutes {
       case Routes.forgetPassword:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const ForgetPasswordView(),
+          builder: (_) => ForgetPasswordView(cubit: cubit),
         );
       case Routes.verificationCode:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) =>
-              VerificationView(email: _argString(settings.arguments, 'email')),
+          builder: (_) => VerificationView(
+            email: _argString(settings.arguments, 'email'),
+            cubit: cubit,
+          ),
         );
       case Routes.resetPassword:
         return MaterialPageRoute(
@@ -37,6 +42,7 @@ abstract final class AppRoutes {
           builder: (_) => ResetPasswordView(
             email: _argString(settings.arguments, 'email'),
             otpcode: _argString(settings.arguments, 'otpcode'),
+            cubit: cubit,
           ),
         );
       case Routes.apply:
@@ -96,6 +102,7 @@ abstract final class AppRoutes {
     if (arguments is Map) {
       final value = arguments[key];
       if (value is String) return value;
+      if (value != null) return value.toString();
     }
     return '';
   }

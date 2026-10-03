@@ -1,13 +1,13 @@
 import 'dart:io';
-import 'package:driver_app/config/di/di.dart';
 import 'package:driver_app/core/themes/app_themes/app_theme.dart';
-import 'package:driver_app/features/auth/domain/use_case/forget_password_user_case.dart';
-import 'package:driver_app/features/auth/domain/use_case/reset_password_user_case.dart';
-import 'package:driver_app/features/auth/domain/use_case/verify_otp_user_case.dart';
+import 'package:driver_app/features/auth/domain/use_case/forget_password_use_case.dart';
+import 'package:driver_app/features/auth/domain/use_case/reset_password_use_case.dart';
+import 'package:driver_app/features/auth/domain/use_case/verify_otp_use_case.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_cubit.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -28,9 +28,8 @@ bool _fontsLoaded = false;
 Future<void> loadAuthTestFonts() async {
   if (_fontsLoaded) return;
 
-  final flutterRoot =
-      Platform.environment['FLUTTER_ROOT'] ??
-      r'D:\ali\sdks\flutter_3.44.9\flutter';
+  final flutterRoot = Platform.environment['FLUTTER_ROOT'];
+  if (flutterRoot == null) return;
 
   final fontDir = Directory(
     '$flutterRoot${Platform.pathSeparator}bin${Platform.pathSeparator}'
@@ -77,6 +76,7 @@ const kAuthDesignSize = Size(375, 812);
 Future<void> pumpAuthScreen(
   WidgetTester tester,
   Widget screen, {
+  ForgetPasswordCubit? cubit,
   void Function(String routeName)? onNavigate,
 }) async {
   // await loadAuthTestFonts();
@@ -88,6 +88,10 @@ Future<void> pumpAuthScreen(
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
+
+  final widgetToTest = cubit != null
+      ? BlocProvider.value(value: cubit, child: screen)
+      : screen;
 
   await tester.pumpWidget(
     ScreenUtilPlusInit(
@@ -101,7 +105,7 @@ Future<void> pumpAuthScreen(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('en'),
-          home: Scaffold(body: screen),
+          home: Scaffold(body: widgetToTest),
           onGenerateRoute: (settings) {
             onNavigate?.call(settings.name ?? '');
             return MaterialPageRoute<void>(
@@ -117,32 +121,24 @@ Future<void> pumpAuthScreen(
   );
 }
 
-/// Registers a `ForgetPasswordCubit` built from the supplied mocks and returns
-/// it, so a test can assert on the state the screen actually rendered.
-///
-/// A singleton is used rather than a factory because the view resolves the
-/// cubit through `getIt`; returning the instance keeps `resolve()` cheap and
-/// guarantees the test and the widget share one state stream. Call
-/// [resetAuthTestContainer] between tests because the owning `BlocProvider`
-/// closes the cubit when the widget is disposed.
-ForgetPasswordCubit registerForgetPasswordCubit({
+/// Creates a `ForgetPasswordCubit` built from the supplied mocks and returns
+/// it. The test should provide it to the widget via `BlocProvider.value`
+/// or pass it to `pumpAuthScreen`.
+ForgetPasswordCubit createForgetPasswordCubit({
   required ForgetPasswordUserCase forgetUserCase,
-  required VerifyOtpUserCase verifyUserCase,
+  required VerifyOtpUseCase verifyUserCase,
   required ResetPasswordUserCase resetUserCase,
 }) {
-  final cubit = ForgetPasswordCubit(
+  return ForgetPasswordCubit(
     forgetUserCase,
     verifyUserCase,
     resetUserCase,
   );
-  getIt.registerSingleton<ForgetPasswordCubit>(cubit);
-  return cubit;
 }
 
 /// Clears the global container and re-registers the generic response dummies.
 /// Call from `setUp` of every widget test.
 Future<void> resetAuthTestContainer() async {
-  await getIt.reset();
   registerAuthDummies();
 }
 
