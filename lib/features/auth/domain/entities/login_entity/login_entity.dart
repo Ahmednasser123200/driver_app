@@ -22,6 +22,6 @@ class LoginEntity extends Equatable {
     refreshToken,
     expiresIn,
     driverStatus,
-    user
+    user,
   ];
 }

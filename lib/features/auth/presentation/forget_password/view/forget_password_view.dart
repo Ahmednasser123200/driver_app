@@ -38,39 +38,40 @@ class _ForgetPasswordViewState extends State<ForgetPasswordView> {
       value: widget.cubit,
       child: Scaffold(
         appBar: AppBar(title: Text(l10n.forgetPasswordTitle)),
-        body: BaseUiEventListener<
-          ForgetPasswordCubit,
-          ForgetPasswordState,
-          BaseUiEvent
-        >(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.w),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  SizedBox(height: 50.h),
-                  Center(child: Text(l10n.forgetPasswordTitle)),
-                  SizedBox(height: 10.h),
-                  Text(
-                    l10n.forgetPasswordDescription,
-                    textAlign: TextAlign.center,
+        body:
+            BaseUiEventListener<
+              ForgetPasswordCubit,
+              ForgetPasswordState,
+              BaseUiEvent
+            >(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 50.h),
+                      Center(child: Text(l10n.forgetPasswordTitle)),
+                      SizedBox(height: 10.h),
+                      Text(
+                        l10n.forgetPasswordDescription,
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 20.h),
+                      CustomTextFormField(
+                        controller: _emailController,
+                        label: l10n.email,
+                        hint: l10n.enterEmail,
+                        validator: AuthValidators.email,
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      SizedBox(height: 30.h),
+                      _buildConfirmButton(l10n),
+                    ],
                   ),
-                  SizedBox(height: 20.h),
-                  CustomTextFormField(
-                    controller: _emailController,
-                    label: l10n.email,
-                    hint: l10n.enterEmail,
-                    validator: AuthValidators.email,
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  SizedBox(height: 30.h),
-                  _buildConfirmButton(l10n),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
       ),
     );
   }
@@ -87,9 +88,7 @@ class _ForgetPasswordViewState extends State<ForgetPasswordView> {
           onPressed: () {
             if (_formKey.currentState!.validate()) {
               context.read<ForgetPasswordCubit>().doEvent(
-                ForgetPasswordEvent(
-                  email: _emailController.text.trim(),
-                ),
+                ForgetPasswordEvent(email: _emailController.text.trim()),
               );
             }
           },

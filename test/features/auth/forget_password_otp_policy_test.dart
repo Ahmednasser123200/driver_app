@@ -1,4 +1,3 @@
-
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/auth/domain/entities/forget_entity/forget_password_entity.dart';
@@ -33,11 +32,7 @@ void main() {
     forgetUserCase = MockForgetPasswordUserCase();
     verifyUserCase = MockVerifyOtpUserCase();
     resetUserCase = MockResetPasswordUserCase();
-    cubit = ForgetPasswordCubit(
-      forgetUserCase,
-      verifyUserCase,
-      resetUserCase,
-    );
+    cubit = ForgetPasswordCubit(forgetUserCase, verifyUserCase, resetUserCase);
 
     when(
       () => verifyUserCase.call(

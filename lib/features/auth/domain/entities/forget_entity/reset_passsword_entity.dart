@@ -6,8 +6,5 @@ class ResetPasswordEntity extends Equatable {
   const ResetPasswordEntity({required this.isSuccess, required this.message});
 
   @override
-  List<Object?> get props => [
-    isSuccess,
-    message
-  ];
+  List<Object?> get props => [isSuccess, message];
 }

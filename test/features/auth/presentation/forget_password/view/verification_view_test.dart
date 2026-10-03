@@ -88,7 +88,9 @@ void main() {
     ).called(1);
   });
 
-  testWidgets('does not submit otp when less than 6 digits are entered', (tester) async {
+  testWidgets('does not submit otp when less than 6 digits are entered', (
+    tester,
+  ) async {
     await tester.pumpWidget(buildTestWidget());
     await tester.pumpAndSettle();
 

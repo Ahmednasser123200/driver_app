@@ -9,11 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 class VerificationView extends StatefulWidget {
-  const VerificationView({
-    super.key,
-    required this.email,
-    required this.cubit,
-  });
+  const VerificationView({super.key, required this.email, required this.cubit});
 
   final String email;
   final ForgetPasswordCubit cubit;
@@ -42,45 +38,46 @@ class _VerificationViewState extends State<VerificationView> {
       value: widget.cubit..startResendCooldown(),
       child: Scaffold(
         appBar: AppBar(title: Text(l10n.emailVerificationTitle)),
-        body: BaseUiEventListener<
-          ForgetPasswordCubit,
-          ForgetPasswordState,
-          BaseUiEvent
-        >(
-          onCustomEvent: (context, event) {
-            if (event is ClearOtpField) {
-              _clearOtpField();
-            }
-          },
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(height: 40.h),
-                  Text(
-                    l10n.emailVerificationTitle,
-                    style: textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+        body:
+            BaseUiEventListener<
+              ForgetPasswordCubit,
+              ForgetPasswordState,
+              BaseUiEvent
+            >(
+              onCustomEvent: (context, event) {
+                if (event is ClearOtpField) {
+                  _clearOtpField();
+                }
+              },
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(height: 40.h),
+                      Text(
+                        l10n.emailVerificationTitle,
+                        style: textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 34.w),
+                        child: Text(
+                          l10n.emailVerificationDescription,
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodyMedium,
+                        ),
+                      ),
+                      SizedBox(height: 32.h),
+                      _buildPinWidget(textTheme),
+                    ],
                   ),
-                  SizedBox(height: 16.h),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 34.w),
-                    child: Text(
-                      l10n.emailVerificationDescription,
-                      textAlign: TextAlign.center,
-                      style: textTheme.bodyMedium,
-                    ),
-                  ),
-                  SizedBox(height: 32.h),
-                  _buildPinWidget(textTheme),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
       ),
     );
   }

@@ -28,7 +28,9 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       if (response.isSuccess) {
         return Success(response);
       }
-      return Error(ServerFailure(serverMessage: _trimMessage(response.message)));
+      return Error(
+        ServerFailure(serverMessage: _trimMessage(response.message)),
+      );
     } on DioException catch (error) {
       return Error(mapDioExceptionToAppFailure(error));
     } catch (_) {
@@ -43,7 +45,9 @@ class RemoteDataSourceImpl implements RemoteDataSource {
     try {
       final response = await _authApiClient.verifyOtp(verifyOtpRequest);
       if (response.isSuccess != true) {
-        return Error(UnauthorizedFailure(serverMessage: _trimMessage(response.message)));
+        return Error(
+          UnauthorizedFailure(serverMessage: _trimMessage(response.message)),
+        );
       }
       if (response.data?.resetToken == null) {
         return Error(const ServerFailure());
@@ -65,7 +69,9 @@ class RemoteDataSourceImpl implements RemoteDataSource {
       if (response.isSuccess) {
         return Success(response);
       }
-      return Error(UnauthorizedFailure(serverMessage: _trimMessage(response.message)));
+      return Error(
+        UnauthorizedFailure(serverMessage: _trimMessage(response.message)),
+      );
     } on DioException catch (error) {
       return Error(mapDioExceptionToAppFailure(error));
     } catch (_) {

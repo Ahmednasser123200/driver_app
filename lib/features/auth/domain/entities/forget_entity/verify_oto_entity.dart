@@ -7,8 +7,5 @@ class VerifyOtpEntity extends Equatable {
   const VerifyOtpEntity({required this.resetToken, required this.expiresAtUtc});
 
   @override
-  List<Object?> get props => [
-    resetToken,
-    expiresAtUtc
-  ];
+  List<Object?> get props => [resetToken, expiresAtUtc];
 }

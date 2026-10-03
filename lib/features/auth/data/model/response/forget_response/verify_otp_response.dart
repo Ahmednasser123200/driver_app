@@ -22,7 +22,12 @@ class VerifyOtpResponse {
   @JsonKey(name: 'data')
   final VerifyOtpDataDto? data;
 
-  const VerifyOtpResponse({this.isSuccess, this.errorCode, this.message, this.data});
+  const VerifyOtpResponse({
+    this.isSuccess,
+    this.errorCode,
+    this.message,
+    this.data,
+  });
 
   factory VerifyOtpResponse.fromJson(Map<String, dynamic> json) {
     if (json.containsKey('value')) {

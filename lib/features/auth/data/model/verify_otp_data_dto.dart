@@ -8,11 +8,14 @@ import '../../domain/entities/login_entity/login_entity.dart';
 
 part 'verify_otp_data_dto.g.dart';
 
-VerifyOtpDataDto dataDTOFromJson(String str) => VerifyOtpDataDto.fromJson(json.decode(str));
+VerifyOtpDataDto dataDTOFromJson(String str) =>
+    VerifyOtpDataDto.fromJson(json.decode(str));
 String dataDTOToJson(VerifyOtpDataDto data) => json.encode(data.toJson());
 
-Object? _readResetToken(Map json, String key) => json['resetToken'] ?? json['token'];
-Object? _readExpiresAtUtc(Map json, String key) => json['expiresAtUtc'] ?? json['expirationDate'];
+Object? _readResetToken(Map json, String key) =>
+    json['resetToken'] ?? json['token'];
+Object? _readExpiresAtUtc(Map json, String key) =>
+    json['expiresAtUtc'] ?? json['expirationDate'];
 
 @JsonSerializable()
 class VerifyOtpDataDto {
@@ -23,7 +26,8 @@ class VerifyOtpDataDto {
 
   VerifyOtpDataDto({this.resetToken, this.expiresAtUtc});
 
-  factory VerifyOtpDataDto.fromJson(Map<String, dynamic> json) => _$VerifyOtpDataDtoFromJson(json);
+  factory VerifyOtpDataDto.fromJson(Map<String, dynamic> json) =>
+      _$VerifyOtpDataDtoFromJson(json);
   Map<String, dynamic> toJson() => _$VerifyOtpDataDtoToJson(this);
 
   VerifyOtpEntity toEntity() => VerifyOtpEntity(
@@ -53,7 +57,8 @@ class LoginDataDto {
     this.user,
   });
 
-  factory LoginDataDto.fromJson(Map<String, dynamic> json) => _$LoginDataDtoFromJson(json);
+  factory LoginDataDto.fromJson(Map<String, dynamic> json) =>
+      _$LoginDataDtoFromJson(json);
   Map<String, dynamic> toJson() => _$LoginDataDtoToJson(this);
 
   LoginEntity toLoginEntity() => LoginEntity(

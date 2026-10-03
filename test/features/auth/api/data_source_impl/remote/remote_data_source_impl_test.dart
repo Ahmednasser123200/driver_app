@@ -88,10 +88,7 @@ void main() {
 
       final failure = (result as Error<ForgotPasswordResponseDto>).failure;
       expect(failure, isA<ServerFailure>());
-      expect(
-        (failure as ServerFailure).serverMessage,
-        'Email does not exist',
-      );
+      expect((failure as ServerFailure).serverMessage, 'Email does not exist');
     });
 
     test('omits the server message when it is blank', () async {
@@ -107,8 +104,7 @@ void main() {
       final result = await dataSource.forgotPassword(request);
 
       expect(
-        ((result as Error<ForgotPasswordResponseDto>).failure
-                as ServerFailure)
+        ((result as Error<ForgotPasswordResponseDto>).failure as ServerFailure)
             .serverMessage,
         isNull,
       );

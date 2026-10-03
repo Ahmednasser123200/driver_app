@@ -105,14 +105,18 @@ void main() {
     ).called(1);
   });
 
-  testWidgets('shows loading indicator when cubit state is loading', (tester) async {
+  testWidgets('shows loading indicator when cubit state is loading', (
+    tester,
+  ) async {
     // Create a new mock with loading state
     final loadingMockCubit = MockForgetPasswordCubit();
     when(() => loadingMockCubit.state).thenReturn(
       const ForgetPasswordState(forgotState: BaseState(isLoading: true)),
     );
     when(() => loadingMockCubit.stream).thenAnswer((_) => const Stream.empty());
-    when(() => loadingMockCubit.uiEventStream).thenAnswer((_) => const Stream.empty());
+    when(
+      () => loadingMockCubit.uiEventStream,
+    ).thenAnswer((_) => const Stream.empty());
     when(() => loadingMockCubit.doEvent(any())).thenAnswer((_) async {});
 
     await tester.pumpWidget(

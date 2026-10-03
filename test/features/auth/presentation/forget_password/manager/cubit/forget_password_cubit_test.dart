@@ -37,11 +37,16 @@ void main() {
 
   void stubVerifyOtp(Future<BaseResponse<VerifyOtpEntity>> Function() answer) {
     when(
-      () => verifyUserCase.call(email: any(named: 'email'), otp: any(named: 'otp')),
+      () => verifyUserCase.call(
+        email: any(named: 'email'),
+        otp: any(named: 'otp'),
+      ),
     ).thenAnswer((_) => answer());
   }
 
-  void stubForgetPassword(Future<BaseResponse<ForgetPasswordEntity>> Function() answer) {
+  void stubForgetPassword(
+    Future<BaseResponse<ForgetPasswordEntity>> Function() answer,
+  ) {
     when(
       () => forgetUserCase.call(email: any(named: 'email')),
     ).thenAnswer((_) => answer());
@@ -60,21 +65,21 @@ void main() {
   }
 
   Future<BaseResponse<ForgetPasswordEntity>> sentOk() async =>
-      Success<ForgetPasswordEntity>(ForgetPasswordEntity(isSuccess: true, message: 'sent'));
+      Success<ForgetPasswordEntity>(
+        ForgetPasswordEntity(isSuccess: true, message: 'sent'),
+      );
 
   setUp(() {
     forgetUserCase = MockForgetPasswordUserCase();
     verifyUserCase = MockVerifyOtpUserCase();
     resetUserCase = MockResetPasswordUserCase();
-    cubit = ForgetPasswordCubit(
-      forgetUserCase,
-      verifyUserCase,
-      resetUserCase,
-    );
+    cubit = ForgetPasswordCubit(forgetUserCase, verifyUserCase, resetUserCase);
     uiEvents = [];
     cubit.uiEventStream.listen(uiEvents.add);
 
-    stubVerifyOtp(() async => const Error<VerifyOtpEntity>(BadRequestFailure()));
+    stubVerifyOtp(
+      () async => const Error<VerifyOtpEntity>(BadRequestFailure()),
+    );
   });
 
   tearDown(() => cubit.close());
@@ -87,16 +92,19 @@ void main() {
   T firstEventOfType<T extends BaseUiEvent>() => uiEvents.whereType<T>().first;
 
   group('forget password', () {
-    test('delegates to the use case (input validation lives in the UI Form)', () async {
-      stubForgetPassword(sentOk);
+    test(
+      'delegates to the use case (input validation lives in the UI Form)',
+      () async {
+        stubForgetPassword(sentOk);
 
-      await cubit.doEvent(ForgetPasswordEvent(email: email));
-      await pumpEventQueue();
+        await cubit.doEvent(ForgetPasswordEvent(email: email));
+        await pumpEventQueue();
 
-      verify(() => forgetUserCase.call(email: email)).called(1);
-      expect(cubit.state.forgotState.isLoading, isFalse);
-      expect(cubit.state.forgotState.failure, isNull);
-    });
+        verify(() => forgetUserCase.call(email: email)).called(1);
+        expect(cubit.state.forgotState.isLoading, isFalse);
+        expect(cubit.state.forgotState.failure, isNull);
+      },
+    );
 
     test('navigates to verification carrying the email', () async {
       stubForgetPassword(sentOk);
@@ -114,13 +122,18 @@ void main() {
     });
 
     test('surfaces a server failure', () async {
-      stubForgetPassword(() async => const Error<ForgetPasswordEntity>(NotFoundFailure()));
+      stubForgetPassword(
+        () async => const Error<ForgetPasswordEntity>(NotFoundFailure()),
+      );
 
       await cubit.doEvent(ForgetPasswordEvent(email: email));
       await pumpEventQueue();
 
       expect(cubit.state.forgotState.failure, isA<NotFoundFailure>());
-      expect(firstEventOfType<ShowErrorMessage>().failure, isA<NotFoundFailure>());
+      expect(
+        firstEventOfType<ShowErrorMessage>().failure,
+        isA<NotFoundFailure>(),
+      );
       expect(uiEvents.whereType<NavigateTo>(), isEmpty);
     });
   });
@@ -196,21 +209,24 @@ void main() {
   });
 
   group('verify otp', () {
-    test('delegates to the use case (input validation lives in the UI)', () async {
-      stubVerifyOtp(
-        () async => Success<VerifyOtpEntity>(
-          VerifyOtpEntity(
-            resetToken: 'token-abc',
-            expiresAtUtc: DateTime(2026, 1, 1),
+    test(
+      'delegates to the use case (input validation lives in the UI)',
+      () async {
+        stubVerifyOtp(
+          () async => Success<VerifyOtpEntity>(
+            VerifyOtpEntity(
+              resetToken: 'token-abc',
+              expiresAtUtc: DateTime(2026, 1, 1),
+            ),
           ),
-        ),
-      );
+        );
 
-      await cubit.doEvent(VerifyOtpEvent(otpCode: otp, email: email));
-      await pumpEventQueue();
+        await cubit.doEvent(VerifyOtpEvent(otpCode: otp, email: email));
+        await pumpEventQueue();
 
-      verify(() => verifyUserCase.call(email: email, otp: otp)).called(1);
-    });
+        verify(() => verifyUserCase.call(email: email, otp: otp)).called(1);
+      },
+    );
 
     test('navigates to reset carrying the email and the reset token', () async {
       stubVerifyOtp(
@@ -264,7 +280,10 @@ void main() {
       await verifyOnce();
 
       verifyNever(
-        () => verifyUserCase.call(email: any(named: 'email'), otp: any(named: 'otp')),
+        () => verifyUserCase.call(
+          email: any(named: 'email'),
+          otp: any(named: 'otp'),
+        ),
       );
       expect(cubit.state.verifyAttemptsRemaining, 0);
       expect(
@@ -275,25 +294,32 @@ void main() {
   });
 
   group('reset password', () {
-    test('delegates to the use case (input validation lives in the UI Form)', () async {
-      stubResetPassword(
-        () async => const Error<ResetPasswordEntity>(BadRequestFailure()),
-      );
+    test(
+      'delegates to the use case (input validation lives in the UI Form)',
+      () async {
+        stubResetPassword(
+          () async => const Error<ResetPasswordEntity>(BadRequestFailure()),
+        );
 
-      await cubit.doEvent(
-        ResetPasswordEvent(email: email, newPassword: password, resetCode: ''),
-      );
-      await pumpEventQueue();
+        await cubit.doEvent(
+          ResetPasswordEvent(
+            email: email,
+            newPassword: password,
+            resetCode: '',
+          ),
+        );
+        await pumpEventQueue();
 
-      verify(
-        () => resetUserCase.call(
-          email: any(named: 'email'),
-          otp: any(named: 'otp'),
-          password: any(named: 'password'),
-        ),
-      ).called(1);
-      expect(cubit.state.resetState.failure, isA<BadRequestFailure>());
-    });
+        verify(
+          () => resetUserCase.call(
+            email: any(named: 'email'),
+            otp: any(named: 'otp'),
+            password: any(named: 'password'),
+          ),
+        ).called(1);
+        expect(cubit.state.resetState.failure, isA<BadRequestFailure>());
+      },
+    );
 
     test('navigates to login on success', () async {
       stubResetPassword(

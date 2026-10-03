@@ -30,6 +30,6 @@ class UserEntity extends Equatable {
     gender,
     role,
     phoneNumber,
-    status
+    status,
   ];
 }

@@ -30,11 +30,14 @@ void main() {
     // Setting up an initial state
     final initialState = ForgetPasswordState(
       resetState: const BaseState(),
-      otpState: BaseState(data: VerifyOtpEntity(resetToken: 'valid-token', expiresAtUtc: DateTime.utc(2026, 1, 1))),
+      otpState: BaseState(
+        data: VerifyOtpEntity(
+          resetToken: 'valid-token',
+          expiresAtUtc: DateTime.utc(2026, 1, 1),
+        ),
+      ),
     );
-    when(
-      () => mockCubit.state,
-    ).thenReturn(initialState);
+    when(() => mockCubit.state).thenReturn(initialState);
     // Mock the streams and methods
     when(() => mockCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockCubit.uiEventStream).thenAnswer((_) => const Stream.empty());

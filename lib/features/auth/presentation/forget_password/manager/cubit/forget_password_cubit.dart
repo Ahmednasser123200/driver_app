@@ -4,17 +4,12 @@ import 'package:driver_app/config/base/base_cubit.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
-import 'package:driver_app/config/localization/app_failure_message_mapper.dart';
-import 'package:driver_app/config/localization/validation_error_message_mapper.dart';
 import 'package:driver_app/config/routing/routes.dart';
-import 'package:driver_app/config/utils/auth_validators.dart';
 import 'package:driver_app/features/auth/domain/entities/forget_entity/forget_password_entity.dart';
 import 'package:driver_app/features/auth/domain/entities/forget_entity/verify_oto_entity.dart';
-import 'package:driver_app/features/auth/domain/use_case/forget_password_user_case.dart';
-import 'package:driver_app/features/auth/domain/use_case/reset_password_user_case.dart';
-import 'package:driver_app/features/auth/domain/use_case/verify_otp_user_case.dart';
-import 'package:driver_app/l10n/generated/app_localizations.dart';
-import 'package:flutter/widgets.dart';
+import 'package:driver_app/features/auth/domain/use_case/forget_password_use_case.dart';
+import 'package:driver_app/features/auth/domain/use_case/reset_password_use_case.dart';
+import 'package:driver_app/features/auth/domain/use_case/verify_otp_use_case.dart';
 import 'package:injectable/injectable.dart';
 
 import 'forget_password_event.dart';
@@ -29,10 +24,9 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
   ) : super(const ForgetPasswordState());
 
   final ForgetPasswordUserCase _forgetPasswordUserCase;
-  final VerifyOtpUserCase _verifyOtpUserCase;
+  final VerifyOtpUseCase _verifyOtpUserCase;
   final ResetPasswordUserCase _resetPasswordUserCase;
 
-  Future<AppLocalizations>? _l10nFuture;
   Timer? _resendTimer;
 
   void startResendCooldown() {
@@ -47,22 +41,24 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
   }
 
   void _beginCooldown({required int verifyAttemptsRemaining}) {
+    _resendTimer?.cancel();
+    var remaining = OtpPolicy.resendCooldownSeconds;
+    emit(
+      state.copyWith(
+        resendSecondsRemaining: remaining,
+        verifyAttemptsRemaining: verifyAttemptsRemaining,
+      ),
+    );
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      final next = state.resendSecondsRemaining - 1;
-      if (next <= 0) {
+      remaining--;
+      if (remaining <= 0) {
         timer.cancel();
         _resendTimer = null;
         emit(state.copyWith(resendSecondsRemaining: 0));
         return;
       }
-      emit(state.copyWith(resendSecondsRemaining: next));
+      emit(state.copyWith(resendSecondsRemaining: remaining));
     });
-    emit(
-      state.copyWith(
-        resendSecondsRemaining: OtpPolicy.resendCooldownSeconds,
-        verifyAttemptsRemaining: verifyAttemptsRemaining,
-      ),
-    );
   }
 
   void _consumeVerifyAttempt() {
@@ -81,9 +77,9 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
     return super.close();
   }
 
-  Future<void> doEvent(ForgetPasswordEvent event) async {
+  Future<void> doEvent(ForgetPasswordAbstractEvent event) async {
     switch (event) {
-      case ForgetBassEvent():
+      case ForgetPasswordEvent():
         await _forgetPassword(email: event.email);
         break;
       case ResendOtpEvent():
@@ -103,28 +99,12 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
   }
 
   Future<void> _forgetPassword({required String email}) async {
-    final l10n = await _localizations();
-
-    final validationError = AuthValidators.email(email);
-    if (validationError != null) {
-      final message = mapValidationErrorToMessage(validationError, l10n);
-      emit(
-        state.copyWith(
-          forgotstate: state.forgotstate.copyWith(
-            data: null,
-            errorMessage: message,
-          ),
-        ),
-      );
-      _reportError(message);
-      return;
-    }
-
     emit(
       state.copyWith(
-        forgotstate: state.forgotstate.copyWith(
+        forgotState: state.forgotState.copyWith(
           isLoading: true,
           errorMessage: '',
+          failure: null,
         ),
       ),
     );
@@ -136,10 +116,11 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
         if (data case final ForgetPasswordEntity entity) {
           emit(
             state.copyWith(
-              forgotstate: state.forgotstate.copyWith(
+              forgotState: state.forgotState.copyWith(
                 isLoading: false,
                 data: entity,
                 errorMessage: '',
+                failure: null,
               ),
             ),
           );
@@ -147,39 +128,23 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
           emitEvent(
             NavigateTo(Routes.verificationCode, arguments: {'email': email}),
           );
+          _restartOtpSession();
           break;
         }
-        _failForgot(l10n);
-        break;
+
       case Error(:final failure):
-        _failForgot(l10n, failure);
+        _failForgot(failure);
         break;
     }
   }
 
   Future<void> _resendOtp({required String email}) async {
-    final l10n = await _localizations();
-
-    final validationError = AuthValidators.email(email);
-    if (validationError != null) {
-      final message = mapValidationErrorToMessage(validationError, l10n);
-      emit(
-        state.copyWith(
-          resendOtpState: state.resendOtpState.copyWith(
-            data: null,
-            errorMessage: message,
-          ),
-        ),
-      );
-      _reportError(message);
-      return;
-    }
-
     emit(
       state.copyWith(
         resendOtpState: state.resendOtpState.copyWith(
           isLoading: true,
           errorMessage: '',
+          failure: null,
         ),
       ),
     );
@@ -195,6 +160,7 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
                 isLoading: false,
                 data: entity,
                 errorMessage: '',
+                failure: null,
               ),
             ),
           );
@@ -202,39 +168,35 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
           _restartOtpSession();
           break;
         }
-        _failResendOtp(l10n);
-        break;
       case Error(:final failure):
-        _failResendOtp(l10n, failure);
+        _failResendOtp(failure);
         break;
     }
   }
 
   Future<void> _verifyOtp({required String email, required String otp}) async {
-    final l10n = await _localizations();
-
     if (state.isOtpLockedOut) {
-      emitEvent(ShowErrorMessage(l10n.otpMaxAttemptsReached));
-      return;
-    }
-
-    final emailError = AuthValidators.email(email);
-    final otpError = otp.trim().isEmpty ? ValidationError.fieldRequired : null;
-    final validationError = emailError ?? otpError;
-    if (validationError != null) {
-      final message = mapValidationErrorToMessage(validationError, l10n);
+      const failure = TooManyRequestsFailure();
       emit(
         state.copyWith(
-          otpState: state.otpState.copyWith(data: null, errorMessage: message),
+          otpState: state.otpState.copyWith(
+            data: null,
+            errorMessage: '',
+            failure: failure,
+          ),
         ),
       );
-      _reportError(message);
+      _reportFailure(failure);
       return;
     }
 
     emit(
       state.copyWith(
-        otpState: state.otpState.copyWith(isLoading: true, errorMessage: ''),
+        otpState: state.otpState.copyWith(
+          isLoading: true,
+          errorMessage: '',
+          failure: null,
+        ),
       ),
     );
 
@@ -249,6 +211,7 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
                 isLoading: false,
                 data: entity,
                 errorMessage: '',
+                failure: null,
               ),
             ),
           );
@@ -260,10 +223,8 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
           );
           break;
         }
-        _failOtp(l10n);
-        break;
       case Error(:final failure):
-        _failOtp(l10n, failure);
+        _failOtp(failure);
         break;
     }
   }
@@ -273,30 +234,12 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
     required String otp,
     required String password,
   }) async {
-    final l10n = await _localizations();
-
-    if (otp.trim().isEmpty) {
-      final message = mapValidationErrorToMessage(
-        ValidationError.fieldRequired,
-        l10n,
-      );
-      emit(
-        state.copyWith(
-          resetstate: state.resetstate.copyWith(
-            data: null,
-            errorMessage: message,
-          ),
-        ),
-      );
-      _reportError(message);
-      return;
-    }
-
     emit(
       state.copyWith(
-        resetstate: state.resetstate.copyWith(
+        resetState: state.resetState.copyWith(
           isLoading: true,
           errorMessage: '',
+          failure: null,
         ),
       ),
     );
@@ -311,10 +254,11 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
       case Success(:final data):
         emit(
           state.copyWith(
-            resetstate: state.resetstate.copyWith(
+            resetState: state.resetState.copyWith(
               isLoading: false,
               data: data,
               errorMessage: '',
+              failure: null,
             ),
           ),
         );
@@ -322,87 +266,74 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
         emitEvent(const NavigateTo(Routes.login));
         break;
       case Error(:final failure):
-        _failReset(l10n, failure);
+        _failReset(failure);
         break;
     }
   }
 
-  void _failForgot(AppLocalizations l10n, [AppFailure? failure]) {
-    final message = _messageFor(l10n, failure);
+  void _failForgot([AppFailure? failure]) {
+    final resolved = failure ?? const UnknownFailure();
     emit(
       state.copyWith(
-        forgotstate: state.forgotstate.copyWith(
+        forgotState: state.forgotState.copyWith(
           isLoading: false,
           data: null,
-          errorMessage: message,
+          errorMessage: '',
+          failure: resolved,
         ),
       ),
     );
-    _reportError(message);
+    _reportFailure(resolved);
   }
 
-  void _failResendOtp(AppLocalizations l10n, [AppFailure? failure]) {
-    final message = _messageFor(l10n, failure);
+  void _failResendOtp([AppFailure? failure]) {
+    final resolved = failure ?? const UnknownFailure();
     emit(
       state.copyWith(
         resendOtpState: state.resendOtpState.copyWith(
           isLoading: false,
           data: null,
-          errorMessage: message,
+          errorMessage: '',
+          failure: resolved,
         ),
       ),
     );
-    _reportError(message);
+    _reportFailure(resolved);
   }
 
-  void _failOtp(AppLocalizations l10n, [AppFailure? failure]) {
-    final message = _messageFor(l10n, failure);
+  void _failOtp([AppFailure? failure]) {
+    final resolved = failure ?? const UnknownFailure();
     _consumeVerifyAttempt();
+    emitEvent(const ClearOtpField());
     emit(
       state.copyWith(
         otpState: state.otpState.copyWith(
           isLoading: false,
           data: null,
-          errorMessage: message,
+          errorMessage: '',
+          failure: resolved,
         ),
       ),
     );
-    _reportError(message);
+    _reportFailure(resolved);
   }
 
-  void _failReset(AppLocalizations l10n, [AppFailure? failure]) {
-    final message = _messageFor(l10n, failure);
+  void _failReset([AppFailure? failure]) {
+    final resolved = failure ?? const UnknownFailure();
     emit(
       state.copyWith(
-        resetstate: state.resetstate.copyWith(
+        resetState: state.resetState.copyWith(
           isLoading: false,
           data: null,
-          errorMessage: message,
+          errorMessage: '',
+          failure: resolved,
         ),
       ),
     );
-    _reportError(message);
+    _reportFailure(resolved);
   }
 
-  String _messageFor(AppLocalizations l10n, AppFailure? failure) {
-    return mapAppFailureToMessage(failure ?? const UnknownFailure(), l10n);
-  }
-
-  void _reportError(String? message) {
-    if (message == null || message.isEmpty) return;
-    emitEvent(ShowErrorMessage(message));
-  }
-
-  Future<AppLocalizations> _localizations() {
-    return _l10nFuture ??= _loadLocalizations();
-  }
-
-  Future<AppLocalizations> _loadLocalizations() async {
-    final locale = WidgetsBinding.instance.platformDispatcher.locale;
-    try {
-      return await AppLocalizations.delegate.load(locale);
-    } catch (_) {
-      return AppLocalizations.delegate.load(const Locale('en'));
-    }
+  void _reportFailure(AppFailure failure) {
+    emitEvent(ShowErrorMessage(failure));
   }
 }

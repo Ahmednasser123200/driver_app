@@ -42,7 +42,8 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
 
   Future<void> _checkVerificationStatus() async {
     final state = widget.cubit.state;
-    if (state.otpState.data != null && state.otpState.data!.resetToken.isNotEmpty) {
+    if (state.otpState.data != null &&
+        state.otpState.data!.resetToken.isNotEmpty) {
       if (mounted) {
         setState(() => _isVerified = true);
       }
@@ -57,63 +58,63 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
       value: widget.cubit,
       child: Scaffold(
         appBar: AppBar(title: Text(l10n.resetPasswordTitle)),
-        body: BaseUiEventListener<
-          ForgetPasswordCubit,
-          ForgetPasswordState,
-          BaseUiEvent
-        >(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.w),
-            child: Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    SizedBox(height: 50.h),
-                    Center(
-                      child: Text(
-                        l10n.resetPasswordTitle,
-                        style: TextStyle(
-                          color: AppColors.black,
-                          fontSize: 20.sp,
+        body:
+            BaseUiEventListener<
+              ForgetPasswordCubit,
+              ForgetPasswordState,
+              BaseUiEvent
+            >(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                child: Form(
+                  key: _formKey,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        SizedBox(height: 50.h),
+                        Center(
+                          child: Text(
+                            l10n.resetPasswordTitle,
+                            style: TextStyle(
+                              color: AppColors.black,
+                              fontSize: 20.sp,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    SizedBox(height: 10.h),
-                    Text(
-                      l10n.resetPasswordDescription,
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 20.h),
-                    CustomTextFormField(
-                      label: l10n.newPassword,
-                      hint: l10n.enterPassword,
-                      controller: _newPasswordController,
-                      validator: AuthValidators.password,
-                      keyboardType: TextInputType.visiblePassword,
-                      obscureText: true,
-                    ),
-                    SizedBox(height: 20.h),
-                    CustomTextFormField(
-                      label: l10n.confirmPassword,
-                      hint: l10n.confirmPassword,
-                      controller: _confirmPasswordController,
-                      validator: (value) =>
-                          AuthValidators.confirmPassword(
+                        SizedBox(height: 10.h),
+                        Text(
+                          l10n.resetPasswordDescription,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 20.h),
+                        CustomTextFormField(
+                          label: l10n.newPassword,
+                          hint: l10n.enterPassword,
+                          controller: _newPasswordController,
+                          validator: AuthValidators.password,
+                          keyboardType: TextInputType.visiblePassword,
+                          obscureText: true,
+                        ),
+                        SizedBox(height: 20.h),
+                        CustomTextFormField(
+                          label: l10n.confirmPassword,
+                          hint: l10n.confirmPassword,
+                          controller: _confirmPasswordController,
+                          validator: (value) => AuthValidators.confirmPassword(
                             value,
                             _newPasswordController.text,
                           ),
-                      keyboardType: TextInputType.visiblePassword,
-                      obscureText: true,
+                          keyboardType: TextInputType.visiblePassword,
+                          obscureText: true,
+                        ),
+                        SizedBox(height: 30.h),
+                        _buildResetButton(l10n),
+                      ],
                     ),
-                    SizedBox(height: 30.h),
-                    _buildResetButton(l10n),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
       ),
     );
   }
