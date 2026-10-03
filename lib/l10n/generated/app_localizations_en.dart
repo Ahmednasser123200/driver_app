@@ -80,6 +80,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidCode => 'Invalid code';
 
   @override
+  String resendInSeconds(Object seconds) {
+    return 'Resend in ${seconds}s';
+  }
+
+  @override
+  String get resendAvailable => 'Resend now';
+
+  @override
+  String otpAttemptsRemaining(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count attempts remaining',
+      one: '1 attempt remaining',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get otpMaxAttemptsReached => 'Too many incorrect codes entered.';
+
+  @override
+  String get requestNewCode => 'Request a new code';
+
+  @override
   String get resetPasswordTitle => 'Reset password';
 
   @override

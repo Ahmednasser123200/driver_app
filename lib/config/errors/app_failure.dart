@@ -1,5 +1,13 @@
+import 'package:driver_app/config/utils/auth_validators.dart';
+
 sealed class AppFailure {
   const AppFailure();
+}
+
+class ValidationFailure extends AppFailure {
+  const ValidationFailure(this.validationError);
+
+  final ValidationError validationError;
 }
 
 class InternetConnectionFailure extends AppFailure {
@@ -25,7 +33,9 @@ class BadRequestFailure extends AppFailure {
 }
 
 class UnauthorizedFailure extends AppFailure {
-  const UnauthorizedFailure();
+  const UnauthorizedFailure({this.serverMessage});
+
+  final String? serverMessage;
 }
 
 class ForbiddenFailure extends AppFailure {
@@ -57,9 +67,10 @@ class TooManyRequestsFailure extends AppFailure {
 }
 
 class ServerFailure extends AppFailure {
-  const ServerFailure({this.statusCode});
+  const ServerFailure({this.statusCode, this.serverMessage});
 
   final int? statusCode;
+  final String? serverMessage;
 }
 
 class UnknownFailure extends AppFailure {
