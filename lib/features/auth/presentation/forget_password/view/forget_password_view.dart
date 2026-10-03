@@ -12,9 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 class ForgetPasswordView extends StatefulWidget {
-  const ForgetPasswordView({super.key, required this.cubit});
-
-  final ForgetPasswordCubit cubit;
+  const ForgetPasswordView({super.key});
 
   @override
   State<ForgetPasswordView> createState() => _ForgetPasswordViewState();
@@ -34,45 +32,43 @@ class _ForgetPasswordViewState extends State<ForgetPasswordView> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return BlocProvider.value(
-      value: widget.cubit,
-      child: Scaffold(
-        appBar: AppBar(title: Text(l10n.forgetPasswordTitle)),
-        body:
-            BaseUiEventListener<
-              ForgetPasswordCubit,
-              ForgetPasswordState,
-              BaseUiEvent
-            >(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      SizedBox(height: 50.h),
-                      Center(child: Text(l10n.forgetPasswordTitle)),
-                      SizedBox(height: 10.h),
-                      Text(
-                        l10n.forgetPasswordDescription,
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 20.h),
-                      CustomTextFormField(
-                        controller: _emailController,
-                        label: l10n.email,
-                        hint: l10n.enterEmail,
-                        validator: AuthValidators.email,
-                        keyboardType: TextInputType.emailAddress,
-                      ),
-                      SizedBox(height: 30.h),
-                      _buildConfirmButton(l10n),
-                    ],
-                  ),
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.forgetPasswordTitle)),
+      body:
+          BaseUiEventListener<
+            ForgetPasswordCubit,
+            ForgetPasswordState,
+            BaseUiEvent
+          >(
+            cubit: context.read<ForgetPasswordCubit>(),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.w),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 50),
+                    Center(child: Text(l10n.forgetPasswordTitle)),
+                    const SizedBox(height: 10),
+                    Text(
+                      l10n.forgetPasswordDescription,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    CustomTextFormField(
+                      controller: _emailController,
+                      label: l10n.email,
+                      hint: l10n.enterEmail,
+                      validator: AuthValidators.email,
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 30),
+                    _buildConfirmButton(l10n),
+                  ],
                 ),
               ),
             ),
-      ),
+          ),
     );
   }
 

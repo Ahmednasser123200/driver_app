@@ -50,7 +50,7 @@ void main() {
         locale: const Locale('en'),
         home: BlocProvider.value(
           value: mockCubit,
-          child: VerificationView(email: 'test@example.com', cubit: mockCubit),
+          child: const VerificationView(),
         ),
       ),
     );

@@ -79,6 +79,8 @@ class _BaseUiEventListenerState<
       case PopRoute():
         Navigator.of(context).pop(event.result);
       case ClearOtpField():
+      case ForgetPasswordGoToVerification():
+      case ForgetPasswordGoToReset():
         widget.onCustomEvent?.call(context, event);
         break;
     }

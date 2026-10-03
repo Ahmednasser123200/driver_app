@@ -47,7 +47,7 @@ void main() {
         locale: const Locale('en'),
         home: BlocProvider.value(
           value: mockCubit,
-          child: ForgetPasswordView(cubit: mockCubit),
+          child: const ForgetPasswordView(),
         ),
       ),
     );
@@ -128,7 +128,7 @@ void main() {
           locale: const Locale('en'),
           home: BlocProvider.value(
             value: loadingMockCubit,
-            child: ForgetPasswordView(cubit: loadingMockCubit),
+            child: const ForgetPasswordView(),
           ),
         ),
       ),

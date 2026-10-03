@@ -101,6 +101,7 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
   Future<void> _forgetPassword({required String email}) async {
     emit(
       state.copyWith(
+        email: email,
         forgotState: state.forgotState.copyWith(
           isLoading: true,
           errorMessage: '',
@@ -124,10 +125,11 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
               ),
             ),
           );
-          emitEvent(ShowSuccessMessage(entity.message));
           emitEvent(
             NavigateTo(Routes.verificationCode, arguments: {'email': email}),
           );
+          emitEvent(ShowSuccessMessage(entity.message));
+          emitEvent(const ForgetPasswordGoToVerification());
           _restartOtpSession();
           break;
         }
@@ -141,6 +143,7 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
   Future<void> _resendOtp({required String email}) async {
     emit(
       state.copyWith(
+        email: email,
         resendOtpState: state.resendOtpState.copyWith(
           isLoading: true,
           errorMessage: '',
@@ -221,6 +224,7 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
               arguments: {'email': email, 'otpcode': entity.resetToken},
             ),
           );
+          emitEvent(const ForgetPasswordGoToReset());
           break;
         }
       case Error(:final failure):

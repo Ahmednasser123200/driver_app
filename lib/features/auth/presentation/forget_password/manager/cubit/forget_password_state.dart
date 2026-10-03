@@ -17,6 +17,7 @@ class ForgetPasswordState extends Equatable {
   final BaseState<ResetPasswordEntity> resetState;
   final int resendSecondsRemaining;
   final int verifyAttemptsRemaining;
+  final String email;
 
   const ForgetPasswordState({
     this.forgotState = const BaseState<ForgetPasswordEntity>(),
@@ -25,6 +26,7 @@ class ForgetPasswordState extends Equatable {
     this.resendOtpState = const BaseState<ForgetPasswordEntity>(),
     this.resendSecondsRemaining = 0,
     this.verifyAttemptsRemaining = OtpPolicy.maxVerifyAttempts,
+    this.email = '',
   });
 
   bool get isOtpLockedOut => verifyAttemptsRemaining <= 0;
@@ -37,6 +39,7 @@ class ForgetPasswordState extends Equatable {
     BaseState<ResetPasswordEntity>? resetState,
     int? resendSecondsRemaining,
     int? verifyAttemptsRemaining,
+    String? email,
   }) {
     return ForgetPasswordState(
       forgotState: forgotState ?? this.forgotState,
@@ -47,6 +50,7 @@ class ForgetPasswordState extends Equatable {
           resendSecondsRemaining ?? this.resendSecondsRemaining,
       verifyAttemptsRemaining:
           verifyAttemptsRemaining ?? this.verifyAttemptsRemaining,
+      email: email ?? this.email,
     );
   }
 
@@ -58,5 +62,6 @@ class ForgetPasswordState extends Equatable {
     resetState,
     resendSecondsRemaining,
     verifyAttemptsRemaining,
+    email,
   ];
 }

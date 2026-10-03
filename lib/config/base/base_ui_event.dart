@@ -1,5 +1,7 @@
 import 'package:driver_app/config/errors/app_failure.dart';
 
+part '../../features/auth/presentation/forget_password/manager/cubit/forget_password_ui_event.dart';
+
 sealed class BaseUiEvent {
   const BaseUiEvent();
 }
@@ -23,8 +25,4 @@ class NavigateTo extends BaseUiEvent {
 class PopRoute extends BaseUiEvent {
   final Object? result;
   const PopRoute([this.result]);
-}
-
-class ClearOtpField extends BaseUiEvent {
-  const ClearOtpField();
 }

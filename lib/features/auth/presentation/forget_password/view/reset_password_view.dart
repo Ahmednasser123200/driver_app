@@ -13,16 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 class ResetPasswordView extends StatefulWidget {
-  const ResetPasswordView({
-    super.key,
-    required this.email,
-    required this.otpcode,
-    required this.cubit,
-  });
-
-  final String email;
-  final String otpcode;
-  final ForgetPasswordCubit cubit;
+  const ResetPasswordView({super.key});
 
   @override
   State<ResetPasswordView> createState() => _ResetPasswordViewState();
@@ -37,11 +28,20 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
   @override
   void initState() {
     super.initState();
-    _checkVerificationStatus();
+    _checkVerificationStatus(context.read<ForgetPasswordCubit>().state);
   }
 
-  Future<void> _checkVerificationStatus() async {
-    final state = widget.cubit.state;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final state = context.read<ForgetPasswordCubit>().state;
+    final verified = state.otpState.data?.resetToken.isNotEmpty ?? false;
+    if (verified != _isVerified && mounted) {
+      setState(() => _isVerified = verified);
+    }
+  }
+
+  void _checkVerificationStatus(ForgetPasswordState state) {
     if (state.otpState.data != null &&
         state.otpState.data!.resetToken.isNotEmpty) {
       if (mounted) {
@@ -54,8 +54,16 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return BlocProvider.value(
-      value: widget.cubit,
+    return BlocListener<ForgetPasswordCubit, ForgetPasswordState>(
+      listenWhen: (previous, current) =>
+          previous.otpState.data?.resetToken !=
+          current.otpState.data?.resetToken,
+      listener: (context, state) {
+        final verified = state.otpState.data?.resetToken.isNotEmpty ?? false;
+        if (verified != _isVerified) {
+          setState(() => _isVerified = verified);
+        }
+      },
       child: Scaffold(
         appBar: AppBar(title: Text(l10n.resetPasswordTitle)),
         body:
@@ -64,6 +72,7 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
               ForgetPasswordState,
               BaseUiEvent
             >(
+              cubit: context.read<ForgetPasswordCubit>(),
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10.w),
                 child: Form(
@@ -71,7 +80,7 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        SizedBox(height: 50.h),
+                        const SizedBox(height: 50),
                         Center(
                           child: Text(
                             l10n.resetPasswordTitle,
@@ -81,12 +90,12 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 10.h),
+                        const SizedBox(height: 10),
                         Text(
                           l10n.resetPasswordDescription,
                           textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: 20.h),
+                        const SizedBox(height: 20),
                         CustomTextFormField(
                           label: l10n.newPassword,
                           hint: l10n.enterPassword,
@@ -95,7 +104,7 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
                           keyboardType: TextInputType.visiblePassword,
                           obscureText: true,
                         ),
-                        SizedBox(height: 20.h),
+                        const SizedBox(height: 20),
                         CustomTextFormField(
                           label: l10n.confirmPassword,
                           hint: l10n.confirmPassword,
@@ -107,7 +116,7 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
                           keyboardType: TextInputType.visiblePassword,
                           obscureText: true,
                         ),
-                        SizedBox(height: 30.h),
+                        const SizedBox(height: 30),
                         _buildResetButton(l10n),
                       ],
                     ),
@@ -122,20 +131,27 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
   Widget _buildResetButton(AppLocalizations l10n) {
     return BlocBuilder<ForgetPasswordCubit, ForgetPasswordState>(
       buildWhen: (previous, current) =>
-          previous.resetState.isLoading != current.resetState.isLoading,
+          previous.resetState.isLoading != current.resetState.isLoading ||
+          previous.otpState != current.otpState ||
+          previous.email != current.email,
       builder: (context, state) {
+        final resetCode = state.otpState.data?.resetToken ?? '';
+        final email = state.email;
+        final canSubmit =
+            _isVerified && email.isNotEmpty && resetCode.isNotEmpty;
+
         return CustomButton(
           isLoading: state.resetState.isLoading,
           label: l10n.updateButton,
-          enabled: !state.resetState.isLoading && _isVerified,
-          onPressed: _isVerified
+          enabled: !state.resetState.isLoading && canSubmit,
+          onPressed: canSubmit
               ? () {
                   if (_formKey.currentState!.validate()) {
                     context.read<ForgetPasswordCubit>().doEvent(
                       ResetPasswordEvent(
-                        email: widget.email,
+                        email: email,
                         newPassword: _newPasswordController.text,
-                        resetCode: widget.otpcode,
+                        resetCode: resetCode,
                       ),
                     );
                   }

@@ -57,11 +57,7 @@ void main() {
         locale: const Locale('en'),
         home: BlocProvider.value(
           value: mockCubit,
-          child: ResetPasswordView(
-            email: 'test@example.com',
-            otpcode: '123456',
-            cubit: mockCubit,
-          ),
+          child: const ResetPasswordView(),
         ),
       ),
     );
