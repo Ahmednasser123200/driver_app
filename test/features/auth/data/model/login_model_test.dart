@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:driver_app/features/auth/data/model/data_dto.dart';
 import 'package:driver_app/features/auth/data/model/request/login_request/login_request.dart';
 import 'package:driver_app/features/auth/data/model/response/login_response/login_response.dart';
 import 'package:driver_app/features/auth/data/model/user_dto.dart';
 import 'package:driver_app/features/auth/domain/entities/login_entity/login_credentials.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('LoginCredentials', () {

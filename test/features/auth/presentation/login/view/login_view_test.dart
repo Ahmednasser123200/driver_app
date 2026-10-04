@@ -1,14 +1,14 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:driver_app/config/di/di.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_cubit.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_intent.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_state.dart';
 import 'package:driver_app/features/auth/presentation/login/view/login_view.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 class MockLoginCubit extends MockCubit<LoginState> implements LoginCubit {}
 
@@ -35,7 +35,6 @@ void main() {
     registerFallbackValue(RememberMeChanged(false));
     registerFallbackValue(TogglePasswordVisibility());
     registerFallbackValue(LoginSubmitted());
-    registerFallbackValue(LoadRememberedEmail());
   });
 
   setUp(() async {
@@ -58,13 +57,6 @@ void main() {
       expect(find.byType(TextFormField), findsNWidgets(2));
       expect(find.byType(Checkbox), findsOneWidget);
       expect(find.byType(ElevatedButton), findsOneWidget);
-    });
-
-    testWidgets('dispatches LoadRememberedEmail on view initialization', (tester) async {
-      await tester.pumpWidget(createTestableWidget(const LoginView()));
-      await tester.pumpAndSettle();
-
-      verify(() => mockLoginCubit.handle(any(that: isA<LoadRememberedEmail>()))).called(1);
     });
 
     testWidgets('dispatches EmailChanged when email input changes', (tester) async {

@@ -2,7 +2,7 @@ import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/di/di.dart';
 import 'package:driver_app/config/routing/routes.dart';
 import 'package:driver_app/config/utils/auth_validators.dart';
-import 'package:driver_app/core/constants/app_strings/app_strings.dart';
+import 'package:driver_app/core/extensions/context_extension.dart';
 import 'package:driver_app/core/shared/widgets/base_ui_event_listener.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
 import 'package:driver_app/core/shared/widgets/custom_text_form_field.dart';
@@ -69,7 +69,7 @@ class _LoginViewContentState extends State<_LoginViewContent> {
           onPressed: () => Navigator.maybePop(context),
         ),
         title: Text(
-          AppStrings.login,
+          context.l10n.login,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
             color: AppColors.black,
@@ -92,8 +92,8 @@ class _LoginViewContentState extends State<_LoginViewContent> {
                 children: [
                   // Email Field
                   CustomTextFormField(
-                    label: AppStrings.email,
-                    hint: AppStrings.enterEmail,
+                    label: context.l10n.email,
+                    hint: context.l10n.enterEmail,
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     validator: AuthValidators.email,
@@ -107,8 +107,8 @@ class _LoginViewContentState extends State<_LoginViewContent> {
                     selector: (state) => state.obscurePassword,
                     builder: (context, obscurePassword) {
                       return CustomTextFormField(
-                        label: AppStrings.password,
-                        hint: AppStrings.enterPassword,
+                        label: context.l10n.password,
+                        hint: context.l10n.enterPassword,
                         controller: _passwordController,
                         obscureText: obscurePassword,
                         validator: AuthValidators.password,
@@ -160,7 +160,7 @@ class _LoginViewContentState extends State<_LoginViewContent> {
                       ),
                       SizedBox(width: 8.w),
                       Text(
-                        AppStrings.rememberMe,
+                        context.l10n.rememberMe,
                         style: Theme.of(context).textTheme.bodySmall
                             ?.copyWith(color: AppColors.black),
                       ),
@@ -171,7 +171,7 @@ class _LoginViewContentState extends State<_LoginViewContent> {
                           Routes.forgetPassword,
                         ),
                         child: Text(
-                          AppStrings.forgetPassword,
+                          context.l10n.forgetPassword,
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
                                 color: AppColors.black,
@@ -190,7 +190,7 @@ class _LoginViewContentState extends State<_LoginViewContent> {
                         previous.isFormFilled != current.isFormFilled,
                     builder: (context, state) {
                       return CustomButton(
-                        label: AppStrings.continueLabel,
+                        label: context.l10n.continueButton,
                         isLoading: state.isLoading,
                         enabled: state.isFormFilled,
                         onPressed: () {
