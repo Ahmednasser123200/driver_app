@@ -67,14 +67,14 @@ class UserAddressCard extends StatelessWidget {
                   address,
 
                   style: TextStyle(
-                    fontSize: 16.sp,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(width: 16.w),
+          SizedBox(width: 5.w),
           IconButton(
             tooltip: 'Call',
             icon: const Icon(Icons.call, color: AppColors.primary),
@@ -88,7 +88,7 @@ class UserAddressCard extends StatelessWidget {
             ),
             onPressed: onWhatsAppPressed,
           ),
-          SizedBox(width: 16.w),
+          SizedBox(width: 0.w),
         ],
       ),
     );
