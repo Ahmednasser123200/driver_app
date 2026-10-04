@@ -8,27 +8,15 @@ import 'package:driver_app/features/auth/domain/use_case/login_use_case.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../../core/constants/app_strings/app_strings.dart';
-import '../../../domain/use_case/delete_remembered_email_use_case.dart';
-import '../../../domain/use_case/load_remembered_email_use_case.dart';
-import '../../../domain/use_case/save_remembered_email_use_case.dart';
+
 import 'login_intent.dart';
 import 'login_state.dart';
-import 'login_ui_event.dart';
 
 @injectable
 class LoginCubit extends BaseCubit<LoginState, BaseUiEvent> {
   final LoginUseCase _loginUseCase;
 
-  final LoadRememberedEmailUseCase _loadRememberedEmailUseCase;
-  final SaveRememberedEmailUseCase _saveRememberedEmailUseCase;
-  final DeleteRememberedEmailUseCase _deleteRememberedEmailUseCase;
-
-  LoginCubit(
-    this._loginUseCase,
-    this._saveRememberedEmailUseCase,
-    this._deleteRememberedEmailUseCase,
-    this._loadRememberedEmailUseCase,
-  ) : super(const LoginState());
+  LoginCubit(this._loginUseCase) : super(const LoginState());
 
   Future<void> handle(LoginIntent intent) async {
     switch (intent) {
@@ -42,16 +30,6 @@ class LoginCubit extends BaseCubit<LoginState, BaseUiEvent> {
         emit(state.copyWith(obscurePassword: !state.obscurePassword));
       case LoginSubmitted():
         await _login();
-      case LoadRememberedEmail():
-        await _loadRememberedEmail();
-    }
-  }
-
-  Future<void> _loadRememberedEmail() async {
-    final savedEmail = await _loadRememberedEmailUseCase();
-    if (savedEmail != null && savedEmail.isNotEmpty && state.email.isEmpty) {
-      emit(state.copyWith(email: savedEmail, rememberMe: true));
-      emitEvent(EmailPreFilledEvent(savedEmail));
     }
   }
 
@@ -66,12 +44,6 @@ class LoginCubit extends BaseCubit<LoginState, BaseUiEvent> {
     );
     switch (result) {
       case Success<LoginEntity>(data: final login):
-        if (state.rememberMe) {
-          await _saveRememberedEmailUseCase(state.email);
-        } else {
-          await _deleteRememberedEmailUseCase();
-        }
-
         emit(state.copyWith(isLoading: false, data: login, loginSuccess: true));
         emitEvent(const ShowSuccessMessage(AppStrings.loggedInSuccessfully));
 

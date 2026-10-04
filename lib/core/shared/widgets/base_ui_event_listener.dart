@@ -26,7 +26,11 @@ class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
       _BaseUiEventListenerState<C, S, E>();
 }
 
-class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
+class _BaseUiEventListenerState<
+  C extends BaseCubit<S, E>,
+  S,
+  E extends BaseUiEvent
+>
     extends State<BaseUiEventListener<C, S, E>> {
   StreamSubscription<E>? _subscription;
 
@@ -37,9 +41,7 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
   }
 
   @override
-  void didUpdateWidget(
-    covariant BaseUiEventListener<C, S, E> oldWidget,
-  ) {
+  void didUpdateWidget(covariant BaseUiEventListener<C, S, E> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.cubit != widget.cubit) {
       _unsubscribe();
@@ -57,15 +59,10 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
   }
 
   void _handleEvent(BuildContext context, E event) {
-    widget.onCustomEvent?.call(context, event);
-
     switch (event) {
       case ShowSuccessMessage():
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(event.message),
-            backgroundColor: Colors.green,
-          ),
+          SnackBar(content: Text(event.message), backgroundColor: Colors.green),
         );
       case ShowErrorMessage():
         final l10n = AppLocalizations.of(context)!;
@@ -74,19 +71,18 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
             : (event.message ?? '');
         if (errorMessage.isNotEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMessage),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
           );
         }
       case NavigateTo():
-        Navigator.of(context).pushNamed(
-          event.routeName,
-          arguments: event.arguments,
-        );
+        Navigator.of(
+          context,
+        ).pushNamed(event.routeName, arguments: event.arguments);
       case PopRoute():
         Navigator.of(context).pop(event.result);
+
+      default:
+        widget.onCustomEvent?.call(context, event);
     }
   }
 

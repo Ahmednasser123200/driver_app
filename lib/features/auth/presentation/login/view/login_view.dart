@@ -10,7 +10,7 @@ import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_cubit.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_intent.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_state.dart';
-import 'package:driver_app/features/auth/presentation/login/manager/login_ui_event.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -45,11 +45,7 @@ class _LoginViewContentState extends State<_LoginViewContent> {
     super.initState();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<LoginCubit>().handle(LoadRememberedEmail());
-      }
-    });
+
   }
 
   @override
@@ -83,11 +79,7 @@ class _LoginViewContentState extends State<_LoginViewContent> {
       ),
       body: SafeArea(
         child: BaseUiEventListener<LoginCubit, LoginState, BaseUiEvent>(
-          onCustomEvent: (context, event) {
-            if (event is EmailPreFilledEvent) {
-              _emailController.text = event.email;
-            }
-          },
+
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(
               horizontal: 16.w,
@@ -193,6 +185,9 @@ class _LoginViewContentState extends State<_LoginViewContent> {
 
                   // Continue Button
                   BlocBuilder<LoginCubit, LoginState>(
+                    buildWhen: (previous, current) =>
+                    previous.isLoading != current.isLoading ||
+                        previous.isFormFilled != current.isFormFilled,
                     builder: (context, state) {
                       return CustomButton(
                         label: AppStrings.continueLabel,

@@ -24,13 +24,7 @@ import '../../features/auth/data/data_source/remote_data_source/auth_remote_data
     as _i885;
 import '../../features/auth/data/repo_impl/auth_repo_impl.dart' as _i279;
 import '../../features/auth/domain/repo/auth_repo.dart' as _i170;
-import '../../features/auth/domain/use_case/delete_remembered_email_use_case.dart'
-    as _i25;
-import '../../features/auth/domain/use_case/load_remembered_email_use_case.dart'
-    as _i481;
 import '../../features/auth/domain/use_case/login_use_case.dart' as _i973;
-import '../../features/auth/domain/use_case/save_remembered_email_use_case.dart'
-    as _i705;
 import '../../features/auth/presentation/login/manager/login_cubit.dart'
     as _i889;
 import '../dio/auth_interceptor.dart' as _i839;
@@ -52,11 +46,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => secureStorageModule.secureStorage,
     );
-    gh.lazySingleton<_i839.AuthInterceptors>(
-      () => _i839.AuthInterceptors(gh<_i558.FlutterSecureStorage>()),
-    );
     gh.lazySingleton<_i688.SecureStorageService>(
       () => _i688.SecureStorageService(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.lazySingleton<_i839.AuthInterceptors>(
+      () => _i839.AuthInterceptors(gh<_i688.SecureStorageService>()),
     );
     gh.lazySingleton<_i361.Dio>(
       () => dioModule.dio(gh<_i839.AuthInterceptors>()),
@@ -76,22 +70,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i973.LoginUseCase>(
       () => _i973.LoginUseCase(gh<_i170.AuthRepo>()),
     );
-    gh.factory<_i25.DeleteRememberedEmailUseCase>(
-      () => _i25.DeleteRememberedEmailUseCase(gh<_i170.AuthRepo>()),
-    );
-    gh.factory<_i481.LoadRememberedEmailUseCase>(
-      () => _i481.LoadRememberedEmailUseCase(gh<_i170.AuthRepo>()),
-    );
-    gh.factory<_i705.SaveRememberedEmailUseCase>(
-      () => _i705.SaveRememberedEmailUseCase(gh<_i170.AuthRepo>()),
-    );
     gh.factory<_i889.LoginCubit>(
-      () => _i889.LoginCubit(
-        gh<_i973.LoginUseCase>(),
-        gh<_i705.SaveRememberedEmailUseCase>(),
-        gh<_i25.DeleteRememberedEmailUseCase>(),
-        gh<_i481.LoadRememberedEmailUseCase>(),
-      ),
+      () => _i889.LoginCubit(gh<_i973.LoginUseCase>()),
     );
     return this;
   }

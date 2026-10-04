@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/dio/dio_failure_mapper.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
-import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/features/auth/api/service/secure_storage.dart';
 import 'package:driver_app/features/auth/data/data_source/remote_data_source/auth_remote_data_source.dart';
 import 'package:driver_app/features/auth/data/model/request/login_request/login_request.dart';
@@ -37,48 +36,28 @@ class AuthRepoImpl implements AuthRepo {
       if (response.isSuccess == true && loginData != null) {
         final entity = loginData.toLoginEntity();
 
-        // 1. التحقق الحاسم من الدور (Role Guard)
         final role = entity.user?.role.toLowerCase();
         if (role != 'driver') {
-          return Error(
-            // BadRequestFailure(
-            //   serverMessage: AppStrings.notDriverAccount,
-            // ),
-            //
-            NotDriverAccountFailure(),
-          );
+          return Error(NotDriverAccountFailure());
         }
 
-        // 2. حفظ الـ Token والـ Refresh Token بعد التأكد من الصلاحية
-        await _secureStorage.saveAccessToken(entity.accessToken);
-        await _secureStorage.saveRefreshToken(entity.refreshToken);
-
-
-        // if (rememberMe) {
-        //   await _secureStorage.saveRememberedEmail(credentials.email);
-        // } else {
-        //   await _secureStorage.deleteRememberedEmail();
-        // }
+        await _secureStorage.saveAccessToken(
+          entity.accessToken,
+          rememberMe: rememberMe,
+        );
+        await _secureStorage.saveRefreshToken(
+          entity.refreshToken,
+          rememberMe: rememberMe,
+        );
 
         return Success(entity);
       }
 
-      return Error(
-        // BadRequestFailure(
-        //   serverMessage: response.message ?? 'فشل تسجيل الدخول.',
-        // ),
-        BadResponse()
-      );
+      return Error(BadResponse());
     } on DioException catch (e) {
       return Error(mapDioExceptionToAppFailure(e));
     } catch (e) {
       return const Error(UnknownFailure());
     }
   }
-  @override
-  Future<void> saveRememberedEmail(String email)=>_secureStorage.saveRememberedEmail(email);
-  @override
-  Future<String?> getRememberedEmail()=>_secureStorage.getRememberedEmail();
-  @override
-  Future<void> deleteRememberedEmail()=>_secureStorage.deleteRememberedEmail();
 }
