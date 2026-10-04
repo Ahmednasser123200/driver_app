@@ -16,6 +16,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
+import '../../features/order_details/api/client/order_details_api_client.dart'
+    as _i329;
+import '../../features/order_details/api/data_source_impl/remote/order_details_remote_data_source_impl.dart'
+    as _i537;
+import '../../features/order_details/data/datasources/order_details_remote_data_source.dart'
+    as _i702;
 import '../dio/auth_interceptor.dart' as _i839;
 import '../dio/dio_module.dart' as _i977;
 import '../utils/secure_storage_module.dart' as _i327;
@@ -40,6 +46,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i361.Dio>(
       () => dioModule.dio(gh<_i839.AuthInterceptors>()),
+    );
+    gh.singleton<_i329.OrderDetailsApiClient>(
+      () => _i329.OrderDetailsApiClient(gh<_i361.Dio>(), baseUrl: gh<String>()),
+    );
+    gh.lazySingleton<_i702.OrderDetailsRemoteDataSource>(
+      () => _i537.OrderDetailsRemoteDataSourceImpl(
+        gh<_i329.OrderDetailsApiClient>(),
+      ),
     );
     return this;
   }

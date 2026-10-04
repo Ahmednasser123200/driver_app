@@ -5,7 +5,6 @@ import 'package:driver_app/features/order_details/presentation/widgets/order_sta
 import 'package:driver_app/features/order_details/presentation/widgets/order_total.dart';
 import 'package:driver_app/features/order_details/presentation/widgets/payment_method_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 
