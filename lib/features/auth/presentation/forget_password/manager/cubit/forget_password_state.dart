@@ -7,7 +7,6 @@ import '../../../../domain/entities/forget_entity/verify_oto_entity.dart';
 
 abstract final class OtpPolicy {
   static const int resendCooldownSeconds = 30;
-  static const int maxVerifyAttempts = 5;
 }
 
 class ForgetPasswordState extends Equatable {
@@ -16,7 +15,6 @@ class ForgetPasswordState extends Equatable {
   final BaseState<ForgetPasswordEntity> forgotState;
   final BaseState<ResetPasswordEntity> resetState;
   final int resendSecondsRemaining;
-  final int verifyAttemptsRemaining;
   final String email;
 
   const ForgetPasswordState({
@@ -25,11 +23,9 @@ class ForgetPasswordState extends Equatable {
     this.otpState = const BaseState<VerifyOtpEntity>(),
     this.resendOtpState = const BaseState<ForgetPasswordEntity>(),
     this.resendSecondsRemaining = 0,
-    this.verifyAttemptsRemaining = OtpPolicy.maxVerifyAttempts,
     this.email = '',
   });
 
-  bool get isOtpLockedOut => verifyAttemptsRemaining <= 0;
   bool get canResendOtp => resendSecondsRemaining <= 0;
 
   ForgetPasswordState copyWith({
@@ -38,7 +34,6 @@ class ForgetPasswordState extends Equatable {
     BaseState<ForgetPasswordEntity>? forgotState,
     BaseState<ResetPasswordEntity>? resetState,
     int? resendSecondsRemaining,
-    int? verifyAttemptsRemaining,
     String? email,
   }) {
     return ForgetPasswordState(
@@ -46,10 +41,7 @@ class ForgetPasswordState extends Equatable {
       resetState: resetState ?? this.resetState,
       otpState: otpState ?? this.otpState,
       resendOtpState: resendOtpState ?? this.resendOtpState,
-      resendSecondsRemaining:
-          resendSecondsRemaining ?? this.resendSecondsRemaining,
-      verifyAttemptsRemaining:
-          verifyAttemptsRemaining ?? this.verifyAttemptsRemaining,
+      resendSecondsRemaining: resendSecondsRemaining ?? this.resendSecondsRemaining,
       email: email ?? this.email,
     );
   }
@@ -61,7 +53,6 @@ class ForgetPasswordState extends Equatable {
     forgotState,
     resetState,
     resendSecondsRemaining,
-    verifyAttemptsRemaining,
     email,
   ];
 }

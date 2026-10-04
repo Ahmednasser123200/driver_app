@@ -1,6 +1,7 @@
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/auth/domain/entities/forget_entity/forget_password_entity.dart';
+import 'package:driver_app/features/auth/domain/entities/forget_entity/verify_oto_entity.dart';
 import 'package:driver_app/features/auth/domain/use_case/forget_password_use_case.dart';
 import 'package:driver_app/features/auth/domain/use_case/reset_password_use_case.dart';
 import 'package:driver_app/features/auth/domain/use_case/verify_otp_use_case.dart';
@@ -18,6 +19,11 @@ class MockVerifyOtpUserCase extends Mock implements VerifyOtpUseCase {}
 
 class MockResetPasswordUserCase extends Mock implements ResetPasswordUserCase {}
 
+/// Covers the resend-cooldown policy. Every time-based test runs inside
+/// `fakeAsync`, so nothing waits on the wall clock.
+///
+/// Limiting verification attempts is not a client concern: the backend owns it
+/// and the cubit just surfaces whatever failure it returns.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -28,125 +34,135 @@ void main() {
   late MockResetPasswordUserCase resetUserCase;
   late ForgetPasswordCubit cubit;
 
+  void stubForgetPassword(BaseResponse<ForgetPasswordEntity> response) {
+    when(
+          () => forgetUserCase.call(email: any(named: 'email')),
+    ).thenAnswer((_) async => response);
+  }
+
+  void stubVerifyOtp(BaseResponse<VerifyOtpEntity> response) {
+    when(
+          () => verifyUserCase.call(
+        email: any(named: 'email'),
+        otp: any(named: 'otp'),
+      ),
+    ).thenAnswer((_) async => response);
+  }
+
+  BaseResponse<ForgetPasswordEntity> sentOk() => Success<ForgetPasswordEntity>(
+    ForgetPasswordEntity(isSuccess: true, message: 'sent'),
+  );
+
   setUp(() {
     forgetUserCase = MockForgetPasswordUserCase();
     verifyUserCase = MockVerifyOtpUserCase();
     resetUserCase = MockResetPasswordUserCase();
     cubit = ForgetPasswordCubit(forgetUserCase, verifyUserCase, resetUserCase);
-
-    when(
-      () => verifyUserCase.call(
-        email: any(named: 'email'),
-        otp: any(named: 'otp'),
-      ),
-    ).thenAnswer((_) async => const Error(BadRequestFailure()));
   });
 
   tearDown(() => cubit.close());
 
-  Future<void> verifyOnce() async {
-    await cubit.doEvent(VerifyOtpEvent(otpCode: '000000', email: email));
+  // Dispatches an event and lets the mocked use case answer, without waiting
+  // on real time.
+  void dispatch(FakeAsync async, ForgetPasswordAbstractEvent event) {
+    cubit.doEvent(event);
+    async.flushMicrotasks();
   }
 
-  group('resend cooldown', () {
-    test('starts at 30 seconds when the screen mounts', () {
-      expect(cubit.state.resendSecondsRemaining, 0);
-
-      cubit.startResendCooldown();
-
-      expect(
-        cubit.state.resendSecondsRemaining,
-        OtpPolicy.resendCooldownSeconds,
-      );
-      expect(cubit.state.canResendOtp, isFalse);
+  group('resend cooldown policy', () {
+    test('is a 30 second cooldown', () {
+      expect(OtpPolicy.resendCooldownSeconds, 30);
     });
 
-    test('resend becomes available only after the cooldown elapses', () {
-      fakeAsync((async) {
-        cubit.startResendCooldown();
+    test('resend is available before any code has been sent', () {
+      expect(cubit.state.resendSecondsRemaining, 0);
+      expect(cubit.state.canResendOtp, isTrue);
+    });
 
-        async.elapse(const Duration(seconds: 5));
-        expect(cubit.state.resendSecondsRemaining, 25);
+    test('resend stays blocked for the full cooldown after a code is sent', () {
+      fakeAsync((async) {
+        stubForgetPassword(sentOk());
+
+        dispatch(async, ForgetPasswordEvent(email: email));
+
+        async.elapse(const Duration(seconds: 29));
+        expect(cubit.state.resendSecondsRemaining, 1);
         expect(cubit.state.canResendOtp, isFalse);
 
-        async.elapse(const Duration(seconds: 25));
+        async.elapse(const Duration(seconds: 1));
         expect(cubit.state.resendSecondsRemaining, 0);
         expect(cubit.state.canResendOtp, isTrue);
       });
     });
 
-    test('a successful resend restarts the cooldown', () async {
-      when(() => forgetUserCase.call(email: any(named: 'email'))).thenAnswer(
-        (_) async =>
-            Success(ForgetPasswordEntity(isSuccess: true, message: 'sent')),
-      );
+    test('a successful resend restarts the cooldown', () {
+      fakeAsync((async) {
+        stubForgetPassword(sentOk());
 
-      cubit.startResendCooldown();
-      await Future<void>.delayed(const Duration(seconds: 2));
-      expect(cubit.state.canResendOtp, isFalse);
+        dispatch(async, ForgetPasswordEvent(email: email));
+        async.elapse(const Duration(seconds: 20));
+        expect(cubit.state.resendSecondsRemaining, 10);
+        expect(cubit.state.canResendOtp, isFalse);
 
-      await cubit.doEvent(ResendOtpEvent(email: email));
+        dispatch(async, ResendOtpEvent(email: email));
 
-      expect(
-        cubit.state.resendSecondsRemaining,
-        OtpPolicy.resendCooldownSeconds,
-      );
-      expect(cubit.state.canResendOtp, isFalse);
-    });
-  });
-  group('max verify attempts', () {
-    test('starts with 5 attempts and is not locked out', () {
-      expect(cubit.state.verifyAttemptsRemaining, 5);
-      expect(cubit.state.isOtpLockedOut, isFalse);
+        expect(
+          cubit.state.resendSecondsRemaining,
+          OtpPolicy.resendCooldownSeconds,
+        );
+        expect(cubit.state.canResendOtp, isFalse);
+
+        async.elapse(const Duration(seconds: OtpPolicy.resendCooldownSeconds));
+        expect(cubit.state.canResendOtp, isTrue);
+      });
     });
 
-    test('each failed verification consumes one attempt', () async {
-      await verifyOnce();
+    test('a failed resend does not restart the cooldown', () {
+      fakeAsync((async) {
+        stubForgetPassword(sentOk());
+        dispatch(async, ForgetPasswordEvent(email: email));
+        async.elapse(const Duration(seconds: 10));
+        expect(cubit.state.resendSecondsRemaining, 20);
 
-      expect(cubit.state.verifyAttemptsRemaining, 4);
-      expect(cubit.state.isOtpLockedOut, isFalse);
+        stubForgetPassword(
+          const Error<ForgetPasswordEntity>(TooManyRequestsFailure()),
+        );
+        dispatch(async, ResendOtpEvent(email: email));
+
+        expect(cubit.state.resendSecondsRemaining, 20);
+        expect(cubit.state.resendOtpState.failure, isA<TooManyRequestsFailure>());
+      });
     });
 
-    test('locks out on the 5th failure', () async {
-      for (var i = 0; i < 5; i++) {
-        await verifyOnce();
-      }
+    test('verifying the code does not affect the cooldown', () {
+      fakeAsync((async) {
+        stubForgetPassword(sentOk());
+        dispatch(async, ForgetPasswordEvent(email: email));
+        async.elapse(const Duration(seconds: 5));
+        expect(cubit.state.resendSecondsRemaining, 25);
 
-      expect(cubit.state.verifyAttemptsRemaining, 0);
-      expect(cubit.state.isOtpLockedOut, isTrue);
+        stubVerifyOtp(const Error<VerifyOtpEntity>(BadRequestFailure()));
+        dispatch(async, VerifyOtpEvent(otpCode: '000000', email: email));
+
+        expect(cubit.state.resendSecondsRemaining, 25);
+        expect(cubit.state.canResendOtp, isFalse);
+      });
     });
 
-    test('refuses further verification attempts once locked out', () async {
-      for (var i = 0; i < 5; i++) {
-        await verifyOnce();
-      }
-      clearInteractions(verifyUserCase);
+    test('wrong codes never block resending on the client', () {
+      fakeAsync((async) {
+        stubVerifyOtp(const Error<VerifyOtpEntity>(BadRequestFailure()));
 
-      await verifyOnce();
+        for (var i = 0; i < 10; i++) {
+          dispatch(async, VerifyOtpEvent(otpCode: '000000', email: email));
+        }
 
-      verifyNever(
-        () => verifyUserCase.call(
-          email: any(named: 'email'),
-          otp: any(named: 'otp'),
-        ),
-      );
-      expect(cubit.state.verifyAttemptsRemaining, 0);
-    });
-
-    test('a successful resend restores the full attempt budget', () async {
-      for (var i = 0; i < 5; i++) {
-        await verifyOnce();
-      }
-      expect(cubit.state.isOtpLockedOut, isTrue);
-
-      when(() => forgetUserCase.call(email: any(named: 'email'))).thenAnswer(
-        (_) async =>
-            Success(ForgetPasswordEntity(isSuccess: true, message: 'sent')),
-      );
-      await cubit.doEvent(ResendOtpEvent(email: email));
-
-      expect(cubit.state.isOtpLockedOut, isFalse);
-      expect(cubit.state.verifyAttemptsRemaining, 5);
+        expect(cubit.state.canResendOtp, isTrue);
+        expect(cubit.state.otpState.failure, isA<BadRequestFailure>());
+        verify(
+              () => verifyUserCase.call(email: email, otp: '000000'),
+        ).called(10);
+      });
     });
   });
 }

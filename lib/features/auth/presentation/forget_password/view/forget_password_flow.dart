@@ -61,13 +61,15 @@ class _ForgetPasswordFlowState extends State<ForgetPasswordFlow> {
             BaseUiEvent
           >(
             onCustomEvent: (context, event) {
-              if (event is ForgetPasswordGoToVerification) {
-                _goToVerification();
-                return;
-              }
-              if (event is ForgetPasswordGoToReset) {
-                _goToReset();
-                return;
+              switch (event) {
+                case ForgetPasswordGoToVerification():
+                  _goToVerification();
+                  break;
+                case ForgetPasswordGoToReset():
+                  _goToReset();
+                  break;
+                default:
+                  break;
               }
             },
             child: PageView(

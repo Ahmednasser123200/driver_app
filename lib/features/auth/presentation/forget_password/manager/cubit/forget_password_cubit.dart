@@ -18,10 +18,10 @@ import 'forget_password_state.dart';
 @injectable
 class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
   ForgetPasswordCubit(
-    this._forgetPasswordUserCase,
-    this._verifyOtpUserCase,
-    this._resetPasswordUserCase,
-  ) : super(const ForgetPasswordState());
+      this._forgetPasswordUserCase,
+      this._verifyOtpUserCase,
+      this._resetPasswordUserCase,
+      ) : super(const ForgetPasswordState());
 
   final ForgetPasswordUserCase _forgetPasswordUserCase;
   final VerifyOtpUseCase _verifyOtpUserCase;
@@ -29,26 +29,16 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
 
   Timer? _resendTimer;
 
-  void startResendCooldown() {
-    if (_resendTimer?.isActive ?? false) return;
-    _beginCooldown(verifyAttemptsRemaining: state.verifyAttemptsRemaining);
-  }
-
   void _restartOtpSession() {
     _resendTimer?.cancel();
     _resendTimer = null;
-    _beginCooldown(verifyAttemptsRemaining: OtpPolicy.maxVerifyAttempts);
+    _beginCooldown();
   }
 
-  void _beginCooldown({required int verifyAttemptsRemaining}) {
+  void _beginCooldown() {
     _resendTimer?.cancel();
     var remaining = OtpPolicy.resendCooldownSeconds;
-    emit(
-      state.copyWith(
-        resendSecondsRemaining: remaining,
-        verifyAttemptsRemaining: verifyAttemptsRemaining,
-      ),
-    );
+    emit(state.copyWith(resendSecondsRemaining: remaining));
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       remaining--;
       if (remaining <= 0) {
@@ -59,15 +49,6 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
       }
       emit(state.copyWith(resendSecondsRemaining: remaining));
     });
-  }
-
-  void _consumeVerifyAttempt() {
-    if (state.isOtpLockedOut) return;
-    emit(
-      state.copyWith(
-        verifyAttemptsRemaining: state.verifyAttemptsRemaining - 1,
-      ),
-    );
   }
 
   @override
@@ -125,9 +106,6 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
               ),
             ),
           );
-          emitEvent(
-            NavigateTo(Routes.verificationCode, arguments: {'email': email}),
-          );
           emitEvent(ShowSuccessMessage(entity.message));
           emitEvent(const ForgetPasswordGoToVerification());
           _restartOtpSession();
@@ -178,21 +156,6 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
   }
 
   Future<void> _verifyOtp({required String email, required String otp}) async {
-    if (state.isOtpLockedOut) {
-      const failure = TooManyRequestsFailure();
-      emit(
-        state.copyWith(
-          otpState: state.otpState.copyWith(
-            data: null,
-            errorMessage: '',
-            failure: failure,
-          ),
-        ),
-      );
-      _reportFailure(failure);
-      return;
-    }
-
     emit(
       state.copyWith(
         otpState: state.otpState.copyWith(
@@ -216,12 +179,6 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
                 errorMessage: '',
                 failure: null,
               ),
-            ),
-          );
-          emitEvent(
-            NavigateTo(
-              Routes.resetPassword,
-              arguments: {'email': email, 'otpcode': entity.resetToken},
             ),
           );
           emitEvent(const ForgetPasswordGoToReset());
@@ -307,7 +264,6 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
 
   void _failOtp([AppFailure? failure]) {
     final resolved = failure ?? const UnknownFailure();
-    _consumeVerifyAttempt();
     emitEvent(const ClearOtpField());
     emit(
       state.copyWith(

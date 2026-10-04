@@ -33,18 +33,14 @@ class CustomPinWidget extends StatelessWidget {
         ? ''
         : mapAppFailureToMessage(failure, l10n);
     final hasError = failure != null;
-    final isLockedOut = state.isOtpLockedOut;
 
     return Column(
       children: [
         Pinput(
           controller: codeController,
-          enabled: !isLockedOut,
-          onCompleted: isLockedOut
-              ? null
-              : (value) {
-                  cubit.doEvent(VerifyOtpEvent(otpCode: value, email: email));
-                },
+          onCompleted: (value) {
+            cubit.doEvent(VerifyOtpEvent(otpCode: value, email: email));
+          },
           forceErrorState: hasError,
           errorPinTheme: OtpPinTheme.themeErrorPin(textTheme),
           animationCurve: Curves.bounceInOut,
@@ -85,60 +81,33 @@ class CustomPinWidget extends StatelessWidget {
             ),
           ),
         const SizedBox(height: 28),
-        if (isLockedOut)
-          Column(
-            children: [
-              Text(
-                l10n.otpMaxAttemptsReached,
-                textAlign: TextAlign.center,
-                style: textTheme.bodyLarge?.copyWith(color: AppColors.error),
-              ),
-              const SizedBox(height: 12),
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text('${l10n.didntReceiveCode} ', style: textTheme.bodyLarge),
+            if (state.canResendOtp)
               _ActionLink(
-                text: l10n.requestNewCode,
+                text: l10n.resendAvailable,
                 textTheme: textTheme,
                 onTap: () {
                   cubit.doEvent(ResendOtpEvent(email: email));
                 },
+              )
+            else
+              BlocSelector<ForgetPasswordCubit, ForgetPasswordState, int>(
+                selector: (state) => state.resendSecondsRemaining,
+                builder: (context, secondsRemaining) {
+                  return Text(
+                    l10n.resendInSeconds(secondsRemaining),
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: AppColors.black.withValues(alpha: 0.54),
+                    ),
+                  );
+                },
               ),
-            ],
-          )
-        else ...[
-          Text(
-            l10n.otpAttemptsRemaining(state.verifyAttemptsRemaining),
-            style: textTheme.bodySmall?.copyWith(
-              color: AppColors.black.withValues(alpha: 0.54),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            alignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text('${l10n.didntReceiveCode} ', style: textTheme.bodyLarge),
-              if (state.canResendOtp)
-                _ActionLink(
-                  text: l10n.resendAvailable,
-                  textTheme: textTheme,
-                  onTap: () {
-                    cubit.doEvent(ResendOtpEvent(email: email));
-                  },
-                )
-              else
-                BlocSelector<ForgetPasswordCubit, ForgetPasswordState, int>(
-                  selector: (state) => state.resendSecondsRemaining,
-                  builder: (context, secondsRemaining) {
-                    return Text(
-                      l10n.resendInSeconds(secondsRemaining),
-                      style: textTheme.bodyLarge?.copyWith(
-                        color: AppColors.black.withValues(alpha: 0.54),
-                      ),
-                    );
-                  },
-                ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ],
     );
   }
@@ -157,23 +126,20 @@ class _ActionLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(4),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-          child: Center(
-            child: Text(
-              text,
-              style: textTheme.bodyLarge?.copyWith(
-                color: AppColors.pinkBase,
-                decoration: TextDecoration.underline,
-                decorationColor: AppColors.pinkBase,
-              ),
-            ),
-          ),
+    return TextButton(
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.pinkBase,
+        minimumSize: const Size(48, 48),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      ),
+      child: Text(
+        text,
+        style: textTheme.bodyLarge?.copyWith(
+          color: AppColors.pinkBase,
+          decoration: TextDecoration.underline,
+          decorationColor: AppColors.pinkBase,
         ),
       ),
     );

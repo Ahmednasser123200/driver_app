@@ -1,4 +1,4 @@
-part of '../../../../../../config/base/base_ui_event.dart';
+part of 'base_ui_event.dart';
 
 sealed class ForgetPasswordUiEvent extends BaseUiEvent {
   const ForgetPasswordUiEvent();
