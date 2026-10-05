@@ -26,7 +26,7 @@ void main() {
     mockCubit = MockForgetPasswordCubit();
     // Setting up an initial state
     when(
-          () => mockCubit.state,
+      () => mockCubit.state,
     ).thenReturn(const ForgetPasswordState(forgotState: BaseState()));
     // Mock the streams and methods
     when(() => mockCubit.stream).thenAnswer((_) => const Stream.empty());
@@ -64,7 +64,7 @@ void main() {
 
   testWidgets(
     'shows validation error when email is empty and prevents form submission',
-        (tester) async {
+    (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
 
@@ -93,10 +93,10 @@ void main() {
 
     // Verify cubit event is dispatched
     verify(
-          () => mockCubit.doEvent(
+      () => mockCubit.doEvent(
         any(
           that: isA<ForgetPasswordEvent>().having(
-                (e) => e.email,
+            (e) => e.email,
             'email',
             'test@example.com',
           ),
@@ -106,8 +106,8 @@ void main() {
   });
 
   testWidgets('shows loading indicator when cubit state is loading', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     // Create a new mock with loading state
     final loadingMockCubit = MockForgetPasswordCubit();
     when(() => loadingMockCubit.state).thenReturn(
@@ -115,7 +115,7 @@ void main() {
     );
     when(() => loadingMockCubit.stream).thenAnswer((_) => const Stream.empty());
     when(
-          () => loadingMockCubit.uiEventStream,
+      () => loadingMockCubit.uiEventStream,
     ).thenAnswer((_) => const Stream.empty());
     when(() => loadingMockCubit.doEvent(any())).thenAnswer((_) async {});
 

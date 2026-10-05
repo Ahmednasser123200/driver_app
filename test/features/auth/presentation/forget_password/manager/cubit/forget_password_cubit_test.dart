@@ -42,13 +42,13 @@ void main() {
   // what the use case returns.
   void stubForgetPassword(BaseResponse<ForgetPasswordEntity> response) {
     when(
-          () => forgetUserCase.call(email: any(named: 'email')),
+      () => forgetUserCase.call(email: any(named: 'email')),
     ).thenAnswer((_) async => response);
   }
 
   void stubVerifyOtp(BaseResponse<VerifyOtpEntity> response) {
     when(
-          () => verifyUserCase.call(
+      () => verifyUserCase.call(
         email: any(named: 'email'),
         otp: any(named: 'otp'),
       ),
@@ -57,7 +57,7 @@ void main() {
 
   void stubResetPassword(BaseResponse<ResetPasswordEntity> response) {
     when(
-          () => resetUserCase.call(
+      () => resetUserCase.call(
         email: any(named: 'email'),
         otp: any(named: 'otp'),
         password: any(named: 'password'),
@@ -132,7 +132,7 @@ void main() {
     test('is loading while the request is in flight', () async {
       final completer = Completer<BaseResponse<ForgetPasswordEntity>>();
       when(
-            () => forgetUserCase.call(email: any(named: 'email')),
+        () => forgetUserCase.call(email: any(named: 'email')),
       ).thenAnswer((_) => completer.future);
 
       final pending = cubit.doEvent(ForgetPasswordEvent(email: email));
@@ -145,17 +145,20 @@ void main() {
       expect(cubit.state.forgotState.isLoading, isFalse);
     });
 
-    test('shows the success message then asks the UI to go to verification', () async {
-      stubForgetPassword(sentOk());
+    test(
+      'shows the success message then asks the UI to go to verification',
+      () async {
+        stubForgetPassword(sentOk());
 
-      await sendForgetPassword();
+        await sendForgetPassword();
 
-      expect(uiEvents, [
-        isA<ShowSuccessMessage>().having((e) => e.message, 'message', 'sent'),
-        isA<ForgetPasswordGoToVerification>(),
-      ]);
-      expect(uiEvents.whereType<NavigateTo>(), isEmpty);
-    });
+        expect(uiEvents, [
+          isA<ShowSuccessMessage>().having((e) => e.message, 'message', 'sent'),
+          isA<ForgetPasswordGoToVerification>(),
+        ]);
+        expect(uiEvents.whereType<NavigateTo>(), isEmpty);
+      },
+    );
 
     test('starts the resend cooldown on success', () async {
       stubForgetPassword(sentOk());
@@ -170,9 +173,7 @@ void main() {
     });
 
     test('surfaces a server failure without navigating', () async {
-      stubForgetPassword(
-        const Error<ForgetPasswordEntity>(NotFoundFailure()),
-      );
+      stubForgetPassword(const Error<ForgetPasswordEntity>(NotFoundFailure()));
 
       await sendForgetPassword();
 
@@ -338,7 +339,7 @@ void main() {
       expect(uiEvents, [
         isA<ClearOtpField>(),
         isA<ShowErrorMessage>().having(
-              (e) => e.failure,
+          (e) => e.failure,
           'failure',
           isA<BadRequestFailure>(),
         ),
@@ -388,7 +389,7 @@ void main() {
       await sendResetPassword();
 
       verify(
-            () => resetUserCase.call(
+        () => resetUserCase.call(
           email: email,
           otp: resetToken,
           password: password,

@@ -44,10 +44,10 @@ void main() {
     stubState(const ForgetPasswordState(email: email));
     when(() => mockCubit.stream).thenAnswer((_) => stateController.stream);
     when(
-          () => mockCubit.uiEventStream,
+      () => mockCubit.uiEventStream,
     ).thenAnswer((_) => uiEventController.stream);
     when(
-          () => mockCubit.doEvent(any()),
+      () => mockCubit.doEvent(any()),
     ).thenAnswer((_) => Future<void>.value());
   });
 
@@ -80,7 +80,7 @@ void main() {
     await tester.pump();
 
     verify(
-          () => mockCubit.doEvent(
+      () => mockCubit.doEvent(
         any(
           that: isA<VerifyOtpEvent>()
               .having((e) => e.email, 'email', email)
@@ -91,8 +91,8 @@ void main() {
   });
 
   testWidgets('does not submit when fewer than 6 digits are typed', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     await pumpView(tester);
 
     await tester.enterText(find.byType(Pinput), '123');
@@ -102,8 +102,8 @@ void main() {
   });
 
   testWidgets('shows the error indicator when the otp is rejected', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     stubState(
       const ForgetPasswordState(
         email: email,
@@ -117,43 +117,47 @@ void main() {
   });
 
   testWidgets('the resend link sends a ResendOtpEvent for the email', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     await pumpView(tester);
 
     await tester.tap(find.byType(TextButton));
     await tester.pump();
 
     verify(
-          () => mockCubit.doEvent(
-        any(
-          that: isA<ResendOtpEvent>().having((e) => e.email, 'email', email),
-        ),
+      () => mockCubit.doEvent(
+        any(that: isA<ResendOtpEvent>().having((e) => e.email, 'email', email)),
       ),
     ).called(1);
   });
 
-  testWidgets('shows the live countdown instead of the link while cooling down', (
-      tester,
-      ) async {
-    stubState(const ForgetPasswordState(email: email, resendSecondsRemaining: 30));
+  testWidgets(
+    'shows the live countdown instead of the link while cooling down',
+    (tester) async {
+      stubState(
+        const ForgetPasswordState(email: email, resendSecondsRemaining: 30),
+      );
 
-    await pumpView(tester);
+      await pumpView(tester);
 
-    expect(find.byType(TextButton), findsNothing);
-    expect(find.textContaining('30'), findsOneWidget);
+      expect(find.byType(TextButton), findsNothing);
+      expect(find.textContaining('30'), findsOneWidget);
 
-    const next = ForgetPasswordState(email: email, resendSecondsRemaining: 29);
-    stubState(next);
-    stateController.add(next);
-    // The first pump delivers the stream event (which schedules a rebuild);
-    // the second pump actually builds the frame.
-    await tester.pump();
-    await tester.pump();
+      const next = ForgetPasswordState(
+        email: email,
+        resendSecondsRemaining: 29,
+      );
+      stubState(next);
+      stateController.add(next);
+      // The first pump delivers the stream event (which schedules a rebuild);
+      // the second pump actually builds the frame.
+      await tester.pump();
+      await tester.pump();
 
-    expect(find.textContaining('29'), findsOneWidget);
-    expect(find.textContaining('30'), findsNothing);
-  });
+      expect(find.textContaining('29'), findsOneWidget);
+      expect(find.textContaining('30'), findsNothing);
+    },
+  );
 
   testWidgets('ClearOtpField empties the pin input', (tester) async {
     await pumpView(tester);
@@ -165,6 +169,9 @@ void main() {
     uiEventController.add(const ClearOtpField());
     await tester.pump();
 
-    expect(tester.widget<Pinput>(find.byType(Pinput)).controller!.text, isEmpty);
+    expect(
+      tester.widget<Pinput>(find.byType(Pinput)).controller!.text,
+      isEmpty,
+    );
   });
 }

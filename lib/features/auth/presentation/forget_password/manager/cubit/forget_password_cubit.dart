@@ -18,10 +18,10 @@ import 'forget_password_state.dart';
 @injectable
 class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
   ForgetPasswordCubit(
-      this._forgetPasswordUserCase,
-      this._verifyOtpUserCase,
-      this._resetPasswordUserCase,
-      ) : super(const ForgetPasswordState());
+    this._forgetPasswordUserCase,
+    this._verifyOtpUserCase,
+    this._resetPasswordUserCase,
+  ) : super(const ForgetPasswordState());
 
   final ForgetPasswordUserCase _forgetPasswordUserCase;
   final VerifyOtpUseCase _verifyOtpUserCase;

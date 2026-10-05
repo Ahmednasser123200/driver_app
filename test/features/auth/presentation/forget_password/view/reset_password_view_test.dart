@@ -54,10 +54,10 @@ void main() {
     stubState(verifiedState);
     when(() => mockCubit.stream).thenAnswer((_) => const Stream.empty());
     when(
-          () => mockCubit.uiEventStream,
+      () => mockCubit.uiEventStream,
     ).thenAnswer((_) => uiEventController.stream);
     when(
-          () => mockCubit.doEvent(any()),
+      () => mockCubit.doEvent(any()),
     ).thenAnswer((_) => Future<void>.value());
   });
 
@@ -72,10 +72,10 @@ void main() {
   }
 
   Future<void> enterPasswords(
-      WidgetTester tester, {
-        required String newPassword,
-        required String confirmation,
-      }) async {
+    WidgetTester tester, {
+    required String newPassword,
+    required String confirmation,
+  }) async {
     final fields = find.byType(TextFormField);
     await tester.enterText(fields.at(0), newPassword);
     await tester.enterText(fields.at(1), confirmation);
@@ -102,8 +102,8 @@ void main() {
   }
 
   testWidgets('renders both password fields and the update button', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     await pumpView(tester);
 
     expect(find.byType(ResetPasswordView), findsOneWidget);
@@ -112,8 +112,8 @@ void main() {
   });
 
   testWidgets('empty fields show both validation errors and send nothing', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     await pumpView(tester);
 
     await tapUpdate(tester);
@@ -124,8 +124,8 @@ void main() {
   });
 
   testWidgets('mismatched passwords show an error and send nothing', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     await pumpView(tester);
 
     await enterPasswords(
@@ -141,8 +141,8 @@ void main() {
   });
 
   testWidgets('matching passwords send the email and reset token from state', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     await pumpView(tester);
 
     await enterPasswords(tester, newPassword: password, confirmation: password);
@@ -151,7 +151,7 @@ void main() {
     expect(errorTextOf(tester, 0), isNull);
     expect(errorTextOf(tester, 1), isNull);
     verify(
-          () => mockCubit.doEvent(
+      () => mockCubit.doEvent(
         any(
           that: isA<ResetPasswordEvent>()
               .having((e) => e.email, 'email', email)
@@ -173,8 +173,8 @@ void main() {
   });
 
   testWidgets('cannot submit while the reset request is loading', (
-      tester,
-      ) async {
+    tester,
+  ) async {
     stubState(
       ForgetPasswordState(
         email: email,

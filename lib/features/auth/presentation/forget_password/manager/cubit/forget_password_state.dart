@@ -41,7 +41,8 @@ class ForgetPasswordState extends Equatable {
       resetState: resetState ?? this.resetState,
       otpState: otpState ?? this.otpState,
       resendOtpState: resendOtpState ?? this.resendOtpState,
-      resendSecondsRemaining: resendSecondsRemaining ?? this.resendSecondsRemaining,
+      resendSecondsRemaining:
+          resendSecondsRemaining ?? this.resendSecondsRemaining,
       email: email ?? this.email,
     );
   }

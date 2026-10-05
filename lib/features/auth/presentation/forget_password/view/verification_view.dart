@@ -34,53 +34,53 @@ class _VerificationViewState extends State<VerificationView> {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.emailVerificationTitle)),
       body:
-      BaseUiEventListener<
-          ForgetPasswordCubit,
-          ForgetPasswordState,
-          BaseUiEvent
-      >(
-        cubit: context.read<ForgetPasswordCubit>(),
-        onCustomEvent: (context, event) {
-          if (event is ClearOtpField) {
-            _clearOtpField();
-          }
-        },
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 40),
-                Text(
-                  l10n.emailVerificationTitle,
-                  style: textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+          BaseUiEventListener<
+            ForgetPasswordCubit,
+            ForgetPasswordState,
+            BaseUiEvent
+          >(
+            cubit: context.read<ForgetPasswordCubit>(),
+            onCustomEvent: (context, event) {
+              if (event is ClearOtpField) {
+                _clearOtpField();
+              }
+            },
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 40),
+                    Text(
+                      l10n.emailVerificationTitle,
+                      style: textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 34.w),
+                      child: Text(
+                        l10n.emailVerificationDescription,
+                        textAlign: TextAlign.center,
+                        style: textTheme.bodyMedium,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildPinWidget(textTheme),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 34.w),
-                  child: Text(
-                    l10n.emailVerificationDescription,
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodyMedium,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                _buildPinWidget(textTheme),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
     );
   }
 
   Widget _buildPinWidget(TextTheme textTheme) {
     return BlocBuilder<ForgetPasswordCubit, ForgetPasswordState>(
       buildWhen: (previous, current) =>
-      previous.otpState != current.otpState ||
+          previous.otpState != current.otpState ||
           previous.canResendOtp != current.canResendOtp ||
           previous.email != current.email,
       builder: (context, state) {

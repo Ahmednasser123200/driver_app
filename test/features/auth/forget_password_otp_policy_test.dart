@@ -36,13 +36,13 @@ void main() {
 
   void stubForgetPassword(BaseResponse<ForgetPasswordEntity> response) {
     when(
-          () => forgetUserCase.call(email: any(named: 'email')),
+      () => forgetUserCase.call(email: any(named: 'email')),
     ).thenAnswer((_) async => response);
   }
 
   void stubVerifyOtp(BaseResponse<VerifyOtpEntity> response) {
     when(
-          () => verifyUserCase.call(
+      () => verifyUserCase.call(
         email: any(named: 'email'),
         otp: any(named: 'otp'),
       ),
@@ -130,7 +130,10 @@ void main() {
         dispatch(async, ResendOtpEvent(email: email));
 
         expect(cubit.state.resendSecondsRemaining, 20);
-        expect(cubit.state.resendOtpState.failure, isA<TooManyRequestsFailure>());
+        expect(
+          cubit.state.resendOtpState.failure,
+          isA<TooManyRequestsFailure>(),
+        );
       });
     });
 
@@ -160,7 +163,7 @@ void main() {
         expect(cubit.state.canResendOtp, isTrue);
         expect(cubit.state.otpState.failure, isA<BadRequestFailure>());
         verify(
-              () => verifyUserCase.call(email: email, otp: '000000'),
+          () => verifyUserCase.call(email: email, otp: '000000'),
         ).called(10);
       });
     });

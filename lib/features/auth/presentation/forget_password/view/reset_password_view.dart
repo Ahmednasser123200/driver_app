@@ -38,70 +38,70 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.resetPasswordTitle)),
       body:
-      BaseUiEventListener<
-          ForgetPasswordCubit,
-          ForgetPasswordState,
-          BaseUiEvent
-      >(
-        cubit: context.read<ForgetPasswordCubit>(),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10.w),
-          child: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(height: 50),
-                  Center(
-                    child: Text(
-                      l10n.resetPasswordTitle,
-                      style: TextStyle(
-                        color: AppColors.black,
-                        fontSize: 20.sp,
+          BaseUiEventListener<
+            ForgetPasswordCubit,
+            ForgetPasswordState,
+            BaseUiEvent
+          >(
+            cubit: context.read<ForgetPasswordCubit>(),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.w),
+              child: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 50),
+                      Center(
+                        child: Text(
+                          l10n.resetPasswordTitle,
+                          style: TextStyle(
+                            color: AppColors.black,
+                            fontSize: 20.sp,
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 10),
+                      Text(
+                        l10n.resetPasswordDescription,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 20),
+                      CustomTextFormField(
+                        label: l10n.newPassword,
+                        hint: l10n.enterPassword,
+                        controller: _newPasswordController,
+                        validator: AuthValidators.password,
+                        keyboardType: TextInputType.visiblePassword,
+                        obscureText: true,
+                      ),
+                      const SizedBox(height: 20),
+                      CustomTextFormField(
+                        label: l10n.confirmPassword,
+                        hint: l10n.confirmPassword,
+                        controller: _confirmPasswordController,
+                        validator: (value) => AuthValidators.confirmPassword(
+                          value,
+                          _newPasswordController.text,
+                        ),
+                        keyboardType: TextInputType.visiblePassword,
+                        obscureText: true,
+                      ),
+                      const SizedBox(height: 30),
+                      _buildResetButton(l10n),
+                    ],
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    l10n.resetPasswordDescription,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 20),
-                  CustomTextFormField(
-                    label: l10n.newPassword,
-                    hint: l10n.enterPassword,
-                    controller: _newPasswordController,
-                    validator: AuthValidators.password,
-                    keyboardType: TextInputType.visiblePassword,
-                    obscureText: true,
-                  ),
-                  const SizedBox(height: 20),
-                  CustomTextFormField(
-                    label: l10n.confirmPassword,
-                    hint: l10n.confirmPassword,
-                    controller: _confirmPasswordController,
-                    validator: (value) => AuthValidators.confirmPassword(
-                      value,
-                      _newPasswordController.text,
-                    ),
-                    keyboardType: TextInputType.visiblePassword,
-                    obscureText: true,
-                  ),
-                  const SizedBox(height: 30),
-                  _buildResetButton(l10n),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
     );
   }
 
   Widget _buildResetButton(AppLocalizations l10n) {
     return BlocBuilder<ForgetPasswordCubit, ForgetPasswordState>(
       buildWhen: (previous, current) =>
-      previous.resetState.isLoading != current.resetState.isLoading ||
+          previous.resetState.isLoading != current.resetState.isLoading ||
           previous.otpState != current.otpState ||
           previous.email != current.email,
       builder: (context, state) {
@@ -115,16 +115,16 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
           enabled: !state.resetState.isLoading && canSubmit,
           onPressed: canSubmit
               ? () {
-            if (_formKey.currentState!.validate()) {
-              context.read<ForgetPasswordCubit>().doEvent(
-                ResetPasswordEvent(
-                  email: email,
-                  newPassword: _newPasswordController.text,
-                  resetCode: resetCode,
-                ),
-              );
-            }
-          }
+                  if (_formKey.currentState!.validate()) {
+                    context.read<ForgetPasswordCubit>().doEvent(
+                      ResetPasswordEvent(
+                        email: email,
+                        newPassword: _newPasswordController.text,
+                        resetCode: resetCode,
+                      ),
+                    );
+                  }
+                }
               : null,
         );
       },
