@@ -1,4 +1,5 @@
 import '../errors/app_failure.dart';
+part 'forget_password_ui_event.dart';
 
 abstract class BaseUiEvent {
   const BaseUiEvent();

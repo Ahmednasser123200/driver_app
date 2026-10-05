@@ -1,7 +1,7 @@
 import 'package:driver_app/features/auth/domain/entities/login_entity/user_entity.dart';
 import 'package:equatable/equatable.dart';
 
-class LoginEntity extends Equatable{
+class LoginEntity extends Equatable {
   final String accessToken;
   final String refreshToken;
   final int expiresIn;

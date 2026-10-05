@@ -6,16 +6,33 @@ import 'package:retrofit/retrofit.dart';
 import '../../../../core/constants/api_strings/api_strings.dart';
 import '../../data/model/request/login_request/login_request.dart';
 import '../../data/model/response/login_response/login_response.dart';
+import '../../data/model/request/forget_request/forgot_password_request_dto.dart';
+import '../../data/model/request/forget_request/reset_password_request_dto.dart';
+import '../../data/model/request/forget_request/verify_otp_request.dart';
+import '../../data/model/response/forget_response/forgot_password_response_dto.dart';
+import '../../data/model/response/forget_response/reset_password_response_dto.dart';
+import '../../data/model/response/forget_response/verify_otp_response.dart';
 
 part 'auth_api_client.g.dart';
 
 @singleton
 @RestApi()
 abstract class AuthApiClient {
-@factoryMethod
-factory AuthApiClient(Dio dio) = _AuthApiClient;
+  @factoryMethod
+  factory AuthApiClient(Dio dio) = _AuthApiClient;
 
 @POST(ApiStrings.login)
 Future<LoginResponse> login(@Body() LoginRequest request);
+  @POST(ApiStrings.forgotPassword)
+  Future<ForgotPasswordResponseDto> forgotPassword(
+    @Body() ForgotPasswordRequestDto request,
+  );
 
+  @POST(ApiStrings.verifyOtp)
+  Future<VerifyOtpResponse> verifyOtp(@Body() VerifyOtpRequest request);
+
+  @POST(ApiStrings.resetPassword)
+  Future<ResetPasswordResponseDto> resetPassword(
+    @Body() ResetPasswordRequestDto request,
+  );
 }

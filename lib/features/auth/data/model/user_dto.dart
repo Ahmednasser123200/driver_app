@@ -1,4 +1,3 @@
-
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../domain/entities/login_entity/user_entity.dart';
