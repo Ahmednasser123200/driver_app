@@ -294,6 +294,6 @@ class ForgetPasswordCubit extends BaseCubit<ForgetPasswordState, BaseUiEvent> {
   }
 
   void _reportFailure(AppFailure failure) {
-    emitEvent(ShowErrorMessage(failure));
+    emitEvent(ShowErrorMessage(failure: failure));
   }
 }

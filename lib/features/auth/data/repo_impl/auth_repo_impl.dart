@@ -11,15 +11,24 @@ import 'package:driver_app/features/auth/domain/repo/auth_repo.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/services/token_storage_service.dart';
+import '../../api/service/secure_storage.dart';
+import '../../domain/entities/forget_entity/forget_password_entity.dart';
+import '../../domain/entities/forget_entity/reset_passsword_entity.dart';
+import '../../domain/entities/forget_entity/verify_oto_entity.dart';
+import '../model/request/forget_request/forgot_password_request_dto.dart';
+import '../model/request/forget_request/reset_password_request_dto.dart';
+import '../model/request/forget_request/verify_otp_request.dart';
+
+
 
 @Injectable(as: AuthRepo)
 class AuthRepoImpl implements AuthRepo {
   final AuthRemoteDataSource _remoteDataSource;
 
-  // final SecureStorageService _secureStorage;
+  final SecureStorageService _secureStorage;
   final TokenStorageService _tokenStorage;
 
-  AuthRepoImpl(this._remoteDataSource, this._tokenStorage);
+  AuthRepoImpl(this._remoteDataSource, this._tokenStorage,this._secureStorage);
 
   @override
   Future<BaseResponse<LoginEntity>> login(
@@ -64,31 +73,11 @@ class AuthRepoImpl implements AuthRepo {
       return const Error(UnknownFailure());
     }
   }
-}
-import 'package:injectable/injectable.dart';
-import '../../../../config/base/base_response.dart';
-import '../../../../config/errors/app_failure.dart';
-import '../../api/service/secure_storage.dart';
-import '../../domain/entities/forget_entity/forget_password_entity.dart';
-import '../../domain/entities/forget_entity/reset_passsword_entity.dart';
-import '../../domain/entities/forget_entity/verify_oto_entity.dart';
-import '../../domain/repo/auth_repo.dart';
-import '../data_source/remote_data_source/remote_data_source.dart';
-import '../model/request/forget_request/forgot_password_request_dto.dart';
-import '../model/request/forget_request/reset_password_request_dto.dart';
-import '../model/request/forget_request/verify_otp_request.dart';
-
-@Injectable(as: AuthRepo)
-class AuthRepoImpl implements AuthRepo {
-  final RemoteDataSource _remoteDataSource;
-  final SecureStorageService _secureStorage;
-
-  AuthRepoImpl(this._remoteDataSource, this._secureStorage);
 
   @override
   Future<BaseResponse<ForgetPasswordEntity>> forgetPassword(
-    String email,
-  ) async {
+      String email,
+      ) async {
     final response = await _remoteDataSource.forgotPassword(
       ForgotPasswordRequestDto(email: email),
     );
@@ -117,11 +106,12 @@ class AuthRepoImpl implements AuthRepo {
     };
   }
 
+
   @override
   Future<BaseResponse<VerifyOtpEntity>> verifyOtp(
-    String email,
-    String otp,
-  ) async {
+      String email,
+      String otp,
+      ) async {
     final response = await _remoteDataSource.verifyOtp(
       verifyOtpRequest: VerifyOtpRequest(email: email, otp: otp),
     );
@@ -144,13 +134,4 @@ class AuthRepoImpl implements AuthRepo {
   @override
   Future<String?> loadRememberedEmail() => _secureStorage.getRememberedEmail();
 
-  @override
-  Future<BaseResponse<dynamic>> login(dynamic credentials) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<BaseResponse<dynamic>> register(dynamic registerData) {
-    throw UnimplementedError();
-  }
 }

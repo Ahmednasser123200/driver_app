@@ -207,4 +207,5 @@ abstract class AppStrings {
   static const String loggedInSuccessfully = 'Logged in successfully';
   //auth strings
   static const String notDriverAccount  ='This account is not registered as a driver in the system.';
+  static const String statusPending = 'Pending';
 }
