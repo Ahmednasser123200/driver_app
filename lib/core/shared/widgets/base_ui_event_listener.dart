@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../config/base/base_cubit.dart';
 import '../../../config/base/base_ui_event.dart';
+import '../../../config/localization/app_failure_message_mapper.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
     extends StatefulWidget {
@@ -24,7 +26,11 @@ class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
       _BaseUiEventListenerState<C, S, E>();
 }
 
-class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
+class _BaseUiEventListenerState<
+  C extends BaseCubit<S, E>,
+  S,
+  E extends BaseUiEvent
+>
     extends State<BaseUiEventListener<C, S, E>> {
   StreamSubscription<E>? _subscription;
 
@@ -35,9 +41,7 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
   }
 
   @override
-  void didUpdateWidget(
-    covariant BaseUiEventListener<C, S, E> oldWidget,
-  ) {
+  void didUpdateWidget(covariant BaseUiEventListener<C, S, E> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.cubit != widget.cubit) {
       _unsubscribe();
@@ -55,30 +59,30 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
   }
 
   void _handleEvent(BuildContext context, E event) {
-    widget.onCustomEvent?.call(context, event);
-
     switch (event) {
       case ShowSuccessMessage():
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(event.message),
-            backgroundColor: Colors.green,
-          ),
+          SnackBar(content: Text(event.message), backgroundColor: Colors.green),
         );
       case ShowErrorMessage():
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(event.message),
-            backgroundColor: Colors.red,
-          ),
-        );
+        final l10n = AppLocalizations.of(context)!;
+        final errorMessage = event.failure != null
+            ? mapAppFailureToMessage(event.failure!, l10n)
+            : (event.message ?? '');
+        if (errorMessage.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+          );
+        }
       case NavigateTo():
-        Navigator.of(context).pushNamed(
-          event.routeName,
-          arguments: event.arguments,
-        );
+        Navigator.of(
+          context,
+        ).pushNamed(event.routeName, arguments: event.arguments);
       case PopRoute():
         Navigator.of(context).pop(event.result);
+
+      default:
+        widget.onCustomEvent?.call(context, event);
     }
   }
 

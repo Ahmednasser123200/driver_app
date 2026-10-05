@@ -471,9 +471,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'Something went wrong on our server. Please try again later.';
 
   @override
+  String get loginSuccess => 'Logged in successfully';
+
+  @override
+  String get notDriverAccount =>
+      'This account is not registered as a driver in the system.';
+
+  @override
   String get failureTooManyRequests =>
       'Too many requests. Please try again later.';
 
   @override
   String get failureUnknown => 'Something went wrong. Please try again.';
+
+  @override
+  String get badResponse => 'Invalid response received from the server.';
 }

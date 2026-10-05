@@ -1,6 +1,8 @@
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 
+
+
 String mapAppFailureToMessage(AppFailure failure, AppLocalizations l10n) {
   return switch (failure) {
     InternetConnectionFailure() => l10n.failureInternetConnection,
@@ -23,6 +25,8 @@ String mapAppFailureToMessage(AppFailure failure, AppLocalizations l10n) {
           : l10n.failureUnprocessableEntity,
     TooManyRequestsFailure() => l10n.failureTooManyRequests,
     ServerFailure() => l10n.failureServerError,
+    NotDriverAccountFailure() => l10n.notDriverAccount,
     UnknownFailure() => l10n.failureUnknown,
+    BadResponse() => l10n.badResponse,
   };
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../features/auth/presentation/login/view/login_view.dart';
 
 import 'routes.dart';
 
@@ -14,7 +15,7 @@ abstract final class AppRoutes {
       case Routes.login:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const _StubScreen('Login'),
+          builder: (_) => const LoginView(),
         );
       case Routes.forgetPassword:
         return MaterialPageRoute(

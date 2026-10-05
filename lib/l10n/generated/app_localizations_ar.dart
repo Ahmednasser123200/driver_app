@@ -466,9 +466,18 @@ class AppLocalizationsAr extends AppLocalizations {
       'حدث خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.';
 
   @override
+  String get loginSuccess => 'تم تسجيل الدخول بنجاح';
+
+  @override
+  String get notDriverAccount => 'هذا الحساب غير مسجل كسائق في النظام.';
+
+  @override
   String get failureTooManyRequests =>
       'طلبات كثيرة جداً. يرجى المحاولة مرة أخرى لاحقاً.';
 
   @override
   String get failureUnknown => 'حدث خطأ ما. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get badResponse => 'استجابة غير صالحة من الخادم.';
 }
