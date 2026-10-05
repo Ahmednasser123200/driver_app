@@ -1,6 +1,4 @@
-import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/utils/auth_validators.dart';
-import 'package:driver_app/core/shared/widgets/base_ui_event_listener.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
 import 'package:driver_app/core/shared/widgets/custom_text_form_field.dart';
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
@@ -37,64 +35,56 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.resetPasswordTitle)),
-      body:
-          BaseUiEventListener<
-            ForgetPasswordCubit,
-            ForgetPasswordState,
-            BaseUiEvent
-          >(
-            cubit: context.read<ForgetPasswordCubit>(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Form(
-                key: _formKey,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 50),
-                      Center(
-                        child: Text(
-                          l10n.resetPasswordTitle,
-                          style: TextStyle(
-                            color: AppColors.black,
-                            fontSize: 20.sp,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        l10n.resetPasswordDescription,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 20),
-                      CustomTextFormField(
-                        label: l10n.newPassword,
-                        hint: l10n.enterPassword,
-                        controller: _newPasswordController,
-                        validator: AuthValidators.password,
-                        keyboardType: TextInputType.visiblePassword,
-                        obscureText: true,
-                      ),
-                      const SizedBox(height: 20),
-                      CustomTextFormField(
-                        label: l10n.confirmPassword,
-                        hint: l10n.confirmPassword,
-                        controller: _confirmPasswordController,
-                        validator: (value) => AuthValidators.confirmPassword(
-                          value,
-                          _newPasswordController.text,
-                        ),
-                        keyboardType: TextInputType.visiblePassword,
-                        obscureText: true,
-                      ),
-                      const SizedBox(height: 30),
-                      _buildResetButton(l10n),
-                    ],
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10.w),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 50),
+                Center(
+                  child: Text(
+                    l10n.resetPasswordTitle,
+                    style: TextStyle(
+                      color: AppColors.black,
+                      fontSize: 20.sp,
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(height: 10),
+                Text(
+                  l10n.resetPasswordDescription,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                CustomTextFormField(
+                  label: l10n.newPassword,
+                  hint: l10n.enterPassword,
+                  controller: _newPasswordController,
+                  validator: AuthValidators.password,
+                  keyboardType: TextInputType.visiblePassword,
+                  obscureText: true,
+                ),
+                const SizedBox(height: 20),
+                CustomTextFormField(
+                  label: l10n.confirmPassword,
+                  hint: l10n.confirmPassword,
+                  controller: _confirmPasswordController,
+                  validator: (value) => AuthValidators.confirmPassword(
+                    value,
+                    _newPasswordController.text,
+                  ),
+                  keyboardType: TextInputType.visiblePassword,
+                  obscureText: true,
+                ),
+                const SizedBox(height: 30),
+                _buildResetButton(l10n),
+              ],
             ),
           ),
+        ),
+      ),
     );
   }
 

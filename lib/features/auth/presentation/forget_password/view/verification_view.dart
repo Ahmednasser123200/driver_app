@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:driver_app/config/base/base_ui_event.dart';
-import 'package:driver_app/core/shared/widgets/base_ui_event_listener.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_cubit.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_state.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/view/widgets/custom_pin_widget.dart';
@@ -17,9 +18,21 @@ class VerificationView extends StatefulWidget {
 
 class _VerificationViewState extends State<VerificationView> {
   final _codeController = TextEditingController();
+  StreamSubscription<BaseUiEvent>? _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _subscription = context.read<ForgetPasswordCubit>().uiEventStream.listen((event) {
+      if (mounted && event is ClearOtpField) {
+        _clearOtpField();
+      }
+    });
+  }
 
   @override
   void dispose() {
+    _subscription?.cancel();
     _codeController.dispose();
     super.dispose();
   }
@@ -33,47 +46,34 @@ class _VerificationViewState extends State<VerificationView> {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.emailVerificationTitle)),
-      body:
-          BaseUiEventListener<
-            ForgetPasswordCubit,
-            ForgetPasswordState,
-            BaseUiEvent
-          >(
-            cubit: context.read<ForgetPasswordCubit>(),
-            onCustomEvent: (context, event) {
-              if (event is ClearOtpField) {
-                _clearOtpField();
-              }
-            },
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 40),
-                    Text(
-                      l10n.emailVerificationTitle,
-                      style: textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 34.w),
-                      child: Text(
-                        l10n.emailVerificationDescription,
-                        textAlign: TextAlign.center,
-                        style: textTheme.bodyMedium,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    _buildPinWidget(textTheme),
-                  ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 40),
+              Text(
+                l10n.emailVerificationTitle,
+                style: textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 34.w),
+                child: Text(
+                  l10n.emailVerificationDescription,
+                  textAlign: TextAlign.center,
+                  style: textTheme.bodyMedium,
+                ),
+              ),
+              const SizedBox(height: 32),
+              _buildPinWidget(textTheme),
+            ],
           ),
+        ),
+      ),
     );
   }
 

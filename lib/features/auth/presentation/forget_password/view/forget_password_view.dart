@@ -1,6 +1,4 @@
-import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/utils/auth_validators.dart';
-import 'package:driver_app/core/shared/widgets/base_ui_event_listener.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
 import 'package:driver_app/core/shared/widgets/custom_text_form_field.dart';
 import 'package:driver_app/features/auth/presentation/forget_password/manager/cubit/forget_password_cubit.dart';
@@ -34,41 +32,33 @@ class _ForgetPasswordViewState extends State<ForgetPasswordView> {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.forgetPasswordTitle)),
-      body:
-          BaseUiEventListener<
-            ForgetPasswordCubit,
-            ForgetPasswordState,
-            BaseUiEvent
-          >(
-            cubit: context.read<ForgetPasswordCubit>(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 50),
-                    Center(child: Text(l10n.forgetPasswordTitle)),
-                    const SizedBox(height: 10),
-                    Text(
-                      l10n.forgetPasswordDescription,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 20),
-                    CustomTextFormField(
-                      controller: _emailController,
-                      label: l10n.email,
-                      hint: l10n.enterEmail,
-                      validator: AuthValidators.email,
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    const SizedBox(height: 30),
-                    _buildConfirmButton(l10n),
-                  ],
-                ),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10.w),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              const SizedBox(height: 50),
+              Center(child: Text(l10n.forgetPasswordTitle)),
+              const SizedBox(height: 10),
+              Text(
+                l10n.forgetPasswordDescription,
+                textAlign: TextAlign.center,
               ),
-            ),
+              const SizedBox(height: 20),
+              CustomTextFormField(
+                controller: _emailController,
+                label: l10n.email,
+                hint: l10n.enterEmail,
+                validator: AuthValidators.email,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 30),
+              _buildConfirmButton(l10n),
+            ],
           ),
+        ),
+      ),
     );
   }
 
