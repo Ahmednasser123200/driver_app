@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
-import 'package:driver_app/features/auth/api/service/secure_storage.dart';
+import 'package:driver_app/core/services/token_storage_service.dart';
 import 'package:driver_app/features/auth/data/data_source/remote_data_source/auth_remote_data_source.dart';
 import 'package:driver_app/features/auth/data/model/data_dto.dart';
 import 'package:driver_app/features/auth/data/model/request/login_request/login_request.dart';
@@ -14,12 +14,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
-class MockSecureStorageService extends Mock implements SecureStorageService {}
+class MockTokenStorageService extends Mock implements TokenStorageService {}
 class FakeLoginRequest extends Fake implements LoginRequest {}
 
 void main() {
   late MockAuthRemoteDataSource mockRemoteDataSource;
-  late MockSecureStorageService mockSecureStorage;
+  late MockTokenStorageService mockTokenStorage;
   late AuthRepoImpl authRepo;
 
   setUpAll(() {
@@ -28,8 +28,8 @@ void main() {
 
   setUp(() {
     mockRemoteDataSource = MockAuthRemoteDataSource();
-    mockSecureStorage = MockSecureStorageService();
-    authRepo = AuthRepoImpl(mockRemoteDataSource, mockSecureStorage);
+    mockTokenStorage = MockTokenStorageService();
+    authRepo = AuthRepoImpl(mockRemoteDataSource, mockTokenStorage);
   });
 
   group('AuthRepoImpl - login', () {
@@ -64,9 +64,9 @@ void main() {
       );
 
       when(() => mockRemoteDataSource.login(any())).thenAnswer((_) async => response);
-      when(() => mockSecureStorage.saveAccessToken(any(), rememberMe: any(named: 'rememberMe')))
+      when(() => mockTokenStorage.saveAccessToken(any(), persist: any(named: 'persist')))
           .thenAnswer((_) async {});
-      when(() => mockSecureStorage.saveRefreshToken(any(), rememberMe: any(named: 'rememberMe')))
+      when(() => mockTokenStorage.saveRefreshToken(any(), persist: any(named: 'persist')))
           .thenAnswer((_) async {});
 
       // Act
@@ -78,8 +78,8 @@ void main() {
       expect(successResult.data.accessToken, equals('access_token_val'));
       expect(successResult.data.user?.role, equals('driver'));
 
-      verify(() => mockSecureStorage.saveAccessToken('access_token_val', rememberMe: false)).called(1);
-      verify(() => mockSecureStorage.saveRefreshToken('refresh_token_val', rememberMe: false)).called(1);
+      verify(() => mockTokenStorage.saveAccessToken('access_token_val', persist: false)).called(1);
+      verify(() => mockTokenStorage.saveRefreshToken('refresh_token_val', persist: false)).called(1);
     });
 
     test('returns Success and saves tokens when login is successful for driver role with rememberMe=true', () async {
@@ -92,9 +92,9 @@ void main() {
       );
 
       when(() => mockRemoteDataSource.login(any())).thenAnswer((_) async => response);
-      when(() => mockSecureStorage.saveAccessToken(any(), rememberMe: any(named: 'rememberMe')))
+      when(() => mockTokenStorage.saveAccessToken(any(), persist: any(named: 'persist')))
           .thenAnswer((_) async {});
-      when(() => mockSecureStorage.saveRefreshToken(any(), rememberMe: any(named: 'rememberMe')))
+      when(() => mockTokenStorage.saveRefreshToken(any(), persist: any(named: 'persist')))
           .thenAnswer((_) async {});
 
       // Act
@@ -102,8 +102,8 @@ void main() {
 
       // Assert
       expect(result, isA<Success<LoginEntity>>());
-      verify(() => mockSecureStorage.saveAccessToken('access_token_val', rememberMe: true)).called(1);
-      verify(() => mockSecureStorage.saveRefreshToken('refresh_token_val', rememberMe: true)).called(1);
+      verify(() => mockTokenStorage.saveAccessToken('access_token_val', persist: true)).called(1);
+      verify(() => mockTokenStorage.saveRefreshToken('refresh_token_val', persist: true)).called(1);
     });
 
     test('returns Error with NotDriverAccountFailure when user role is not driver', () async {
@@ -139,8 +139,8 @@ void main() {
       final errorResult = result as Error<LoginEntity>;
       expect(errorResult.failure, isA<NotDriverAccountFailure>());
 
-      verifyNever(() => mockSecureStorage.saveAccessToken(any(), rememberMe: any(named: 'rememberMe')));
-      verifyNever(() => mockSecureStorage.saveRefreshToken(any(), rememberMe: any(named: 'rememberMe')));
+      verifyNever(() => mockTokenStorage.saveAccessToken(any(), persist: any(named: 'persist')));
+      verifyNever(() => mockTokenStorage.saveRefreshToken(any(), persist: any(named: 'persist')));
     });
 
     test('returns Error with BadResponse when response.isSuccess is false or data is null', () async {
