@@ -22,6 +22,16 @@ import '../../features/order_details/api/data_source_impl/remote/order_details_r
     as _i537;
 import '../../features/order_details/data/datasources/order_details_remote_data_source.dart'
     as _i702;
+import '../../features/order_details/data/repo/order_details_repo_impl.dart'
+    as _i692;
+import '../../features/order_details/domain/repo/order_details_repo.dart'
+    as _i788;
+import '../../features/order_details/domain/usecases/get_driver_order_details_use_case.dart'
+    as _i837;
+import '../../features/order_details/domain/usecases/report_driver_location_use_case.dart'
+    as _i59;
+import '../../features/order_details/domain/usecases/update_order_status_use_case.dart'
+    as _i591;
 import '../dio/auth_interceptor.dart' as _i839;
 import '../dio/dio_module.dart' as _i977;
 import '../utils/secure_storage_module.dart' as _i327;
@@ -54,6 +64,19 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i537.OrderDetailsRemoteDataSourceImpl(
         gh<_i329.OrderDetailsApiClient>(),
       ),
+    );
+    gh.lazySingleton<_i788.OrderDetailsRepo>(
+      () =>
+          _i692.OrderDetailsRepoImpl(gh<_i702.OrderDetailsRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i837.GetDriverOrderDetailsUseCase>(
+      () => _i837.GetDriverOrderDetailsUseCase(gh<_i788.OrderDetailsRepo>()),
+    );
+    gh.lazySingleton<_i59.ReportDriverLocationUseCase>(
+      () => _i59.ReportDriverLocationUseCase(gh<_i788.OrderDetailsRepo>()),
+    );
+    gh.lazySingleton<_i591.UpdateOrderStatusUseCase>(
+      () => _i591.UpdateOrderStatusUseCase(gh<_i788.OrderDetailsRepo>()),
     );
     return this;
   }

@@ -1,5 +1,9 @@
+import 'package:driver_app/config/di/di.dart';
+import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
 import 'package:driver_app/features/order_details/presentation/view/order_details_view.dart';
+import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'routes.dart';
 
@@ -53,10 +57,18 @@ abstract final class AppRoutes {
           builder: (_) => const _StubScreen('Orders'),
         );
       case Routes.orderDetails:
-  return MaterialPageRoute(
-    settings: settings,
-    builder: (_) => const OrderDetailsView(),
-  );
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (context) => BlocProvider(
+            create: (_) => OrderDetailsCubit(
+              getDriverOrderDetailsUseCase: getIt(),
+              updateOrderStatusUseCase: getIt(),
+              reportDriverLocationUseCase: getIt(),
+              l10n: AppLocalizations.of(context)!,
+            ),
+            child: const OrderDetailsView(),
+          ),
+        );
       case Routes.tracking:
         return MaterialPageRoute(
           settings: settings,
