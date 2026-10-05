@@ -27,7 +27,7 @@ class OrderStatusHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'status:${status}',
+            'status: $status',
             textAlign: TextAlign.left,
             style: TextStyle(
               fontSize: 18.0.sp,
@@ -37,12 +37,12 @@ class OrderStatusHeader extends StatelessWidget {
           ),
           const SizedBox(height: 8.0),
           Text(
-            'Order ID: ${orderId}',
+            'Order ID: $orderId',
             style: TextStyle(fontSize: 16.0.sp, color: AppColors.black),
           ),
           const SizedBox(height: 8.0),
           Text(
-            '${date}',
+            date,
             style: TextStyle(fontSize: 16.0.sp, color: AppColors.grey[600]),
           ),
         ],

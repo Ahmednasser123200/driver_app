@@ -20,15 +20,11 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
   final AppLocalizations _l10n;
 
   OrderDetailsCubit({
-    required GetDriverOrderDetailsUseCase getDriverOrderDetailsUseCase,
-    required UpdateOrderStatusUseCase updateOrderStatusUseCase,
-    required ReportDriverLocationUseCase reportDriverLocationUseCase,
-    required AppLocalizations l10n,
-  }) : _getDriverOrderDetailsUseCase = getDriverOrderDetailsUseCase,
-       _updateOrderStatusUseCase = updateOrderStatusUseCase,
-       _reportDriverLocationUseCase = reportDriverLocationUseCase,
-       _l10n = l10n,
-       super(const OrderDetailsState());
+    required this._getDriverOrderDetailsUseCase,
+    required this._updateOrderStatusUseCase,
+    required this._reportDriverLocationUseCase,
+    required this._l10n,
+  }) : super(const OrderDetailsState());
 
   void doEvent(OrderDetailsEvent event) {
     switch (event) {
@@ -73,11 +69,7 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
     );
 
     final result = await _reportDriverLocationUseCase.execute(
-      ReportDriverLocationParams(
-    lat: lat,
-    lng: lng,
-    recordedAt: recordedAt,
-  ),
+      ReportDriverLocationParams(lat: lat, lng: lng, recordedAt: recordedAt),
     );
 
     switch (result) {
@@ -104,11 +96,7 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
     );
 
     final result = await _updateOrderStatusUseCase.execute(
-       UpdateOrderStatusParams(
-    orderId: orderId,
-    newStatus: newStatus,
-  ),
-    
+      UpdateOrderStatusParams(orderId: orderId, newStatus: newStatus),
     );
 
     switch (result) {

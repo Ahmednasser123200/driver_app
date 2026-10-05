@@ -57,6 +57,10 @@ abstract final class AppRoutes {
           builder: (_) => const _StubScreen('Orders'),
         );
       case Routes.orderDetails:
+        final orderId = settings.arguments is String
+            ? settings.arguments as String
+            : '1';
+
         return MaterialPageRoute(
           settings: settings,
           builder: (context) => BlocProvider(
@@ -66,7 +70,7 @@ abstract final class AppRoutes {
               reportDriverLocationUseCase: getIt(),
               l10n: AppLocalizations.of(context)!,
             ),
-            child: const OrderDetailsView(),
+            child: OrderDetailsView(orderId: orderId),
           ),
         );
       case Routes.tracking:
