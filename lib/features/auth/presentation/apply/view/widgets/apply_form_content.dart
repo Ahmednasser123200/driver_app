@@ -9,6 +9,7 @@ import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/utils/auth_validators.dart';
 import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
+import 'package:driver_app/core/shared/widgets/custom_text_form_field.dart';
 import 'package:driver_app/features/auth/domain/entities/apply_entity/applications_entity.dart';
 import 'package:driver_app/features/auth/presentation/apply/manager/apply_cubit.dart';
 import 'package:driver_app/features/auth/presentation/apply/manager/apply_state.dart';
@@ -17,7 +18,6 @@ import 'apply_country_field.dart';
 import 'apply_file_upload_field.dart';
 import 'apply_gender_selector.dart';
 import 'apply_header.dart';
-import 'apply_text_form_field.dart';
 import 'apply_vehicle_type_field.dart';
 
 class ApplyFormContent extends StatelessWidget {
@@ -36,7 +36,6 @@ class ApplyFormContent extends StatelessWidget {
     required this.licenseFileNotifier,
     required this.idImageNotifier,
     required this.isFemaleNotifier,
-    required this.isSubmitted,
     required this.onFirstNameChanged,
     required this.onSecondNameChanged,
     required this.onVehicleNumberChanged,
@@ -65,8 +64,6 @@ class ApplyFormContent extends StatelessWidget {
   final ValueNotifier<File?> idImageNotifier;
   final ValueNotifier<bool?> isFemaleNotifier;
 
-  final bool isSubmitted;
-
   final ValueChanged<String> onFirstNameChanged;
   final ValueChanged<String> onSecondNameChanged;
   final ValueChanged<String> onVehicleNumberChanged;
@@ -90,36 +87,33 @@ class ApplyFormContent extends StatelessWidget {
         gap,
         ApplyCountryField(countryNotifier: countryNotifier),
         gap,
-        ApplyTextFormField(
+        CustomTextFormField(
           label: AppStrings.firstLegalName,
-          hintText: AppStrings.enterFirstLegalName,
+          hint: AppStrings.enterFirstLegalName,
           controller: firstNameController,
           validator: AuthValidators.firstName,
           textInputAction: TextInputAction.next,
           onChanged: onFirstNameChanged,
-          forceShowErrors: isSubmitted,
         ),
         gap,
-        ApplyTextFormField(
+        CustomTextFormField(
           label: AppStrings.secondLegalName,
-          hintText: AppStrings.enterSecondLegalName,
+          hint: AppStrings.enterSecondLegalName,
           controller: secondNameController,
           validator: AuthValidators.lastName,
           textInputAction: TextInputAction.next,
           onChanged: onSecondNameChanged,
-          forceShowErrors: isSubmitted,
         ),
         gap,
         ApplyVehicleTypeField(vehicleTypeNotifier: vehicleTypeNotifier),
         gap,
-        ApplyTextFormField(
+        CustomTextFormField(
           label: AppStrings.vehicleNumber,
-          hintText: AppStrings.enterVehicleNumber,
+          hint: AppStrings.enterVehicleNumber,
           controller: vehicleNumberController,
           validator: AuthValidators.addressFields,
           textInputAction: TextInputAction.next,
           onChanged: onVehicleNumberChanged,
-          forceShowErrors: isSubmitted,
         ),
         gap,
         ApplyFileUploadField(
@@ -129,37 +123,34 @@ class ApplyFormContent extends StatelessWidget {
           onTap: onPickLicense,
         ),
         gap,
-        ApplyTextFormField(
+        CustomTextFormField(
           label: AppStrings.email,
-          hintText: AppStrings.enterEmail,
+          hint: AppStrings.enterEmail,
           controller: emailController,
           keyboardType: TextInputType.emailAddress,
           validator: AuthValidators.email,
           textInputAction: TextInputAction.next,
           onChanged: onEmailChanged,
-          forceShowErrors: isSubmitted,
         ),
         gap,
-        ApplyTextFormField(
+        CustomTextFormField(
           label: AppStrings.phoneNumber,
-          hintText: AppStrings.enterPhoneNumber,
+          hint: AppStrings.enterPhoneNumber,
           controller: phoneController,
           keyboardType: TextInputType.phone,
           validator: AuthValidators.phone,
           textInputAction: TextInputAction.next,
           onChanged: onPhoneChanged,
-          forceShowErrors: isSubmitted,
         ),
         gap,
-        ApplyTextFormField(
+        CustomTextFormField(
           label: AppStrings.idNumber,
-          hintText: AppStrings.enterNationalIdNumber,
+          hint: AppStrings.enterNationalIdNumber,
           controller: nationalIdController,
           keyboardType: TextInputType.number,
           validator: AuthValidators.addressFields,
           textInputAction: TextInputAction.next,
           onChanged: onNationalIdChanged,
-          forceShowErrors: isSubmitted,
         ),
         gap,
         ApplyFileUploadField(
@@ -173,40 +164,38 @@ class ApplyFormContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: ApplyTextFormField(
+              child: CustomTextFormField(
                 label: AppStrings.password,
-                hintText: AppStrings.enterPassword,
+                hint: AppStrings.enterPassword,
                 controller: passwordController,
-                isPassword: true,
+                obscureText: true,
                 validator: AuthValidators.strongPassword,
                 textInputAction: TextInputAction.next,
                 onChanged: onPasswordChanged,
-                forceShowErrors: isSubmitted,
               ),
             ),
-            SizedBox(width: 17.w),
+            SizedBox(width: 16.w),
             Expanded(
-              child: ApplyTextFormField(
+              child: CustomTextFormField(
                 label: AppStrings.confirmPassword,
-                hintText: AppStrings.confirmPassword,
+                hint: AppStrings.confirmPassword,
                 controller: confirmPasswordController,
-                isPassword: true,
+                obscureText: true,
                 validator: (value) => AuthValidators.confirmPassword(
                   value,
                   passwordController.text,
                 ),
                 onChanged: onConfirmPasswordChanged,
-                forceShowErrors: isSubmitted,
               ),
             ),
           ],
         ),
         gap,
         ApplyGenderSelector(isFemaleNotifier: isFemaleNotifier),
-        SizedBox(height: 48.h),
+        SizedBox(height: 32.h),
         BlocBuilder<ApplyCubit, BaseState<ApplyState>>(
           buildWhen: (previous, current) =>
-          previous.isLoading != current.isLoading,
+              previous.isLoading != current.isLoading,
           builder: (context, state) => CustomButton(
             label: AppStrings.continueLabel,
             width: double.infinity,

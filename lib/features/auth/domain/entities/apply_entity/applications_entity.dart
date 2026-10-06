@@ -1,11 +1,21 @@
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
+
 enum VehicleType {
   car,
   motorcycle;
 
   String get apiValue {
+    switch (this) {
+      case VehicleType.car:
+        return '1';
+      case VehicleType.motorcycle:
+        return '2';
+    }
+  }
+
+  String get displayName {
     switch (this) {
       case VehicleType.car:
         return 'Car';
@@ -14,6 +24,7 @@ enum VehicleType {
     }
   }
 }
+
 class ApplicationEntity extends Equatable {
   final String countryCode;
   final String firstName;
@@ -45,20 +56,20 @@ class ApplicationEntity extends Equatable {
     required this.idImage,
   });
 
-@override
-List<Object?> get props =>[
-  countryCode,
-  firstName,
-  secondName,
-  vehicleType,
-  vehicleNumber,
-  email,
-  phoneNumber,
-  nationalId,
-  password,
-  confirmPassword,
-  gender,
-  vehicleLicenceFile,
-  idImage,
-];
+  @override
+  List<Object?> get props => [
+        countryCode,
+        firstName,
+        secondName,
+        vehicleType,
+        vehicleNumber,
+        email,
+        phoneNumber,
+        nationalId,
+        password,
+        confirmPassword,
+        gender,
+        vehicleLicenceFile,
+        idImage,
+      ];
 }

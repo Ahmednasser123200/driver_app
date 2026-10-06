@@ -22,25 +22,50 @@ class ApplyGenderSelector extends StatelessWidget {
             color: AppColors.grey,
           ),
         ),
-        SizedBox(width: 44.w),
+        SizedBox(width: 24.w),
         ValueListenableBuilder<bool?>(
           valueListenable: isFemaleNotifier,
-          builder: (context, isFemale, child) {
+          builder: (context, isFemale, _) {
             return RadioGroup<bool>(
               groupValue: isFemale,
               onChanged: (val) => isFemaleNotifier.value = val,
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Radio<bool>(value: true, activeColor: AppColors.primary),
-                  Text(
-                    AppStrings.female,
-                    style: textTheme.bodyMedium?.copyWith(color: AppColors.black),
+                  InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () => isFemaleNotifier.value = true,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Radio<bool>(
+                          value: true,
+                          activeColor: AppColors.primary,
+                        ),
+                        Text(
+                          AppStrings.female,
+                          style: textTheme.bodyMedium?.copyWith(color: AppColors.black),
+                        ),
+                      ],
+                    ),
                   ),
-                  SizedBox(width: 15.5.w),
-                  const Radio<bool>(value: false, activeColor: AppColors.primary),
-                  Text(
-                    AppStrings.male,
-                    style: textTheme.bodyMedium?.copyWith(color: AppColors.black),
+                  SizedBox(width: 16.w),
+                  InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () => isFemaleNotifier.value = false,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Radio<bool>(
+                          value: false,
+                          activeColor: AppColors.primary,
+                        ),
+                        Text(
+                          AppStrings.male,
+                          style: textTheme.bodyMedium?.copyWith(color: AppColors.black),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

@@ -24,6 +24,10 @@ class ApplyFileUploadField extends StatelessWidget {
     return ValueListenableBuilder<File?>(
       valueListenable: fileNotifier,
       builder: (context, file, _) {
+        final fileName = file == null
+            ? hint
+            : file.path.split(RegExp(r'[\\/]')).last;
+
         return InkWell(
           borderRadius: BorderRadius.circular(4),
           onTap: onTap,
@@ -35,7 +39,7 @@ class ApplyFileUploadField extends StatelessWidget {
               suffixIcon: const Icon(Icons.file_upload_outlined),
             ),
             child: Text(
-              file == null ? hint : file.path.split('/').last,
+              fileName,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: file == null

@@ -5,8 +5,13 @@ import 'package:driver_app/features/auth/domain/entities/apply_entity/applicatio
 void main() {
   group('VehicleType', () {
     test('apiValue returns correct string representation', () {
-      expect(VehicleType.car.apiValue, 'Car');
-      expect(VehicleType.motorcycle.apiValue, 'Motorcycle');
+      expect(VehicleType.car.apiValue, '1');
+      expect(VehicleType.motorcycle.apiValue, '2');
+    });
+
+    test('displayName returns user-facing string', () {
+      expect(VehicleType.car.displayName, 'Car');
+      expect(VehicleType.motorcycle.displayName, 'Motorcycle');
     });
   });
 

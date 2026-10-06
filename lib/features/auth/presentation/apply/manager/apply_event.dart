@@ -1,6 +1,7 @@
+import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 
-sealed class ApplyEvent {
+sealed class ApplyEvent extends BaseUiEvent {
   const ApplyEvent();
 }
 
@@ -17,6 +18,7 @@ class ApplyFailureEvent extends ApplyEvent {
 class ApplyGenderMissingEvent extends ApplyEvent {
   const ApplyGenderMissingEvent();
 }
+
 class ApplyLicenseMissingEvent extends ApplyEvent {
   const ApplyLicenseMissingEvent();
 }

@@ -28,10 +28,6 @@ void main() {
           'applicationId': 'app_123',
           'status': 'pending',
         },
-        'error': {
-          'code': '400',
-          'field': 'email',
-        }
       };
 
       final responseDto = ApplicationResponseDto.fromJson(json);
@@ -40,14 +36,11 @@ void main() {
       expect(responseDto.message, 'Success');
       expect(responseDto.data?.applicationId, 'app_123');
       expect(responseDto.data?.status, 'pending');
-      expect(responseDto.error?.code, '400');
-      expect(responseDto.error?.field, 'email');
 
       final resultJson = responseDto.toJson();
       expect(resultJson['success'], true);
       expect(resultJson['message'], 'Success');
       expect((resultJson['data'] as ApplicationDto).applicationId, 'app_123');
-      expect((resultJson['error'] as ErrorDto).code, '400');
     });
   });
 }

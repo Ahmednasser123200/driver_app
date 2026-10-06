@@ -51,4 +51,20 @@ class ApplicationRequestDto {
       idImage: entity.idImage,
     );
   }
+
+  Map<String, dynamic> toFieldMap() {
+    return {
+      'CountryCode': countryCode,
+      'FirstName': firstName,
+      'SecondName': secondName,
+      'VehicleType': vehicleType,
+      'VehicleNumber': vehicleNumber,
+      'Email': email,
+      'PhoneNumber': phoneNumber,
+      'NationalId': nationalId,
+      'Password': password,
+      'ConfirmPassword': confirmPassword,
+      'Gender': gender,
+    };
+  }
 }

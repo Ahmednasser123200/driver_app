@@ -1,4 +1,4 @@
-sealed class BaseUiEvent {
+abstract class BaseUiEvent {
   const BaseUiEvent();
 }
 

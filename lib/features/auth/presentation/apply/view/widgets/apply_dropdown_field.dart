@@ -6,13 +6,13 @@ import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 class ApplyDropdownItem<T> {
   final T value;
   final String label;
-  final String? fieldText; // CHANGED: text shown in the closed field; falls back to label
+  final String? fieldText;
   final Widget? leading;
 
   const ApplyDropdownItem({
     required this.value,
     required this.label,
-    this.fieldText, // CHANGED
+    this.fieldText,
     this.leading,
   });
 }
@@ -40,17 +40,30 @@ class ApplyDropdownField<T> extends StatefulWidget {
 class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
   late final TextEditingController _controller;
   final LayerLink _layerLink = LayerLink();
+  late final ValueNotifier<List<ApplyDropdownItem<T>>> _filteredItemsNotifier;
   OverlayEntry? _overlayEntry;
   bool _isOpen = false;
-  String _searchQuery = '';
   final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: _getFieldTextForValue(widget.valueNotifier.value)); // CHANGED
+    _controller = TextEditingController(
+      text: _getFieldTextForValue(widget.valueNotifier.value),
+    );
+    _filteredItemsNotifier = ValueNotifier<List<ApplyDropdownItem<T>>>(
+      widget.items,
+    );
     widget.valueNotifier.addListener(_onValueChanged);
     _focusNode.addListener(_onFocusChange);
+  }
+
+  @override
+  void didUpdateWidget(covariant ApplyDropdownField<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.items != widget.items) {
+      _filterItems(_controller.text);
+    }
   }
 
   @override
@@ -58,19 +71,19 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
     _closeMenu(false);
     widget.valueNotifier.removeListener(_onValueChanged);
     _focusNode.removeListener(_onFocusChange);
+    _filteredItemsNotifier.dispose();
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
   }
 
   void _onValueChanged() {
-    final newText = _getFieldTextForValue(widget.valueNotifier.value); // CHANGED
+    final newText = _getFieldTextForValue(widget.valueNotifier.value);
     if (_controller.text != newText) {
       _controller.text = newText;
     }
   }
 
-  // CHANGED: new helper, used for the closed field's text
   String _getFieldTextForValue(T value) {
     try {
       final match = widget.items.firstWhere((item) => item.value == value);
@@ -86,6 +99,17 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
     }
   }
 
+  void _filterItems(String query) {
+    if (query.isEmpty) {
+      _filteredItemsNotifier.value = widget.items;
+    } else {
+      final lower = query.toLowerCase();
+      _filteredItemsNotifier.value = widget.items
+          .where((item) => item.label.toLowerCase().contains(lower))
+          .toList();
+    }
+  }
+
   void _toggleMenu() {
     if (_isOpen) {
       _closeMenu(true);
@@ -96,9 +120,9 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
 
   void _openMenu() {
     if (_isOpen) return;
+    _filterItems('');
     setState(() {
       _isOpen = true;
-      _searchQuery = '';
     });
     _overlayEntry = _createOverlayEntry();
     Overlay.of(context).insert(_overlayEntry!);
@@ -107,21 +131,20 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
   void _closeMenu(bool revert) {
     if (!_isOpen) return;
     if (revert) {
-      _controller.text = _getFieldTextForValue(widget.valueNotifier.value); // CHANGED
+      _controller.text = _getFieldTextForValue(widget.valueNotifier.value);
     }
     _overlayEntry?.remove();
     _overlayEntry = null;
     if (mounted) {
       setState(() {
         _isOpen = false;
-        _searchQuery = '';
       });
     }
     _focusNode.unfocus();
   }
 
   OverlayEntry _createOverlayEntry() {
-    RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+    final renderBox = context.findRenderObject() as RenderBox?;
     final size = renderBox?.size ?? Size.zero;
 
     return OverlayEntry(
@@ -146,21 +169,19 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
               ),
               child: Material(
                 elevation: 4,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(8.r),
                 color: AppColors.surface,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: ValueListenableBuilder<T>(
-                    valueListenable: widget.valueNotifier,
-                    builder: (context, selectedValue, _) {
-                      final filteredItems = widget.items.where((item) {
-                        if (_searchQuery.isEmpty) return true;
-                        return item.label.toLowerCase().contains(_searchQuery.toLowerCase());
-                      }).toList();
-
+                  borderRadius: BorderRadius.circular(8.r),
+                  child: ValueListenableBuilder<List<ApplyDropdownItem<T>>>(
+                    valueListenable: _filteredItemsNotifier,
+                    builder: (context, filteredItems, _) {
                       if (filteredItems.isEmpty) {
                         return Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 12.h,
+                          ),
                           child: Text(
                             'No results',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -170,40 +191,56 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
                         );
                       }
 
-                      return ListView.builder(
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        itemCount: filteredItems.length,
-                        itemBuilder: (context, index) {
-                          final item = filteredItems[index];
-                          final isSelected = item.value == selectedValue;
+                      return ValueListenableBuilder<T>(
+                        valueListenable: widget.valueNotifier,
+                        builder: (context, selectedValue, _) {
+                          return ListView.builder(
+                            padding: EdgeInsets.zero,
+                            itemCount: filteredItems.length,
+                            itemBuilder: (context, index) {
+                              final item = filteredItems[index];
+                              final isSelected = item.value == selectedValue;
 
-                          return InkWell(
-                            onTap: () {
-                              widget.valueNotifier.value = item.value;
-                              _controller.text = item.fieldText ?? item.label; // CHANGED
-                              _closeMenu(false);
-                            },
-                            child: Container(
-                              color: isSelected ? AppColors.primary.shade50 : Colors.transparent,
-                              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                              child: Row(
-                                children: [
-                                  if (item.leading != null) ...[
-                                    item.leading!,
-                                    SizedBox(width: 8.w),
-                                  ],
-                                  Expanded(
-                                    child: Text(
-                                      item.label,
-                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        color: AppColors.black,
-                                      ),
-                                    ),
+                              return InkWell(
+                                onTap: () {
+                                  widget.valueNotifier.value = item.value;
+                                  _controller.text =
+                                      item.fieldText ?? item.label;
+                                  _closeMenu(false);
+                                },
+                                child: Container(
+                                  color: isSelected
+                                      ? AppColors.primary.shade50
+                                      : Colors.transparent,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 16.w,
+                                    vertical: 12.h,
                                   ),
-                                ],
-                              ),
-                            ),
+                                  child: Row(
+                                    children: [
+                                      if (item.leading != null) ...[
+                                        item.leading!,
+                                        SizedBox(width: 8.w),
+                                      ],
+                                      Expanded(
+                                        child: Text(
+                                          item.label,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                color: AppColors.black,
+                                                fontWeight: isSelected
+                                                    ? FontWeight.w600
+                                                    : FontWeight.normal,
+                                              ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           );
                         },
                       );
@@ -235,22 +272,21 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
         },
         onChanged: widget.searchable
             ? (val) {
-          setState(() {
-            _searchQuery = val;
-          });
-          if (!_isOpen) _openMenu();
-          _overlayEntry?.markNeedsBuild();
-        }
+                _filterItems(val);
+                if (!_isOpen) _openMenu();
+              }
             : null,
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: AppColors.black,
-        ),
+              color: AppColors.black,
+            ),
         decoration: InputDecoration(
           labelText: widget.label,
           hintText: widget.hint,
           floatingLabelBehavior: FloatingLabelBehavior.always,
           suffixIcon: IconButton(
-            icon: Icon(_isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down),
+            icon: Icon(
+              _isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+            ),
             onPressed: _toggleMenu,
           ),
         ),

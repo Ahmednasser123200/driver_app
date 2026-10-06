@@ -30,7 +30,7 @@ void main() {
       expect(dto.countryCode, '+20');
       expect(dto.firstName, 'John');
       expect(dto.secondName, 'Doe');
-      expect(dto.vehicleType, 'Car');
+      expect(dto.vehicleType, '1');
       expect(dto.vehicleNumber, 'ABC 123');
       expect(dto.email, 'john@example.com');
       expect(dto.phoneNumber, '1234567890'); // Trunk zero stripped
@@ -40,6 +40,43 @@ void main() {
       expect(dto.gender, 'Male');
       expect(dto.vehicleLicenceFile, licenseFile);
       expect(dto.idImage, idImage);
+    });
+
+    test('toFieldMap returns correct PascalCase field map matching API contract', () {
+      final licenseFile = File('test_license.jpg');
+      final idImage = File('test_id.jpg');
+
+      final dto = ApplicationRequestDto(
+        countryCode: '+20',
+        firstName: 'John',
+        secondName: 'Doe',
+        vehicleType: '1',
+        vehicleNumber: 'ABC 123',
+        email: 'john@example.com',
+        phoneNumber: '1234567890',
+        nationalId: '12345678901234',
+        password: 'password123',
+        confirmPassword: 'password123',
+        gender: 'Male',
+        vehicleLicenceFile: licenseFile,
+        idImage: idImage,
+      );
+
+      final map = dto.toFieldMap();
+
+      expect(map, {
+        'CountryCode': '+20',
+        'FirstName': 'John',
+        'SecondName': 'Doe',
+        'VehicleType': '1',
+        'VehicleNumber': 'ABC 123',
+        'Email': 'john@example.com',
+        'PhoneNumber': '1234567890',
+        'NationalId': '12345678901234',
+        'Password': 'password123',
+        'ConfirmPassword': 'password123',
+        'Gender': 'Male',
+      });
     });
   });
 }

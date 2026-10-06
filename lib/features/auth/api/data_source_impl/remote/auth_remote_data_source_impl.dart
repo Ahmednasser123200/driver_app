@@ -7,7 +7,6 @@ import '../../../data/model/request/apply_request/application_request_dto.dart';
 import '../../../data/model/response/apply_response/application_response_dto.dart';
 import '../../client/auth_client.dart';
 
-
 @Injectable(as: AuthRemoteDataSource)
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final AuthClient _client;
@@ -16,20 +15,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<BaseResponse<ApplicationResponseDto>> addApplication(
-      ApplicationRequestDto request) {
+    ApplicationRequestDto request,
+  ) {
     return executeApi(
-          () => _client.addApplication(
-        request.countryCode,
-        request.firstName,
-        request.secondName,
-        request.vehicleType,
-        request.vehicleNumber,
-        request.email,
-        request.phoneNumber,
-        request.nationalId,
-        request.password,
-        request.confirmPassword,
-        request.gender,
+      () => _client.addApplication(
+        request.toFieldMap(),
         request.vehicleLicenceFile,
         request.idImage,
       ),

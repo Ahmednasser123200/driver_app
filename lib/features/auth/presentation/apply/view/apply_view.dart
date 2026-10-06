@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:country_picker/country_picker.dart';
@@ -7,32 +6,52 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'package:driver_app/config/base/base_state.dart';
+import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/localization/app_failure_message_mapper.dart';
 import 'package:driver_app/config/routing/routes.dart';
 import 'package:driver_app/core/constants/app_strings/app_strings.dart';
+import 'package:driver_app/core/shared/widgets/base_ui_event_listener.dart';
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:driver_app/features/auth/domain/entities/apply_entity/applications_entity.dart';
 import 'package:driver_app/features/auth/presentation/apply/manager/apply_cubit.dart';
 import 'package:driver_app/features/auth/presentation/apply/manager/apply_event.dart';
+import 'package:driver_app/features/auth/presentation/apply/manager/apply_state.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 
 import '../../../../../config/di/di.dart';
 import 'widgets/apply_form_content.dart';
 
 class ApplyView extends StatelessWidget {
-  const ApplyView({super.key});
+  final ApplyCubit? cubit;
+  final ImagePicker? imagePicker;
+
+  const ApplyView({
+    super.key,
+    this.cubit,
+    this.imagePicker,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
+    if (cubit != null) {
+      return BlocProvider<ApplyCubit>.value(
+        value: cubit!,
+        child: _ApplyViewBody(imagePicker: imagePicker),
+      );
+    }
+
+    return BlocProvider<ApplyCubit>(
       create: (_) => getIt<ApplyCubit>(),
-      child: const _ApplyViewBody(),
+      child: _ApplyViewBody(imagePicker: imagePicker),
     );
   }
 }
 
 class _ApplyViewBody extends StatefulWidget {
-  const _ApplyViewBody();
+  final ImagePicker? imagePicker;
+
+  const _ApplyViewBody({this.imagePicker});
 
   @override
   State<_ApplyViewBody> createState() => _ApplyViewBodyState();
@@ -56,29 +75,22 @@ class _ApplyViewBodyState extends State<_ApplyViewBody> {
   final _idImageNotifier = ValueNotifier<File?>(null);
   final _isFemaleNotifier = ValueNotifier<bool?>(null);
 
-  final ImagePicker _picker = ImagePicker();
-  bool _isSubmitted = false;
-
-  StreamSubscription<ApplyEvent>? _eventSubscription;
+  late final ImagePicker _picker;
 
   @override
   void initState() {
     super.initState();
+    _picker = widget.imagePicker ?? ImagePicker();
     final cubit = context.read<ApplyCubit>();
-
-    _eventSubscription = cubit.applyEventStream.listen((event) {
-      if (!mounted) return;
-      _onUiEvent(context, event);
-    });
 
     cubit.onCountryChanged('+${_countryNotifier.value.phoneCode}');
     cubit.onVehicleTypeChanged(_vehicleTypeNotifier.value);
 
     _countryNotifier.addListener(
-          () => cubit.onCountryChanged('+${_countryNotifier.value.phoneCode}'),
+      () => cubit.onCountryChanged('+${_countryNotifier.value.phoneCode}'),
     );
     _vehicleTypeNotifier.addListener(
-          () => cubit.onVehicleTypeChanged(_vehicleTypeNotifier.value),
+      () => cubit.onVehicleTypeChanged(_vehicleTypeNotifier.value),
     );
     _licenseFileNotifier.addListener(() {
       final file = _licenseFileNotifier.value;
@@ -98,7 +110,6 @@ class _ApplyViewBodyState extends State<_ApplyViewBody> {
 
   @override
   void dispose() {
-    _eventSubscription?.cancel();
     _firstNameController.dispose();
     _secondNameController.dispose();
     _vehicleNumberController.dispose();
@@ -116,9 +127,9 @@ class _ApplyViewBodyState extends State<_ApplyViewBody> {
   }
 
   Future<void> _pickImage(
-      ValueNotifier<File?> notifier,
-      void Function(File) onPicked,
-      ) async {
+    ValueNotifier<File?> notifier,
+    void Function(File) onPicked,
+  ) async {
     final XFile? pickedFile = await _picker.pickImage(
       source: ImageSource.gallery,
     );
@@ -130,8 +141,6 @@ class _ApplyViewBodyState extends State<_ApplyViewBody> {
   }
 
   void _onContinuePressed(BuildContext context) {
-    setState(() => _isSubmitted = true);
-
     if (!_formKey.currentState!.validate()) return;
 
     final isFemale = _isFemaleNotifier.value;
@@ -142,74 +151,98 @@ class _ApplyViewBodyState extends State<_ApplyViewBody> {
     context.read<ApplyCubit>().submit();
   }
 
-  void _onUiEvent(BuildContext context, ApplyEvent event) {
+  void _onCustomEvent(BuildContext context, BaseUiEvent event) {
     final l10n = AppLocalizations.of(context)!;
     switch (event) {
       case ApplySuccessEvent():
         Navigator.pushReplacementNamed(context, Routes.successApply);
       case ApplyFailureEvent(:final failure):
-        _showSnackBar(context, mapAppFailureToMessage(failure, l10n));
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(mapAppFailureToMessage(failure, l10n)),
+              backgroundColor: AppColors.error,
+            ),
+          );
       case ApplyGenderMissingEvent():
-        _showSnackBar(context, AppStrings.pleaseSelectGender);
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            const SnackBar(
+              content: Text(AppStrings.pleaseSelectGender),
+              backgroundColor: AppColors.error,
+            ),
+          );
       case ApplyLicenseMissingEvent():
-        _showSnackBar(context, AppStrings.pleaseUploadVehicleLicense);
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            const SnackBar(
+              content: Text(AppStrings.pleaseUploadVehicleLicense),
+              backgroundColor: AppColors.error,
+            ),
+          );
       case ApplyIdImageMissingEvent():
-        _showSnackBar(context, AppStrings.pleaseUploadIdImage);
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            const SnackBar(
+              content: Text(AppStrings.pleaseUploadIdImage),
+              backgroundColor: AppColors.error,
+            ),
+          );
+      default:
+        break;
     }
-  }
-
-  void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: AppColors.error),
-      );
   }
 
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<ApplyCubit>();
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new),
-          onPressed: () => Navigator.maybePop(context),
+    return BaseUiEventListener<ApplyCubit, BaseState<ApplyState>, BaseUiEvent>(
+      onCustomEvent: _onCustomEvent,
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new),
+            onPressed: () => Navigator.maybePop(context),
+          ),
+          title: const Text(AppStrings.apply),
         ),
-        title: const Text(AppStrings.apply),
-      ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-          child: ApplyFormContent(
-            firstNameController: _firstNameController,
-            secondNameController: _secondNameController,
-            vehicleNumberController: _vehicleNumberController,
-            emailController: _emailController,
-            phoneController: _phoneController,
-            nationalIdController: _nationalIdController,
-            passwordController: _passwordController,
-            confirmPasswordController: _confirmPasswordController,
-            countryNotifier: _countryNotifier,
-            vehicleTypeNotifier: _vehicleTypeNotifier,
-            licenseFileNotifier: _licenseFileNotifier,
-            idImageNotifier: _idImageNotifier,
-            isFemaleNotifier: _isFemaleNotifier,
-            isSubmitted: _isSubmitted,
-            onFirstNameChanged: cubit.onFirstNameChanged,
-            onSecondNameChanged: cubit.onSecondNameChanged,
-            onVehicleNumberChanged: cubit.onVehicleNumberChanged,
-            onEmailChanged: cubit.onEmailChanged,
-            onPhoneChanged: cubit.onPhoneChanged,
-            onNationalIdChanged: cubit.onNationalIdChanged,
-            onPasswordChanged: cubit.onPasswordChanged,
-            onConfirmPasswordChanged: cubit.onConfirmPasswordChanged,
-            onPickLicense: () =>
-                _pickImage(_licenseFileNotifier, cubit.onLicenseFilePicked),
-            onPickIdImage: () =>
-                _pickImage(_idImageNotifier, cubit.onIdImagePicked),
-            onContinuePressed: () => _onContinuePressed(context),
+        body: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+            child: ApplyFormContent(
+              firstNameController: _firstNameController,
+              secondNameController: _secondNameController,
+              vehicleNumberController: _vehicleNumberController,
+              emailController: _emailController,
+              phoneController: _phoneController,
+              nationalIdController: _nationalIdController,
+              passwordController: _passwordController,
+              confirmPasswordController: _confirmPasswordController,
+              countryNotifier: _countryNotifier,
+              vehicleTypeNotifier: _vehicleTypeNotifier,
+              licenseFileNotifier: _licenseFileNotifier,
+              idImageNotifier: _idImageNotifier,
+              isFemaleNotifier: _isFemaleNotifier,
+              onFirstNameChanged: cubit.onFirstNameChanged,
+              onSecondNameChanged: cubit.onSecondNameChanged,
+              onVehicleNumberChanged: cubit.onVehicleNumberChanged,
+              onEmailChanged: cubit.onEmailChanged,
+              onPhoneChanged: cubit.onPhoneChanged,
+              onNationalIdChanged: cubit.onNationalIdChanged,
+              onPasswordChanged: cubit.onPasswordChanged,
+              onConfirmPasswordChanged: cubit.onConfirmPasswordChanged,
+              onPickLicense: () =>
+                  _pickImage(_licenseFileNotifier, cubit.onLicenseFilePicked),
+              onPickIdImage: () =>
+                  _pickImage(_idImageNotifier, cubit.onIdImagePicked),
+              onContinuePressed: () => _onContinuePressed(context),
+            ),
           ),
         ),
       ),

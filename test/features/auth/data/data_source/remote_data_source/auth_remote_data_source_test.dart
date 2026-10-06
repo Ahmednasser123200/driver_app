@@ -49,16 +49,6 @@ void main() {
           any(),
           any(),
           any(),
-          any(),
-          any(),
-          any(),
-          any(),
-          any(),
-          any(),
-          any(),
-          any(),
-          any(),
-          any(),
         ),
       ).thenAnswer((_) async => responseDto);
 
@@ -68,17 +58,7 @@ void main() {
       expect((result as Success<ApplicationResponseDto>).data, responseDto);
       verify(
         () => mockAuthClient.addApplication(
-          requestDto.countryCode,
-          requestDto.firstName,
-          requestDto.secondName,
-          requestDto.vehicleType,
-          requestDto.vehicleNumber,
-          requestDto.email,
-          requestDto.phoneNumber,
-          requestDto.nationalId,
-          requestDto.password,
-          requestDto.confirmPassword,
-          requestDto.gender,
+          requestDto.toFieldMap(),
           requestDto.vehicleLicenceFile,
           requestDto.idImage,
         ),
@@ -87,23 +67,13 @@ void main() {
 
     test('returns Error when API call fails with DioException', () async {
       final dioException = DioException(
-        requestOptions: RequestOptions(path: '/api/v1/drivers/applications'),
+        requestOptions: RequestOptions(path: '/api/drivers/applications'),
         error: 'Server Error',
         type: DioExceptionType.connectionTimeout,
       );
 
       when(
         () => mockAuthClient.addApplication(
-          any(),
-          any(),
-          any(),
-          any(),
-          any(),
-          any(),
-          any(),
-          any(),
-          any(),
-          any(),
           any(),
           any(),
           any(),
