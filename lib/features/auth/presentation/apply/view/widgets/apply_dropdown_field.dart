@@ -68,7 +68,7 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
 
   @override
   void dispose() {
-    _closeMenu(false);
+    _closeMenu(false, updateState: false);
     widget.valueNotifier.removeListener(_onValueChanged);
     _focusNode.removeListener(_onFocusChange);
     _filteredItemsNotifier.dispose();
@@ -128,17 +128,16 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
     Overlay.of(context).insert(_overlayEntry!);
   }
 
-  void _closeMenu(bool revert) {
+  void _closeMenu(bool revert, {bool updateState = true}) {
     if (!_isOpen) return;
     if (revert) {
       _controller.text = _getFieldTextForValue(widget.valueNotifier.value);
     }
     _overlayEntry?.remove();
     _overlayEntry = null;
-    if (mounted) {
-      setState(() {
-        _isOpen = false;
-      });
+    _isOpen = false;
+    if (updateState && mounted) {
+      setState(() {});
     }
     _focusNode.unfocus();
   }
