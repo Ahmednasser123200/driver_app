@@ -9,8 +9,8 @@ import 'core/themes/app_themes/app_theme.dart';
 import 'l10n/generated/app_localizations.dart';
 
 Future<void> main() async {
-  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   configureDependencies();
   runApp(const DriverApp());
 }
