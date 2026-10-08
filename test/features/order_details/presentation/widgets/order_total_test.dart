@@ -5,9 +5,13 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../../helpers/widget_harness.dart';
 
 void main() {
-  testWidgets('renders the default label and amount', (tester) async {
+  testWidgets('renders the supplied label and amount', (tester) async {
     useDesignSurface(tester);
-    await tester.pumpWidget(wrapWidget(const OrderTotal()));
+    await tester.pumpWidget(
+      wrapWidget(
+        const OrderTotal(totalLabel: 'Total', totalAmount: '\$123.45'),
+      ),
+    );
 
     expect(find.text('Total'), findsOneWidget);
     expect(find.text('\$123.45'), findsOneWidget);

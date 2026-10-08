@@ -5,15 +5,19 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../helpers/widget_harness.dart';
 
 void main() {
-  testWidgets('renders the default product name, price and quantity', (
+  testWidgets('renders fallback value when product price is empty', (
     tester,
   ) async {
     useDesignSurface(tester);
-    await tester.pumpWidget(wrapWidget(const OrderItemCard()));
+    await tester.pumpWidget(
+      wrapWidget(
+        const OrderItemCard(productName: 'Orange', price: '', quantity: 0),
+      ),
+    );
 
-    expect(find.text('Product Name'), findsOneWidget);
-    expect(find.text('\$20.00'), findsOneWidget);
-    expect(find.text('X2'), findsOneWidget);
+    expect(find.text('Orange'), findsOneWidget);
+    expect(find.text('Unknown'), findsOneWidget);
+    expect(find.text('X0'), findsOneWidget);
   });
 
   testWidgets('renders custom values', (tester) async {
@@ -36,16 +40,32 @@ void main() {
   testWidgets('prefixes the quantity with X', (tester) async {
     useDesignSurface(tester);
     await tester.pumpWidget(
-      wrapWidget(const OrderItemCard(quantity: 1)),
+      wrapWidget(
+        const OrderItemCard(
+          productName: 'Orange',
+          price: '\$12.00',
+          quantity: 1,
+        ),
+      ),
     );
 
     expect(find.text('X1'), findsOneWidget);
     expect(find.text('1'), findsNothing);
   });
 
-  testWidgets('shows a placeholder icon when no image is given', (tester) async {
+  testWidgets('shows a placeholder icon when no image is given', (
+    tester,
+  ) async {
     useDesignSurface(tester);
-    await tester.pumpWidget(wrapWidget(const OrderItemCard()));
+    await tester.pumpWidget(
+      wrapWidget(
+        const OrderItemCard(
+          productName: 'Red Roses Bouquet',
+          price: '\$1500.00',
+          quantity: 1,
+        ),
+      ),
+    );
 
     expect(find.byIcon(Icons.image), findsOneWidget);
     expect(find.byType(Image), findsNothing);
@@ -57,7 +77,12 @@ void main() {
     useDesignSurface(tester);
     await tester.pumpWidget(
       wrapWidget(
-        OrderItemCard(productImage: tinyPngImages().first),
+        OrderItemCard(
+          productName: 'Red Roses Bouquet',
+          price: '\$1500.00',
+          quantity: 1,
+          productImage: tinyPngImages().first,
+        ),
       ),
     );
 

@@ -14,6 +14,7 @@ class OrderStatusHeader extends StatelessWidget {
   final String status;
   final String orderId;
   final String date;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -28,7 +29,7 @@ class OrderStatusHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'status: $status',
+            status,
             textAlign: TextAlign.left,
             style: TextStyle(
               fontSize: 18.0.sp,
@@ -38,7 +39,7 @@ class OrderStatusHeader extends StatelessWidget {
           ),
           const SizedBox(height: 8.0),
           Text(
-            'Order ID: $orderId',
+            orderId,
             style: TextStyle(fontSize: 16.0.sp, color: AppColors.black),
           ),
           const SizedBox(height: 8.0),

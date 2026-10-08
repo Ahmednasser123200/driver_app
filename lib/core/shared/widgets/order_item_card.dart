@@ -5,9 +5,9 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 class OrderItemCard extends StatelessWidget {
   const OrderItemCard({
     super.key,
-    this.productName = 'Product Name',
-    this.price = '\$20.00',
-    this.quantity = 2,
+    required this.productName,
+    required this.price,
+    required this.quantity,
     this.productImage,
   });
 
@@ -18,12 +18,17 @@ class OrderItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final displayProductName = productName.trim().isEmpty
+        ? 'Unknown'
+        : productName;
+    final displayPrice = price.trim().isEmpty ? 'Unknown' : price;
+    final displayQuantity = quantity <= 0 ? 0 : quantity;
+
     return Container(
       width: 365.w,
       height: 80.h,
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.grey[300]!),
-
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Row(
@@ -56,13 +61,12 @@ class OrderItemCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  productName,
+                  displayProductName,
                   style: TextStyle(fontSize: 14.sp, color: AppColors.grey[800]),
                 ),
                 SizedBox(height: 4.h),
                 Text(
-                  price,
-
+                  displayPrice,
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.bold,
@@ -73,7 +77,7 @@ class OrderItemCard extends StatelessWidget {
           ),
           SizedBox(width: 16.w),
           Text(
-            'X$quantity',
+            'X$displayQuantity',
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,

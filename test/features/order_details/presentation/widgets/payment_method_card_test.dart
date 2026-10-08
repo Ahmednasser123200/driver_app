@@ -5,12 +5,19 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../../helpers/widget_harness.dart';
 
 void main() {
-  testWidgets('renders the default title and method', (tester) async {
+  testWidgets('renders the provided title and method', (tester) async {
     useDesignSurface(tester);
-    await tester.pumpWidget(wrapWidget(const PaymentMethodCard()));
+    await tester.pumpWidget(
+      wrapWidget(
+        const PaymentMethodCard(
+          title: 'Payment Method',
+          method: 'Cash on delivery',
+        ),
+      ),
+    );
 
     expect(find.text('Payment Method'), findsOneWidget);
-    expect(find.text('Credit Card'), findsOneWidget);
+    expect(find.text('Cash on delivery'), findsOneWidget);
   });
 
   testWidgets('renders a custom title and method', (tester) async {

@@ -6,12 +6,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../helpers/widget_harness.dart';
 
 void main() {
-  testWidgets('renders the default name and address', (tester) async {
+  testWidgets('renders fallback name and address when values are empty', (
+    tester,
+  ) async {
     useDesignSurface(tester);
-    await tester.pumpWidget(wrapWidget(const UserAddressCard()));
+    await tester.pumpWidget(
+      wrapWidget(const UserAddressCard(userName: '', address: '')),
+    );
 
-    expect(find.text('User Name'), findsOneWidget);
-    expect(find.text('Address'), findsOneWidget);
+    expect(find.text('Unknown'), findsNWidgets(2));
   });
 
   testWidgets('renders custom values', (tester) async {
@@ -33,7 +36,14 @@ void main() {
     tester,
   ) async {
     useDesignSurface(tester);
-    await tester.pumpWidget(wrapWidget(const UserAddressCard()));
+    await tester.pumpWidget(
+      wrapWidget(
+        const UserAddressCard(
+          userName: 'Nour Mohamed',
+          address: '20th st, Sheikh Zayed',
+        ),
+      ),
+    );
 
     expect(find.byIcon(Icons.image), findsOneWidget);
     expect(find.byType(Image), findsNothing);
@@ -42,7 +52,13 @@ void main() {
   testWidgets('renders the avatar when provided', (tester) async {
     useDesignSurface(tester);
     await tester.pumpWidget(
-      wrapWidget(UserAddressCard(userImage: tinyPngImages().first)),
+      wrapWidget(
+        UserAddressCard(
+          userName: 'Nour Mohamed',
+          address: '20th st, Sheikh Zayed',
+          userImage: tinyPngImages().first,
+        ),
+      ),
     );
 
     expect(find.byType(Image), findsOneWidget);
@@ -52,7 +68,14 @@ void main() {
   group('actions', () {
     testWidgets('exposes call and WhatsApp buttons', (tester) async {
       useDesignSurface(tester);
-      await tester.pumpWidget(wrapWidget(const UserAddressCard()));
+      await tester.pumpWidget(
+        wrapWidget(
+          const UserAddressCard(
+            userName: 'Nour Mohamed',
+            address: '20th st, Sheikh Zayed',
+          ),
+        ),
+      );
 
       expect(find.byIcon(Icons.call), findsOneWidget);
       expect(find.byType(FaIcon), findsOneWidget);
@@ -66,7 +89,13 @@ void main() {
       var calls = 0;
       useDesignSurface(tester);
       await tester.pumpWidget(
-        wrapWidget(UserAddressCard(onCallPressed: () => calls++)),
+        wrapWidget(
+          UserAddressCard(
+            userName: 'Nour Mohamed',
+            address: '20th st, Sheikh Zayed',
+            onCallPressed: () => calls++,
+          ),
+        ),
       );
 
       await tester.tap(find.byIcon(Icons.call));
@@ -79,7 +108,13 @@ void main() {
       var taps = 0;
       useDesignSurface(tester);
       await tester.pumpWidget(
-        wrapWidget(UserAddressCard(onWhatsAppPressed: () => taps++)),
+        wrapWidget(
+          UserAddressCard(
+            userName: 'Nour Mohamed',
+            address: '20th st, Sheikh Zayed',
+            onWhatsAppPressed: () => taps++,
+          ),
+        ),
       );
 
       await tester.tap(find.byType(FaIcon));
@@ -92,7 +127,14 @@ void main() {
       tester,
     ) async {
       useDesignSurface(tester);
-      await tester.pumpWidget(wrapWidget(const UserAddressCard()));
+      await tester.pumpWidget(
+        wrapWidget(
+          const UserAddressCard(
+            userName: 'Nour Mohamed',
+            address: '20th st, Sheikh Zayed',
+          ),
+        ),
+      );
 
       final call = tester.widget<IconButton>(
         find.ancestor(
@@ -113,7 +155,14 @@ void main() {
 
     testWidgets('tapping a disabled action does not throw', (tester) async {
       useDesignSurface(tester);
-      await tester.pumpWidget(wrapWidget(const UserAddressCard()));
+      await tester.pumpWidget(
+        wrapWidget(
+          const UserAddressCard(
+            userName: 'Nour Mohamed',
+            address: '20th st, Sheikh Zayed',
+          ),
+        ),
+      );
 
       await tester.tap(find.byIcon(Icons.call));
       await tester.pump();

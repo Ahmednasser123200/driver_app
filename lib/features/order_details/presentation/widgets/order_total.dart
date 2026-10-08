@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import '../../../../core/themes/app_colors/app_colors.dart';
+
 class OrderTotal extends StatelessWidget {
   const OrderTotal({
     super.key,
@@ -21,7 +22,7 @@ class OrderTotal extends StatelessWidget {
 
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children:  [
+        children: [
           Text(
             totalLabel,
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),

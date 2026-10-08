@@ -7,8 +7,8 @@ class UserAddressCard extends StatelessWidget {
   const UserAddressCard({
     super.key,
     this.userImage,
-    this.userName = 'User Name',
-    this.address = 'Address',
+    required this.userName,
+    required this.address,
     this.onCallPressed,
     this.onWhatsAppPressed,
   });
@@ -21,12 +21,14 @@ class UserAddressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final displayName = userName.trim().isEmpty ? 'Unknown' : userName;
+    final displayAddress = address.trim().isEmpty ? 'Unknown' : address;
+
     return Container(
       width: 365.w,
       height: 80.h,
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.grey[300]!),
-
         borderRadius: BorderRadius.circular(8.r),
       ),
       child: Row(
@@ -59,13 +61,12 @@ class UserAddressCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  userName,
+                  displayName,
                   style: TextStyle(fontSize: 14.sp, color: AppColors.grey[800]),
                 ),
                 SizedBox(height: 4.h),
                 Text(
-                  address,
-
+                  displayAddress,
                   style: TextStyle(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.bold,

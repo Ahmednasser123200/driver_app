@@ -1,4 +1,3 @@
-
 import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/localization/app_failure_message_mapper.dart';
@@ -23,10 +22,7 @@ import 'package:step_progress_indicator/step_progress_indicator.dart';
 class OrderDetailsView extends StatefulWidget {
   final String orderId;
 
-  const OrderDetailsView({
-    super.key,
-    required this.orderId,
-  });
+  const OrderDetailsView({super.key, required this.orderId});
 
   @override
   State<OrderDetailsView> createState() => _OrderDetailsViewState();
@@ -38,10 +34,8 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
     super.initState();
 
     context.read<OrderDetailsCubit>().doEvent(
-          GetDriverOrderDetailsEvent(
-            orderId: widget.orderId,
-          ),
-        );
+      GetDriverOrderDetailsEvent(orderId: widget.orderId),
+    );
   }
 
   int _statusStep(String? status) {
@@ -66,10 +60,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
     }
   }
 
-  String _localizedStatus(
-    String? status,
-    AppLocalizations l10n,
-  ) {
+  String _localizedStatus(String? status, AppLocalizations l10n) {
     switch (status?.toLowerCase()) {
       case 'pending':
         return l10n.pending;
@@ -99,31 +90,21 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
   String _currencyLabel(String? currency) {
     final value = currency ?? '\$';
 
-    return value.contains('\$') ||
-            value.contains('€') ||
-            value.contains('£')
+    return value.contains('\$') || value.contains('€') || value.contains('£')
         ? value
         : '$value ';
   }
 
-  void _handleCustomUiEvent(
-    BuildContext context,
-    BaseUiEvent event,
-  ) {
+  void _handleCustomUiEvent(BuildContext context, BaseUiEvent event) {
     final l10n = AppLocalizations.of(context)!;
 
     switch (event) {
       case ShowFailureMessage(:final failure):
-        final message = mapAppFailureToMessage(
-          failure,
-          l10n,
-        );
+        final message = mapAppFailureToMessage(failure, l10n);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
 
       case ShowOrderStatusUpdated():
         break;
@@ -136,21 +117,20 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
   @override
   Widget build(BuildContext context) {
     return BaseUiEventListener<
-        OrderDetailsCubit,
-        OrderDetailsState,
-        BaseUiEvent>(
-      onCustomEvent: _handleCustomUiEvent,
-      child: _buildOrderDetails(context),
-    );
+      OrderDetailsCubit,
+      OrderDetailsState,
+      BaseUiEvent
+    >(onCustomEvent: _handleCustomUiEvent, child: _buildOrderDetails(context));
   }
 
   Widget _buildOrderDetails(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
     return BlocSelector<
-        OrderDetailsCubit,
-        OrderDetailsState,
-        BaseState<DriverOrderDetailsEntity>>(
+      OrderDetailsCubit,
+      OrderDetailsState,
+      BaseState<DriverOrderDetailsEntity>
+    >(
       selector: (state) => state.orderDetails,
       builder: (context, orderDetailsState) {
         final data = orderDetailsState.data;
@@ -161,44 +141,30 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
 
         if (orderDetailsState.isLoading && data == null) {
           return Scaffold(
-            appBar: AppBar(
-              title: Text(l10n.orderDetails),
-            ),
-            body: const Center(
-              child: CircularProgressIndicator(),
-            ),
+            appBar: AppBar(title: Text(l10n.orderDetails)),
+            body: const Center(child: CircularProgressIndicator()),
           );
         }
 
         if (!orderDetailsState.isLoading && data == null) {
           return Scaffold(
-            appBar: AppBar(
-              title: Text(l10n.orderDetails),
-            ),
+            appBar: AppBar(title: Text(l10n.orderDetails)),
             body: Center(
               child: Padding(
                 padding: EdgeInsets.all(24.w),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 48.sp,
-                    ),
+                    Icon(Icons.error_outline, size: 48.sp),
                     SizedBox(height: 16.h),
-                    Text(
-                      l10n.failureUnknown,
-                      textAlign: TextAlign.center,
-                    ),
+                    Text(l10n.failureUnknown, textAlign: TextAlign.center),
                     SizedBox(height: 16.h),
                     CustomButton(
                       label: l10n.continueButton,
                       onPressed: () {
                         context.read<OrderDetailsCubit>().doEvent(
-                              GetDriverOrderDetailsEvent(
-                                orderId: widget.orderId,
-                              ),
-                            );
+                          GetDriverOrderDetailsEvent(orderId: widget.orderId),
+                        );
                       },
                     ),
                   ],
@@ -209,11 +175,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
         }
 
         return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              l10n.orderDetails,
-            ),
-          ),
+          appBar: AppBar(title: Text(l10n.orderDetails)),
           body: SingleChildScrollView(
             child: Container(
               padding: const EdgeInsets.all(10.0),
@@ -230,12 +192,8 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                   ),
                   SizedBox(height: 12.h),
                   OrderStatusHeader(
-                    status: _localizedStatus(
-                      data?.status,
-                      l10n,
-                    ),
-                    orderId:
-                        data?.orderNumber ?? '#${widget.orderId}',
+                    status: _localizedStatus(data?.status, l10n),
+                    orderId: data?.orderNumber ?? '#${widget.orderId}',
                     date: timeline.isNotEmpty
                         ? timeline.last.timestamp
                         : l10n.orderDate,
@@ -250,10 +208,8 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                   ),
                   SizedBox(height: 10.h),
                   UserAddressCard(
-                    address: pickupAddress?.addressLine ??
-                        l10n.pickupAddress,
-                    userName:
-                        pickupAddress?.storeName ?? l10n.floweryStore,
+                    address: pickupAddress?.addressLine ?? l10n.pickupAddress,
+                    userName: pickupAddress?.storeName ?? l10n.floweryStore,
                   ),
                   SizedBox(height: 10.h),
                   Text(
@@ -265,9 +221,9 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                   ),
                   SizedBox(height: 10.h),
                   UserAddressCard(
-                    address:
-                        userAddress?.addressLine ?? l10n.userAddress,
-                    userName: userAddress?.recipientName ??
+                    address: userAddress?.addressLine ?? l10n.userAddress,
+                    userName:
+                        userAddress?.recipientName ??
                         data?.recipientInfo.recipientName ??
                         l10n.customerName,
                   ),
@@ -282,9 +238,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                   SizedBox(height: 13.h),
                   ...itemList.map(
                     (item) => Padding(
-                      padding: EdgeInsets.only(
-                        bottom: 8.h,
-                      ),
+                      padding: EdgeInsets.only(bottom: 8.h),
                       child: OrderItemCard(
                         productName: item.productName,
                         quantity: item.quantity,
@@ -295,11 +249,13 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                     ),
                   ),
                   if (itemList.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.only(
-                        bottom: 8.0,
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 8.0),
+                      child: const OrderItemCard(
+                        productName: 'Unknown',
+                        price: 'Unknown',
+                        quantity: 0,
                       ),
-                      child: OrderItemCard(),
                     ),
                   SizedBox(height: 8.h),
                   OrderTotal(
@@ -321,33 +277,32 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
           bottomNavigationBar: Container(
             decoration: BoxDecoration(
               border: Border(
-                top: BorderSide(
-                  color: Colors.grey[300]!,
-                  width: 3,
-                ),
+                top: BorderSide(color: Colors.grey[300]!, width: 3),
               ),
             ),
             padding: EdgeInsets.all(16.w),
-            child: BlocSelector<
-                OrderDetailsCubit,
-                OrderDetailsState,
-                BaseState<UpdateOrderStatusEntity>>(
-              selector: (state) => state.updateOrderStatus,
-              builder: (context, updateState) {
-                return CustomButton(
-                  label: l10n.startDeliver,
-                  isLoading: updateState.isLoading,
-                  onPressed: () {
-                    context.read<OrderDetailsCubit>().doEvent(
+            child:
+                BlocSelector<
+                  OrderDetailsCubit,
+                  OrderDetailsState,
+                  BaseState<UpdateOrderStatusEntity>
+                >(
+                  selector: (state) => state.updateOrderStatus,
+                  builder: (context, updateState) {
+                    return CustomButton(
+                      label: l10n.startDeliver,
+                      isLoading: updateState.isLoading,
+                      onPressed: () {
+                        context.read<OrderDetailsCubit>().doEvent(
                           UpdateOrderStatusEvent(
                             orderId: widget.orderId,
                             newStatus: 'OnTheWay',
                           ),
                         );
+                      },
+                    );
                   },
-                );
-              },
-            ),
+                ),
           ),
         );
       },

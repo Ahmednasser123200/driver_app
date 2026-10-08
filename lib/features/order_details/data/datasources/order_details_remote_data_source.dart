@@ -6,7 +6,12 @@ import 'package:driver_app/features/order_details/data/dtos/responses/report_dri
 import 'package:driver_app/features/order_details/data/dtos/responses/update_order_status_response_dto.dart';
 
 abstract class OrderDetailsRemoteDataSource {
-Future<BaseResponse<DriverOrderDetailsDto>> getOrderDetails(String orderId);
-Future<BaseResponse<ReportDriverLocationResponseDto>> reportDriverLocation(ReportDriverLocationRequestDto requestDto);
-Future<BaseResponse<UpdateOrderStatusResponseDto>> updateOrderStatus(UpdateOrderStatusRequestDto requestDto, String orderId);
+  Future<BaseResponse<DriverOrderDetailsDto>> getOrderDetails(String orderId);
+  Future<BaseResponse<ReportDriverLocationResponseDto>> reportDriverLocation(
+    ReportDriverLocationRequestDto requestDto,
+  );
+  Future<BaseResponse<UpdateOrderStatusResponseDto>> updateOrderStatus(
+    UpdateOrderStatusRequestDto requestDto,
+    String orderId,
+  );
 }
