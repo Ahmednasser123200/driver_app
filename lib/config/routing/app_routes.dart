@@ -1,4 +1,9 @@
+import 'package:driver_app/config/di/di.dart';
+import 'package:driver_app/features/home/presentation/manager/cubit/home_cubit.dart';
+import 'package:driver_app/features/home/presentation/manager/cubit/home_event.dart';
+import 'package:driver_app/features/home/presentation/view/home_driver_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'routes.dart';
 
@@ -44,7 +49,11 @@ abstract final class AppRoutes {
       case Routes.home:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const _StubScreen('Home'),
+          builder: (_) => BlocProvider<HomeCubit>(
+            create: (context) =>
+                getIt.get<HomeCubit>()..doEvent(GetAvailableOrdersEvent()),
+            child: const HomeDriverView(),
+          ),
         );
       case Routes.orders:
         return MaterialPageRoute(

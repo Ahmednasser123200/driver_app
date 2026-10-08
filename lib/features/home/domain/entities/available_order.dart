@@ -1,7 +1,8 @@
 import 'package:driver_app/features/home/domain/entities/recipient.dart';
 import 'package:driver_app/features/home/domain/entities/store.dart';
+import 'package:equatable/equatable.dart';
 
-class AvailableOrder {
+class AvailableOrder extends Equatable {
   final String orderId;
   final String status;
   final Store store;
@@ -23,4 +24,17 @@ class AvailableOrder {
     this.deliveredAt,
     this.assignedAt,
   });
+
+  @override
+  List<Object?> get props => [
+    orderId,
+    status,
+    store,
+    recipient,
+    itemCount,
+    total,
+    estimatedDeliveryAt,
+    deliveredAt,
+    assignedAt,
+  ];
 }

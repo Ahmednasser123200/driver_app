@@ -1,15 +1,20 @@
+import 'package:driver_app/config/errors/app_failure.dart';
+import 'package:driver_app/config/localization/handle_success_text.dart';
+
 sealed class BaseUiEvent {
   const BaseUiEvent();
 }
 
-class ShowSuccessMessage extends BaseUiEvent {
-  final String message;
+
+
+final class ShowSuccessMessage extends BaseUiEvent {
+  final AppMessage message;
   const ShowSuccessMessage(this.message);
 }
 
-class ShowErrorMessage extends BaseUiEvent {
-  final String message;
-  const ShowErrorMessage(this.message);
+final class ShowFailureMessage extends BaseUiEvent {
+  final AppFailure failure;
+  const ShowFailureMessage(this.failure);
 }
 
 class NavigateTo extends BaseUiEvent {

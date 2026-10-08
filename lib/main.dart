@@ -4,7 +4,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 import 'config/di/di.dart';
 import 'config/routing/app_routes.dart';
-import 'config/routing/routes.dart';
+// import 'config/routing/routes.dart';
 import 'core/themes/app_themes/app_theme.dart';
 import 'l10n/generated/app_localizations.dart';
 
@@ -32,7 +32,7 @@ class DriverApp extends StatelessWidget {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('en'),
-          initialRoute: Routes.initial,
+          // initialRoute: Routes.initial,
           onGenerateRoute: AppRoutes.onGenerateRoute,
         );
       },

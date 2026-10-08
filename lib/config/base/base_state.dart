@@ -1,16 +1,17 @@
+import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:equatable/equatable.dart';
 
 class BaseState<T> extends Equatable {
-  final String errorMessage;
+  final AppFailure? errorMessage;
   final bool isLoading;
   final T? data;
 
-  const BaseState({this.isLoading = false, this.errorMessage = '', this.data});
+  const BaseState({this.isLoading = false, this.errorMessage , this.data});
 
   static const _clearValue = Object();
 
   BaseState<T> copyWith({
-    String? errorMessage,
+    AppFailure? errorMessage,
     bool? isLoading,
     Object? data = _clearValue,
   }) {

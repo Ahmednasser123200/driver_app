@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:driver_app/config/localization/app_failure_message_mapper.dart';
+import 'package:driver_app/config/localization/handle_success_text.dart';
+import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../config/base/base_cubit.dart';
 import '../../../config/base/base_ui_event.dart';
 
-class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
+ class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
     extends StatefulWidget {
   const BaseUiEventListener({
     super.key,
@@ -24,7 +27,7 @@ class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
       _BaseUiEventListenerState<C, S, E>();
 }
 
-class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
+ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
     extends State<BaseUiEventListener<C, S, E>> {
   StreamSubscription<E>? _subscription;
 
@@ -57,21 +60,27 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
   void _handleEvent(BuildContext context, E event) {
     widget.onCustomEvent?.call(context, event);
 
+    final local = AppLocalizations.of(context)!;
+
+
     switch (event) {
       case ShowSuccessMessage():
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(event.message),
+            content: Text(handleSuccessText(local, event.message)),
             backgroundColor: Colors.green,
           ),
         );
-      case ShowErrorMessage():
+        
+      case ShowFailureMessage():
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(event.message),
+            content: Text(mapAppFailureToMessage(event.failure, local)),
             backgroundColor: Colors.red,
           ),
         );
+
+      
       case NavigateTo():
         Navigator.of(context).pushNamed(
           event.routeName,
@@ -79,6 +88,7 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
         );
       case PopRoute():
         Navigator.of(context).pop(event.result);
+        
     }
   }
 

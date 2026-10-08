@@ -14,10 +14,12 @@ class AuthInterceptors extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = await _storage.read(key: StorageKeys.kUserToken);
-    if (token != null && token.isNotEmpty) {
-      options.headers['Authorization'] = 'Bearer $token';
-    }
+    options.headers['Authorization'] =
+        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMWExMTE5YS01MTRmLTdlMzAtOGViMi0zOGM0ODJjNzkzNTciLCJlbWFpbCI6InNheWVkMkBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJEcml2ZXIiLCJleHAiOjE3OTE0MTkwNzgsImlzcyI6IkZsb3dlcnNBdXRoIiwiYXVkIjoiRmxvd2Vyc0FwcCJ9.OWYnqtznDPNLgNo0bfFgeM6Nn92PPXGyz7bnGPeA2t4';
+    // final token = await _storage.read(key: StorageKeys.kUserToken);
+    // if (token != null && token.isNotEmpty) {
+    //   options.headers['Authorization'] = 'Bearer $token';
+    // }
     handler.next(options);
   }
 
