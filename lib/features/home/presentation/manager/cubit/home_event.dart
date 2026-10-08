@@ -8,3 +8,5 @@ class AcceptOrderEvent extends HomeEvent {
   final String orderId;
   AcceptOrderEvent(this.orderId);
 }
+
+class LoadMoreOrdersEvent extends HomeEvent {}

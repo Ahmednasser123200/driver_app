@@ -5,22 +5,26 @@ import 'package:equatable/equatable.dart';
 class HomeState extends Equatable {
   final BaseState<AvailableOrders> getAvailableOrdersState;
   final Set<String> acceptOrderId;
+  final bool isLoadingMore;
   const HomeState({
     this.getAvailableOrdersState = const BaseState(),
-      this.acceptOrderId = const {},
+    this.acceptOrderId = const {},
+    this.isLoadingMore = false,
   });
-
 
   HomeState copyWith({
     BaseState<AvailableOrders>? getAvailableOrdersState,
-    Set<String>? acceptOrderId
+    Set<String>? acceptOrderId,
+    bool? isLoadingMore,
   }) {
     return HomeState(
-      getAvailableOrdersState: getAvailableOrdersState ?? this.getAvailableOrdersState,
-      acceptOrderId:  acceptOrderId ?? this.acceptOrderId
+      getAvailableOrdersState:
+          getAvailableOrdersState ?? this.getAvailableOrdersState,
+      acceptOrderId: acceptOrderId ?? this.acceptOrderId,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
     );
   }
 
   @override
-  List<Object?> get props => [getAvailableOrdersState, acceptOrderId];
+  List<Object?> get props => [getAvailableOrdersState, acceptOrderId , isLoadingMore];
 }

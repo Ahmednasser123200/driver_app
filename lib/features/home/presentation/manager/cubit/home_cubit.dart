@@ -26,12 +26,15 @@ class HomeCubit extends BaseCubit<HomeState, BaseUiEvent> {
         await _getAvailableOrders();
       case AcceptOrderEvent():
         await _acceptOrder(event.orderId);
+      case LoadMoreOrdersEvent():
+        await _loadMoreOrders();
     }
   }
 
   Future<void> _getAvailableOrders() async {
     emit(state.copyWith(getAvailableOrdersState: BaseState(isLoading: true)));
     var result = await _getAvailableOrdersUseCase.call();
+    if (isClosed) return;
     switch (result) {
       case Success<AvailableOrders>():
         emit(
@@ -57,16 +60,46 @@ class HomeCubit extends BaseCubit<HomeState, BaseUiEvent> {
 
   Future<void> _acceptOrder(String orderId) async {
     emit(state.copyWith(acceptOrderId: {...state.acceptOrderId, orderId}));
-
     var result = await _acceptOrderUseCase.call(orderId);
+    if (isClosed) return;
     emit(
       state.copyWith(acceptOrderId: {...state.acceptOrderId}..remove(orderId)),
     );
     switch (result) {
       case Success<void>():
         emitEvent(ShowSuccessMessage(AppMessage.orderAccepted));
-        emitEvent(NavigateTo(Routes.orderDetails, arguments: {'orderId': orderId}));
+        emitEvent(
+          NavigateTo(Routes.orderDetails, arguments: {'orderId': orderId}),
+        );
       case Error<void>():
+        emitEvent(ShowFailureMessage(result.failure));
+    }
+  }
+
+  Future<void> _loadMoreOrders() async {
+    final current = state.getAvailableOrdersState.data;
+    if (current == null) return;
+    if (!current.pagination.hasNextPage) return;
+    if (state.isLoadingMore) return;
+    emit(state.copyWith(isLoadingMore: true));
+    var result = await _getAvailableOrdersUseCase.call(
+      page: current.pagination.page + 1,
+    );
+    if (isClosed) return;
+    switch (result) {
+      case Success<AvailableOrders>():
+        var merged = AvailableOrders(
+          items: [...current.items, ...result.data.items],
+          pagination: result.data.pagination,
+        );
+        emit(
+          state.copyWith(
+            isLoadingMore: false,
+            getAvailableOrdersState: BaseState(data: merged),
+          ),
+        );
+      case Error<AvailableOrders>():
+        emit(state.copyWith(isLoadingMore: false));
         emitEvent(ShowFailureMessage(result.failure));
     }
   }

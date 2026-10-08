@@ -26,6 +26,14 @@ class AvailableOrder extends Equatable {
   });
 
   @override
+  String toString() {
+    return 'AvailableOrder(orderId: $orderId, status: $status, store: $store, '
+        'recipient: $recipient, itemCount: $itemCount, total: $total, '
+        'estimatedDeliveryAt: $estimatedDeliveryAt, deliveredAt: $deliveredAt, '
+        'assignedAt: $assignedAt)';
+  }
+
+  @override
   List<Object?> get props => [
     orderId,
     status,

@@ -8,5 +8,6 @@ class GetAvailableOrdersUseCase {
   HomeRepo homeRepo;
 
   GetAvailableOrdersUseCase(this.homeRepo);
-  Future<BaseResponse<AvailableOrders>> call() => homeRepo.getAvailableOrders();
+  Future<BaseResponse<AvailableOrders>> call({int page = 1}) =>
+      homeRepo.getAvailableOrders(page: page);
 }

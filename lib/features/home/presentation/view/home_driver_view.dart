@@ -81,7 +81,7 @@ class _HomeDriverViewState extends State<HomeDriverView> with HandleEventUi  {
           ),
         ),
       ),
-      body: const AvailableOrdersList(),
+      body:  AvailableOrdersList(),
     );
   }
 }

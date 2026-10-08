@@ -26,9 +26,9 @@ class HomeRepoImpl implements HomeRepo {
   }
 
   @override
-  Future<BaseResponse<AvailableOrders>> getAvailableOrders() async {
+  Future<BaseResponse<AvailableOrders>> getAvailableOrders({int page = 1}) async {
     return _execureRepCall<AvailableOrdersResponseDto, AvailableOrders>(
-      () => homeRemoteDataSource.getAvailableOrders(),
+      () => homeRemoteDataSource.getAvailableOrders(page: page),
       (data) => data.toDomain(),
     );
     // return await _executeRepoCall(homeRemoteDataSource.getAvailableOrders);

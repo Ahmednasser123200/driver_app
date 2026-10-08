@@ -13,8 +13,8 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   HomeApiClient apiClient;
   HomeRemoteDataSourceImpl(this.apiClient);
   @override
-  Future<BaseResponse<AvailableOrdersResponseDto>> getAvailableOrders() async {
-    return _excecuteApiCall(() => apiClient.getAvailableOrders());
+  Future<BaseResponse<AvailableOrdersResponseDto>> getAvailableOrders({int page = 1}) async {
+    return _excecuteApiCall(() => apiClient.getAvailableOrders(page: page));
     // try {
     //   var response = await apiClient.getAvailableOrders();
     //   return Success<AvailableOrdersResponseDto>(response);

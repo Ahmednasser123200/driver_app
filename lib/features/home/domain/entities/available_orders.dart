@@ -9,4 +9,9 @@ class AvailableOrders {
     required this.items,
     required this.pagination,
   });
+
+  @override
+  String toString() {
+    return 'AvailableOrders(items: $items, pagination: $pagination)';
+  }
 }
