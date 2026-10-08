@@ -15,8 +15,8 @@ class ApplicationRequestDto {
   final String password;
   final String confirmPassword;
   final String gender;
-  final File? vehicleLicenceFile;
-  final File? idImage;
+  final File vehicleLicenceFile;
+  final File idImage;
 
   const ApplicationRequestDto({
     required this.countryCode,
@@ -30,8 +30,8 @@ class ApplicationRequestDto {
     required this.password,
     required this.confirmPassword,
     required this.gender,
-    this.vehicleLicenceFile,
-    this.idImage,
+    required this.vehicleLicenceFile,
+    required this.idImage,
   });
 
   factory ApplicationRequestDto.fromEntity(ApplicationEntity entity) {
@@ -47,8 +47,8 @@ class ApplicationRequestDto {
       password: entity.password,
       confirmPassword: entity.confirmPassword,
       gender: entity.gender,
-      vehicleLicenceFile: entity.vehicleLicenceFile,
-      idImage: entity.idImage,
+      vehicleLicenceFile: File(entity.vehicleLicencePath),
+      idImage: File(entity.idImagePath),
     );
   }
 

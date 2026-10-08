@@ -1,35 +1,14 @@
-import 'dart:io';
+
 
 import 'package:equatable/equatable.dart';
 
-enum VehicleType {
-  car,
-  motorcycle;
 
-  String get apiValue {
-    switch (this) {
-      case VehicleType.car:
-        return '1';
-      case VehicleType.motorcycle:
-        return '2';
-    }
-  }
-
-  String get displayName {
-    switch (this) {
-      case VehicleType.car:
-        return 'Car';
-      case VehicleType.motorcycle:
-        return 'Motorcycle';
-    }
-  }
-}
 
 class ApplicationEntity extends Equatable {
   final String countryCode;
   final String firstName;
   final String secondName;
-  final VehicleType vehicleType;
+  final String vehicleType;
   final String vehicleNumber;
   final String email;
   final String phoneNumber;
@@ -37,8 +16,8 @@ class ApplicationEntity extends Equatable {
   final String password;
   final String confirmPassword;
   final String gender;
-  final File vehicleLicenceFile;
-  final File idImage;
+  final String vehicleLicencePath;
+  final String idImagePath;
 
   const ApplicationEntity({
     required this.countryCode,
@@ -52,24 +31,24 @@ class ApplicationEntity extends Equatable {
     required this.password,
     required this.confirmPassword,
     required this.gender,
-    required this.vehicleLicenceFile,
-    required this.idImage,
+    required this.vehicleLicencePath,
+    required this.idImagePath,
   });
 
   @override
   List<Object?> get props => [
-        countryCode,
-        firstName,
-        secondName,
-        vehicleType,
-        vehicleNumber,
-        email,
-        phoneNumber,
-        nationalId,
-        password,
-        confirmPassword,
-        gender,
-        vehicleLicenceFile,
-        idImage,
-      ];
+    countryCode,
+    firstName,
+    secondName,
+    vehicleType,
+    vehicleNumber,
+    email,
+    phoneNumber,
+    nationalId,
+    password,
+    confirmPassword,
+    gender,
+    vehicleLicencePath,
+    idImagePath
+  ];
 }

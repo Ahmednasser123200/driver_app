@@ -5,6 +5,8 @@ import 'package:injectable/injectable.dart';
 import '../../../data/data_source/remote_data_source/auth_remote_data_source.dart';
 import '../../../data/model/request/apply_request/application_request_dto.dart';
 import '../../../data/model/response/apply_response/application_response_dto.dart';
+import '../../../data/model/response/apply_response/country_dto.dart';
+import '../../../data/model/response/apply_response/vehicle_type_dto.dart';
 import '../../client/auth_client.dart';
 
 @Injectable(as: AuthRemoteDataSource)
@@ -24,5 +26,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         request.idImage,
       ),
     );
+  }
+  @override
+  Future<BaseResponse<List<CountryDto>>> getCountries() {
+    return executeApi(() => _client.getCountries());
+  }
+
+  @override
+  Future<BaseResponse<List<VehicleTypeDto>>> getVehicleTypes() {
+    return executeApi(() => _client.getVehicleTypes());
   }
 }

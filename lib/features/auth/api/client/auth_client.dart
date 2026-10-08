@@ -6,6 +6,8 @@ import 'package:injectable/injectable.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../../data/model/response/apply_response/application_response_dto.dart';
+import '../../data/model/response/apply_response/country_dto.dart';
+import '../../data/model/response/apply_response/vehicle_type_dto.dart';
 
 part 'auth_client.g.dart';
 
@@ -16,10 +18,15 @@ abstract class AuthClient {
   factory AuthClient(Dio dio) = _AuthClient;
 
   @POST(ApiStrings.driverApplications)
+  @GET(ApiStrings.countries)
+  Future<List<CountryDto>> getCountries();
+
+  @GET(ApiStrings.vehicleTypes)
+  Future<List<VehicleTypeDto>> getVehicleTypes();
   @MultiPart()
   Future<ApplicationResponseDto> addApplication(
     @PartMap() Map<String, dynamic> body,
-    @Part(name: 'VehicleLicenceFile') File? vehicleLicenceFile,
-    @Part(name: 'IdImage') File? idImage,
+    @Part(name: ApiStrings.vehicleLicenceFile) File? vehicleLicenceFile,
+    @Part(name: ApiStrings.idImage) File? idImage,
   );
 }

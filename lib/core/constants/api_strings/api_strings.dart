@@ -5,4 +5,6 @@ abstract class ApiStrings {
   static const String driverApplications = '/api/drivers/applications';
   static const String vehicleTypes = '/api/v1/vehicle-types';
   static const String countries = '/api/v1/countries';
+  static const String vehicleLicenceFile = 'VehicleLicenceFile';
+  static const String idImage = 'IdImage';
 }
