@@ -6,10 +6,11 @@ import '../../../../core/themes/app_colors/app_colors.dart';
 class OrderStatusHeader extends StatelessWidget {
   const OrderStatusHeader({
     super.key,
-    this.status = 'Accepted',
-    this.orderId = '# 123456',
-    this.date = 'Wed, 03 Sep 2024, 11:00 AM ',
+    required this.status,
+    required this.orderId,
+    required this.date,
   });
+
   final String status;
   final String orderId;
   final String date;

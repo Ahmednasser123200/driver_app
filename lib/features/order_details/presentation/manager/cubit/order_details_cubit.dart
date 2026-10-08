@@ -21,13 +21,10 @@ class OrderDetailsCubit extends BaseCubit<OrderDetailsState, BaseUiEvent> {
   final ReportDriverLocationUseCase _reportDriverLocationUseCase;
 
   OrderDetailsCubit({
-    required GetDriverOrderDetailsUseCase getDriverOrderDetailsUseCase,
-    required UpdateOrderStatusUseCase updateOrderStatusUseCase,
-    required ReportDriverLocationUseCase reportDriverLocationUseCase,
-  })  : _getDriverOrderDetailsUseCase = getDriverOrderDetailsUseCase,
-        _updateOrderStatusUseCase = updateOrderStatusUseCase,
-        _reportDriverLocationUseCase = reportDriverLocationUseCase,
-        super(const OrderDetailsState());
+    required this._getDriverOrderDetailsUseCase,
+    required this._updateOrderStatusUseCase,
+    required this._reportDriverLocationUseCase,
+  }) : super(const OrderDetailsState());
 
   void doEvent(OrderDetailsEvent event) {
     switch (event) {

@@ -5,8 +5,8 @@ import '../../../../core/themes/app_colors/app_colors.dart';
 class PaymentMethodCard extends StatelessWidget {
   const PaymentMethodCard({
     super.key,
-    this.title = 'Payment Method',
-    this.method = 'Credit Card',
+    required this.title,
+    required this.method,
   });
 
   final String title;

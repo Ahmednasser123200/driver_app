@@ -1,3 +1,4 @@
+import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -5,14 +6,20 @@ import '../../../../../helpers/fixtures.dart';
 
 void main() {
   group('defaults', () {
-    test('a fresh state is idle and empty', () {
+    test('a fresh state has three idle slices', () {
       const state = OrderDetailsState();
 
-      expect(state.isLoading, isFalse);
-      expect(state.errorMessage, '');
-      expect(state.data, isNull);
-      expect(state.updateStatusSuccess, isFalse);
-      expect(state.reportLocationSuccess, isFalse);
+      expect(state.orderDetails.isLoading, isFalse);
+      expect(state.orderDetails.errorMessage, '');
+      expect(state.orderDetails.data, isNull);
+
+      expect(state.updateOrderStatus.isLoading, isFalse);
+      expect(state.updateOrderStatus.errorMessage, '');
+      expect(state.updateOrderStatus.data, isNull);
+
+      expect(state.reportDriverLocation.isLoading, isFalse);
+      expect(state.reportDriverLocation.errorMessage, '');
+      expect(state.reportDriverLocation.data, isNull);
     });
   });
 
@@ -20,64 +27,70 @@ void main() {
     test('returns a new instance rather than mutating', () {
       const original = OrderDetailsState();
 
-      final updated = original.copyWith(isLoading: true);
-
-      expect(identical(updated, original), isFalse);
-      expect(original.isLoading, isFalse);
-      expect(updated.isLoading, isTrue);
-    });
-
-    test('changes only the supplied fields', () {
-      final state = OrderDetailsState(
-        isLoading: true,
-        errorMessage: 'boom',
-        data: buildDriverOrderDetailsEntity(),
-        updateStatusSuccess: true,
-        reportLocationSuccess: true,
+      final updated = original.copyWith(
+        orderDetails: const BaseState(isLoading: true),
       );
 
-      final updated = state.copyWith(isLoading: false);
-
-      expect(updated.isLoading, isFalse);
-      expect(updated.errorMessage, 'boom');
-      expect(updated.data, same(state.data));
-      expect(updated.updateStatusSuccess, isTrue);
-      expect(updated.reportLocationSuccess, isTrue);
+      expect(identical(updated, original), isFalse);
+      expect(original.orderDetails.isLoading, isFalse);
+      expect(updated.orderDetails.isLoading, isTrue);
     });
 
-    test('can reset a string field back to empty', () {
-      final state = OrderDetailsState(errorMessage: 'boom');
-
-      expect(state.copyWith(errorMessage: '').errorMessage, '');
-    });
-
-    test('can flip the success booleans back to false', () {
+    test('changes only the supplied slice', () {
       final state = OrderDetailsState(
-        updateStatusSuccess: true,
-        reportLocationSuccess: true,
+        orderDetails: BaseState(
+          isLoading: true,
+          data: buildDriverOrderDetailsEntity(),
+        ),
+        updateOrderStatus: const BaseState(isLoading: true),
+        reportDriverLocation: const BaseState(isLoading: true),
       );
 
       final updated = state.copyWith(
-        updateStatusSuccess: false,
-        reportLocationSuccess: false,
+        orderDetails: const BaseState(isLoading: false),
       );
 
-      expect(updated.updateStatusSuccess, isFalse);
-      expect(updated.reportLocationSuccess, isFalse);
+      expect(updated.orderDetails.isLoading, isFalse);
+      expect(updated.updateOrderStatus.isLoading, isTrue);
+      expect(updated.reportDriverLocation.isLoading, isTrue);
     });
 
-    test('keeps the existing data when data is not supplied', () {
-      final entity = buildDriverOrderDetailsEntity();
-      final state = OrderDetailsState(data: entity);
+    test('keeps the other slices identical', () {
+      final state = OrderDetailsState(
+        updateOrderStatus: const BaseState(isLoading: true),
+      );
 
-      expect(state.copyWith(isLoading: true).data, same(entity));
+      final updated = state.copyWith(
+        orderDetails: const BaseState(isLoading: true),
+      );
+
+      expect(identical(updated.updateOrderStatus, state.updateOrderStatus),
+          isTrue);
     });
 
-    test('cannot clear data because null means "keep the old value"', () {
-      final entity = buildDriverOrderDetailsEntity();
-      final state = OrderDetailsState(data: entity);
+    test('cannot clear a slice with null', () {
+      final state = OrderDetailsState(
+        updateOrderStatus: const BaseState(isLoading: true),
+      );
 
-      expect(state.copyWith(data: null).data, same(entity));
+      expect(
+        state.copyWith(updateOrderStatus: null).updateOrderStatus.isLoading,
+        isTrue,
+      );
+    });
+
+    test('round-trips a full replacement', () {
+      final state = OrderDetailsState(
+        orderDetails: BaseState(
+          isLoading: false,
+          data: buildDriverOrderDetailsEntity(),
+        ),
+      );
+
+      expect(
+        state.copyWith(orderDetails: state.orderDetails).orderDetails,
+        same(state.orderDetails),
+      );
     });
   });
 
@@ -86,21 +99,23 @@ void main() {
       expect(const OrderDetailsState(), const OrderDetailsState());
     });
 
-    test('states differing in any flag are not equal', () {
+    test('states differing in any slice are not equal', () {
       expect(
-        const OrderDetailsState(isLoading: true),
+        const OrderDetailsState(
+          orderDetails: BaseState(isLoading: true),
+        ),
         isNot(const OrderDetailsState()),
       );
       expect(
-        const OrderDetailsState(updateStatusSuccess: true),
+        const OrderDetailsState(
+          updateOrderStatus: BaseState(isLoading: true),
+        ),
         isNot(const OrderDetailsState()),
       );
       expect(
-        const OrderDetailsState(reportLocationSuccess: true),
-        isNot(const OrderDetailsState()),
-      );
-      expect(
-        const OrderDetailsState(errorMessage: 'x'),
+        const OrderDetailsState(
+          reportDriverLocation: BaseState(isLoading: true),
+        ),
         isNot(const OrderDetailsState()),
       );
     });
@@ -109,15 +124,25 @@ void main() {
       final entity = buildDriverOrderDetailsEntity();
 
       expect(
-        OrderDetailsState(data: entity),
-        OrderDetailsState(data: entity),
+        OrderDetailsState(
+          orderDetails: BaseState(data: entity),
+        ),
+        OrderDetailsState(
+          orderDetails: BaseState(data: entity),
+        ),
       );
     });
 
     test('structurally identical but distinct entities are not equal', () {
       expect(
-        OrderDetailsState(data: buildDriverOrderDetailsEntity()),
-        isNot(OrderDetailsState(data: buildDriverOrderDetailsEntity())),
+        OrderDetailsState(
+          orderDetails: BaseState(data: buildDriverOrderDetailsEntity()),
+        ),
+        isNot(
+          OrderDetailsState(
+            orderDetails: BaseState(data: buildDriverOrderDetailsEntity()),
+          ),
+        ),
       );
     });
   });

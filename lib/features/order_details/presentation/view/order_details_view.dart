@@ -303,14 +303,15 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                     ),
                   SizedBox(height: 8.h),
                   OrderTotal(
+                    totalLabel: l10n.total,
                     totalAmount:
                         '${_currencyLabel(data?.currency)}'
                         '${(data?.totalPrice ?? 0).toStringAsFixed(2)}',
                   ),
                   SizedBox(height: 13.h),
                   PaymentMethodCard(
-                    method:
-                        data?.paymentMethod ?? l10n.cashOnDelivery,
+                    title: l10n.paymentMethod,
+                    method: data?.paymentMethod ?? l10n.cashOnDelivery,
                   ),
                   SizedBox(height: 13.h),
                 ],

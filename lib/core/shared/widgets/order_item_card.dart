@@ -1,6 +1,5 @@
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 class OrderItemCard extends StatelessWidget {

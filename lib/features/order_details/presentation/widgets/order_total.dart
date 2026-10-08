@@ -4,11 +4,12 @@ import '../../../../core/themes/app_colors/app_colors.dart';
 class OrderTotal extends StatelessWidget {
   const OrderTotal({
     super.key,
-    this.totalAmount = '\$123.45',
-    this.totalLabel = 'Total',
+    required this.totalAmount,
+    required this.totalLabel,
   });
-  final String  totalAmount; 
- final String  totalLabel; 
+
+  final String totalAmount;
+  final String totalLabel;
   @override
   Widget build(BuildContext context) {
     return Container(
