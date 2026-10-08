@@ -6,14 +6,14 @@ import 'package:driver_app/features/auth/domain/entities/apply_entity/applicatio
 void main() {
   group('ApplicationRequestDto', () {
     test('fromEntity maps ApplicationEntity to ApplicationRequestDto correctly', () {
-      final licenseFile = File('test_license.jpg');
-      final idImage = File('test_id.jpg');
+      const licensePath = 'test_license.jpg';
+      const idImagePath = 'test_id.jpg';
 
-      final entity = ApplicationEntity(
+      const entity = ApplicationEntity(
         countryCode: '+20',
         firstName: 'John',
         secondName: 'Doe',
-        vehicleType: VehicleType.car,
+        vehicleType: '1',
         vehicleNumber: 'ABC 123',
         email: 'john@example.com',
         phoneNumber: '01234567890',
@@ -21,8 +21,8 @@ void main() {
         password: 'password123',
         confirmPassword: 'password123',
         gender: 'Male',
-        vehicleLicenceFile: licenseFile,
-        idImage: idImage,
+        vehicleLicencePath: licensePath,
+        idImagePath: idImagePath,
       );
 
       final dto = ApplicationRequestDto.fromEntity(entity);
@@ -38,8 +38,8 @@ void main() {
       expect(dto.password, 'password123');
       expect(dto.confirmPassword, 'password123');
       expect(dto.gender, 'Male');
-      expect(dto.vehicleLicenceFile, licenseFile);
-      expect(dto.idImage, idImage);
+      expect(dto.vehicleLicenceFile.path, licensePath);
+      expect(dto.idImage.path, idImagePath);
     });
 
     test('toFieldMap returns correct PascalCase field map matching API contract', () {

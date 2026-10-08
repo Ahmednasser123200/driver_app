@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:driver_app/config/base/base_response.dart';
@@ -27,11 +26,11 @@ void main() {
   });
 
   group('AuthRepoImpl - addApplication', () {
-    final applicationEntity = ApplicationEntity(
+    const applicationEntity = ApplicationEntity(
       countryCode: '+20',
       firstName: 'John',
       secondName: 'Doe',
-      vehicleType: VehicleType.car,
+      vehicleType: '1',
       vehicleNumber: 'ABC 123',
       email: 'john@example.com',
       phoneNumber: '01234567890',
@@ -39,18 +38,18 @@ void main() {
       password: 'password123',
       confirmPassword: 'password123',
       gender: 'Male',
-      vehicleLicenceFile: File('license.jpg'),
-      idImage: File('id.jpg'),
+      vehicleLicencePath: 'license.jpg',
+      idImagePath: 'id.jpg',
     );
 
     test('returns Success<void> when remote data source returns Success', () async {
-      final responseDto = ApplicationResponseDto(
+      const responseDto = ApplicationResponseDto(
         success: true,
         message: 'Success',
       );
 
       when(() => mockRemoteDataSource.addApplication(any()))
-          .thenAnswer((_) async => Success(responseDto));
+          .thenAnswer((_) async => const Success(responseDto));
 
       final result = await repoImpl.addApplication(applicationEntity);
 
@@ -62,7 +61,7 @@ void main() {
       const failure = ServerFailure();
 
       when(() => mockRemoteDataSource.addApplication(any()))
-          .thenAnswer((_) async => Error(failure));
+          .thenAnswer((_) async => const Error(failure));
 
       final result = await repoImpl.addApplication(applicationEntity);
 

@@ -1,14 +1,15 @@
-import 'dart:io';
-
 import 'package:equatable/equatable.dart';
+import '../../../../../config/base/base_state.dart';
 
-import 'package:driver_app/features/auth/domain/entities/apply_entity/applications_entity.dart';
+import '../../../domain/entities/apply_entity/country_entity.dart';
+import '../../../domain/entities/apply_entity/vehicle_type_entity.dart';
 
 class ApplyState extends Equatable {
+
   final String countryCode;
   final String firstName;
   final String secondName;
-  final VehicleType vehicleType;
+  final String vehicleType;
   final String vehicleNumber;
   final String email;
   final String phoneNumber;
@@ -16,14 +17,19 @@ class ApplyState extends Equatable {
   final String password;
   final String confirmPassword;
   final String? gender;
-  final File? vehicleLicenceFile;
-  final File? idImage;
+  final String? vehicleLicencePath;
+  final String? idImagePath;
+  final CountryEntity? selectedCountry;
+  final VehicleTypeEntity? selectedVehicleType;
+  final BaseState<void> applyStatus;
+  final BaseState<List<CountryEntity>> countriesStatus;
+  final BaseState<List<VehicleTypeEntity>> vehicleTypesStatus;
 
   const ApplyState({
     this.countryCode = '+20',
     this.firstName = '',
     this.secondName = '',
-    this.vehicleType = VehicleType.car,
+    this.vehicleType = '',
     this.vehicleNumber = '',
     this.email = '',
     this.phoneNumber = '',
@@ -31,15 +37,20 @@ class ApplyState extends Equatable {
     this.password = '',
     this.confirmPassword = '',
     this.gender,
-    this.vehicleLicenceFile,
-    this.idImage,
+    this.vehicleLicencePath,
+    this.idImagePath,
+    this.selectedCountry,
+    this.selectedVehicleType,
+    this.applyStatus = const BaseState(),
+    this.countriesStatus = const BaseState(),
+    this.vehicleTypesStatus = const BaseState(),
   });
 
   ApplyState copyWith({
     String? countryCode,
     String? firstName,
     String? secondName,
-    VehicleType? vehicleType,
+    String? vehicleType,
     String? vehicleNumber,
     String? email,
     String? phoneNumber,
@@ -47,8 +58,13 @@ class ApplyState extends Equatable {
     String? password,
     String? confirmPassword,
     String? gender,
-    File? vehicleLicenceFile,
-    File? idImage,
+    String? vehicleLicencePath,
+    String? idImagePath,
+    CountryEntity? selectedCountry,
+    VehicleTypeEntity? selectedVehicleType,
+    BaseState<void>? applyStatus,
+    BaseState<List<CountryEntity>>? countriesStatus,
+    BaseState<List<VehicleTypeEntity>>? vehicleTypesStatus,
   }) {
     return ApplyState(
       countryCode: countryCode ?? this.countryCode,
@@ -62,25 +78,35 @@ class ApplyState extends Equatable {
       password: password ?? this.password,
       confirmPassword: confirmPassword ?? this.confirmPassword,
       gender: gender ?? this.gender,
-      vehicleLicenceFile: vehicleLicenceFile ?? this.vehicleLicenceFile,
-      idImage: idImage ?? this.idImage,
+      vehicleLicencePath: vehicleLicencePath ?? this.vehicleLicencePath,
+      idImagePath: idImagePath ?? this.idImagePath,
+      selectedCountry: selectedCountry ?? this.selectedCountry,
+      selectedVehicleType: selectedVehicleType ?? this.selectedVehicleType,
+      applyStatus: applyStatus ?? this.applyStatus,
+      countriesStatus: countriesStatus ?? this.countriesStatus,
+      vehicleTypesStatus: vehicleTypesStatus ?? this.vehicleTypesStatus,
     );
   }
 
   @override
   List<Object?> get props => [
-        countryCode,
-        firstName,
-        secondName,
-        vehicleType,
-        vehicleNumber,
-        email,
-        phoneNumber,
-        nationalId,
-        password,
-        confirmPassword,
-        gender,
-        vehicleLicenceFile,
-        idImage,
-      ];
+    countryCode,
+    firstName,
+    secondName,
+    vehicleType,
+    vehicleNumber,
+    email,
+    phoneNumber,
+    nationalId,
+    password,
+    confirmPassword,
+    gender,
+    vehicleLicencePath,
+    idImagePath,
+    selectedCountry,
+    selectedVehicleType,
+    applyStatus,
+    countriesStatus,
+    vehicleTypesStatus,
+  ];
 }

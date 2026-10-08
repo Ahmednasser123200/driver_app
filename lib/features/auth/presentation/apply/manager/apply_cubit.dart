@@ -1,106 +1,205 @@
-import 'dart:async';
-import 'dart:io';
-
-import 'package:driver_app/config/base/base_cubit.dart';
-import 'package:driver_app/config/base/base_response.dart';
-import 'package:driver_app/config/base/base_state.dart';
-import 'package:driver_app/config/base/base_ui_event.dart';
-import 'package:driver_app/features/auth/domain/entities/apply_entity/applications_entity.dart';
-import 'package:driver_app/features/auth/presentation/apply/manager/apply_state.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../../config/base/base_cubit.dart';
+import '../../../../../config/base/base_response.dart';
+import '../../../../../config/base/base_state.dart';
+import '../../../../../config/base/base_ui_event.dart';
+import '../../../../../core/services/media_service.dart';
+import '../../../domain/entities/apply_entity/applications_entity.dart';
+import '../../../domain/entities/apply_entity/country_entity.dart';
+import '../../../domain/entities/apply_entity/vehicle_type_entity.dart';
 import '../../../domain/use_case/add_application_use_case.dart';
-import 'apply_event.dart';
+import '../../../domain/use_case/get_countries_use_case.dart';
+import '../../../domain/use_case/get_vehicle_types_use_case.dart';
+import 'apply_intent.dart';
+import 'apply_state.dart';
 
 @injectable
-class ApplyCubit extends BaseCubit<BaseState<ApplyState>, BaseUiEvent> {
-  ApplyCubit(this._addApplicationUseCase)
-      : super(const BaseState(data: ApplyState()));
+class ApplyCubit extends BaseCubit<ApplyState, BaseUiEvent> {
+  ApplyCubit(
+    this._addApplicationUseCase,
+    this._getCountriesUseCase,
+    this._getVehicleTypesUseCase,
+    this._mediaService,
+  ) : super(const ApplyState()) {
+    processIntent(const LoadInitialDataIntent());
+  }
 
   final AddApplicationUseCase _addApplicationUseCase;
+  final GetCountriesUseCase _getCountriesUseCase;
+  final GetVehicleTypesUseCase _getVehicleTypesUseCase;
+  final MediaService _mediaService;
 
-  ApplyState get _data => state.data ?? const ApplyState();
+  void processIntent(ApplyIntent intent) {
+    switch (intent) {
+      case LoadInitialDataIntent():
+        _loadInitialData();
+      case ChangeFirstNameIntent(:final value):
+        emit(state.copyWith(firstName: value));
+      case ChangeSecondNameIntent(:final value):
+        emit(state.copyWith(secondName: value));
+      case ChangeVehicleNumberIntent(:final value):
+        emit(state.copyWith(vehicleNumber: value));
+      case ChangeEmailIntent(:final value):
+        emit(state.copyWith(email: value));
+      case ChangePhoneIntent(:final value):
+        emit(state.copyWith(phoneNumber: value));
+      case ChangeNationalIdIntent(:final value):
+        emit(state.copyWith(nationalId: value));
+      case ChangePasswordIntent(:final value):
+        emit(state.copyWith(password: value));
+      case ChangeConfirmPasswordIntent(:final value):
+        emit(state.copyWith(confirmPassword: value));
+      case ChangeGenderIntent(:final value):
+        emit(state.copyWith(gender: value));
+      case SelectCountryIntent(:final country):
+        emit(
+          state.copyWith(
+            selectedCountry: country,
+            countryCode: '+${country.phoneCode}',
+          ),
+        );
+      case SelectVehicleTypeIntent(:final vehicleType):
+        emit(
+          state.copyWith(
+            selectedVehicleType: vehicleType,
+            vehicleType: vehicleType.id,
+          ),
+        );
+      case PickLicenseImageIntent():
+        _pickLicenseImage();
+      case PickIdImageIntent():
+        _pickIdImage();
+      case SubmitApplicationIntent():
+        _submit();
+    }
+  }
 
-  void _update(ApplyState data) => emit(state.copyWith(data: data));
+  Future<void> _loadInitialData() async {
+    emit(
+      state.copyWith(
+        countriesStatus: const BaseState(isLoading: true),
+        vehicleTypesStatus: const BaseState(isLoading: true),
+      ),
+    );
 
-  void onCountryChanged(String value) =>
-      _update(_data.copyWith(countryCode: value));
+    final results = await Future.wait([
+      _getCountriesUseCase.execute(),
+      _getVehicleTypesUseCase.execute(),
+    ]);
 
-  void onFirstNameChanged(String value) =>
-      _update(_data.copyWith(firstName: value));
+    final countriesRes = results[0] as BaseResponse<List<CountryEntity>>;
+    final vehiclesRes = results[1] as BaseResponse<List<VehicleTypeEntity>>;
 
-  void onSecondNameChanged(String value) =>
-      _update(_data.copyWith(secondName: value));
+    BaseState<List<CountryEntity>> countriesState = state.countriesStatus;
+    CountryEntity? initialCountry = state.selectedCountry;
+    String countryCode = state.countryCode;
 
-  void onVehicleTypeChanged(VehicleType value) =>
-      _update(_data.copyWith(vehicleType: value));
+    switch (countriesRes) {
+      case Success<List<CountryEntity>>(:final data):
+        countriesState = BaseState(isLoading: false, data: data);
+        if (data.isNotEmpty) {
+          initialCountry = data.first;
+          countryCode = '+${data.first.phoneCode}';
+        }
+      case Error<List<CountryEntity>>(:final failure):
+        countriesState = BaseState(
+          isLoading: false,
+          errorMessage: failure.toString(),
+        );
+    }
 
-  void onVehicleNumberChanged(String value) =>
-      _update(_data.copyWith(vehicleNumber: value));
+    BaseState<List<VehicleTypeEntity>> vehiclesState = state.vehicleTypesStatus;
+    VehicleTypeEntity? initialVehicle = state.selectedVehicleType;
+    String vehicleType = state.vehicleType;
 
-  void onEmailChanged(String value) => _update(_data.copyWith(email: value));
+    switch (vehiclesRes) {
+      case Success<List<VehicleTypeEntity>>(:final data):
+        vehiclesState = BaseState(isLoading: false, data: data);
+        if (data.isNotEmpty) {
+          initialVehicle = data.first;
+          vehicleType = data.first.id;
+        }
+      case Error<List<VehicleTypeEntity>>(:final failure):
+        vehiclesState = BaseState(
+          isLoading: false,
+          errorMessage: failure.toString(),
+        );
+    }
 
-  void onPhoneChanged(String value) =>
-      _update(_data.copyWith(phoneNumber: value));
+    emit(
+      state.copyWith(
+        countriesStatus: countriesState,
+        vehicleTypesStatus: vehiclesState,
+        selectedCountry: initialCountry,
+        countryCode: countryCode,
+        selectedVehicleType: initialVehicle,
+        vehicleType: vehicleType,
+      ),
+    );
+  }
 
-  void onNationalIdChanged(String value) =>
-      _update(_data.copyWith(nationalId: value));
+  Future<void> _pickLicenseImage() async {
+    final path = await _mediaService.pickImageFromGallery();
+    if (path != null) {
+      emit(state.copyWith(vehicleLicencePath: path));
+    }
+  }
 
-  void onPasswordChanged(String value) =>
-      _update(_data.copyWith(password: value));
+  Future<void> _pickIdImage() async {
+    final path = await _mediaService.pickImageFromGallery();
+    if (path != null) {
+      emit(state.copyWith(idImagePath: path));
+    }
+  }
 
-  void onConfirmPasswordChanged(String value) =>
-      _update(_data.copyWith(confirmPassword: value));
-
-  void onGenderChanged(String value) => _update(_data.copyWith(gender: value));
-
-  void onLicenseFilePicked(File file) =>
-      _update(_data.copyWith(vehicleLicenceFile: file));
-
-  void onIdImagePicked(File file) => _update(_data.copyWith(idImage: file));
-
-  Future<void> submit() async {
-    final data = _data;
-
-    if (data.gender == null) {
+  Future<void> _submit() async {
+    if (state.gender == null) {
       emitEvent(const ApplyGenderMissingEvent());
       return;
     }
-    if (data.vehicleLicenceFile == null) {
+    if (state.vehicleLicencePath == null || state.vehicleLicencePath!.isEmpty) {
       emitEvent(const ApplyLicenseMissingEvent());
       return;
     }
-    if (data.idImage == null) {
+    if (state.idImagePath == null || state.idImagePath!.isEmpty) {
       emitEvent(const ApplyIdImageMissingEvent());
       return;
     }
 
-    emit(state.copyWith(isLoading: true, errorMessage: ''));
+    emit(state.copyWith(applyStatus: const BaseState(isLoading: true)));
 
     final response = await _addApplicationUseCase.execute(
       ApplicationEntity(
-        countryCode: data.countryCode,
-        firstName: data.firstName,
-        secondName: data.secondName,
-        vehicleType: data.vehicleType,
-        vehicleNumber: data.vehicleNumber,
-        email: data.email,
-        phoneNumber: data.phoneNumber,
-        nationalId: data.nationalId,
-        password: data.password,
-        confirmPassword: data.confirmPassword,
-        gender: data.gender!,
-        vehicleLicenceFile: data.vehicleLicenceFile!,
-        idImage: data.idImage!,
+        countryCode: state.countryCode,
+        firstName: state.firstName,
+        secondName: state.secondName,
+        vehicleType: state.vehicleType,
+        vehicleNumber: state.vehicleNumber,
+        email: state.email,
+        phoneNumber: state.phoneNumber,
+        nationalId: state.nationalId,
+        password: state.password,
+        confirmPassword: state.confirmPassword,
+        gender: state.gender!,
+        vehicleLicencePath: state.vehicleLicencePath!,
+        idImagePath: state.idImagePath!,
       ),
     );
 
     switch (response) {
       case Success<void>():
-        emit(state.copyWith(isLoading: false));
+        emit(state.copyWith(applyStatus: const BaseState(isLoading: false)));
         emitEvent(const ApplySuccessEvent());
       case Error<void>(:final failure):
-        emit(state.copyWith(isLoading: false));
+        emit(
+          state.copyWith(
+            applyStatus: BaseState(
+              isLoading: false,
+              errorMessage: failure.toString(),
+            ),
+          ),
+        );
         emitEvent(ApplyFailureEvent(failure));
     }
   }

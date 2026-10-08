@@ -21,7 +21,9 @@ class ApplyDropdownField<T> extends StatefulWidget {
   final String label;
   final String hint;
   final List<ApplyDropdownItem<T>> items;
-  final ValueNotifier<T> valueNotifier;
+  final T? selectedValue;
+  final ValueChanged<T>? onChanged;
+  final ValueNotifier<T>? valueNotifier;
   final bool searchable;
 
   const ApplyDropdownField({
@@ -29,7 +31,9 @@ class ApplyDropdownField<T> extends StatefulWidget {
     required this.label,
     required this.hint,
     required this.items,
-    required this.valueNotifier,
+    this.selectedValue,
+    this.onChanged,
+    this.valueNotifier,
     this.searchable = true,
   });
 
@@ -45,16 +49,18 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
   bool _isOpen = false;
   final FocusNode _focusNode = FocusNode();
 
+  T? get _effectiveValue => widget.valueNotifier?.value ?? widget.selectedValue;
+
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(
-      text: _getFieldTextForValue(widget.valueNotifier.value),
+      text: _getFieldTextForValue(_effectiveValue),
     );
     _filteredItemsNotifier = ValueNotifier<List<ApplyDropdownItem<T>>>(
       widget.items,
     );
-    widget.valueNotifier.addListener(_onValueChanged);
+    widget.valueNotifier?.addListener(_onNotifierValueChanged);
     _focusNode.addListener(_onFocusChange);
   }
 
@@ -64,12 +70,21 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
     if (oldWidget.items != widget.items) {
       _filterItems(_controller.text);
     }
+    if (oldWidget.selectedValue != widget.selectedValue ||
+        oldWidget.valueNotifier != widget.valueNotifier) {
+      oldWidget.valueNotifier?.removeListener(_onNotifierValueChanged);
+      widget.valueNotifier?.addListener(_onNotifierValueChanged);
+      final newText = _getFieldTextForValue(_effectiveValue);
+      if (_controller.text != newText) {
+        _controller.text = newText;
+      }
+    }
   }
 
   @override
   void dispose() {
     _closeMenu(false, updateState: false);
-    widget.valueNotifier.removeListener(_onValueChanged);
+    widget.valueNotifier?.removeListener(_onNotifierValueChanged);
     _focusNode.removeListener(_onFocusChange);
     _filteredItemsNotifier.dispose();
     _controller.dispose();
@@ -77,14 +92,15 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
     super.dispose();
   }
 
-  void _onValueChanged() {
-    final newText = _getFieldTextForValue(widget.valueNotifier.value);
+  void _onNotifierValueChanged() {
+    final newText = _getFieldTextForValue(_effectiveValue);
     if (_controller.text != newText) {
       _controller.text = newText;
     }
   }
 
-  String _getFieldTextForValue(T value) {
+  String _getFieldTextForValue(T? value) {
+    if (value == null) return '';
     try {
       final match = widget.items.firstWhere((item) => item.value == value);
       return match.fieldText ?? match.label;
@@ -131,7 +147,7 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
   void _closeMenu(bool revert, {bool updateState = true}) {
     if (!_isOpen) return;
     if (revert) {
-      _controller.text = _getFieldTextForValue(widget.valueNotifier.value);
+      _controller.text = _getFieldTextForValue(_effectiveValue);
     }
     _overlayEntry?.remove();
     _overlayEntry = null;
@@ -190,56 +206,56 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
                         );
                       }
 
-                      return ValueListenableBuilder<T>(
-                        valueListenable: widget.valueNotifier,
-                        builder: (context, selectedValue, _) {
-                          return ListView.builder(
-                            padding: EdgeInsets.zero,
-                            itemCount: filteredItems.length,
-                            itemBuilder: (context, index) {
-                              final item = filteredItems[index];
-                              final isSelected = item.value == selectedValue;
+                      final currentSelected = _effectiveValue;
 
-                              return InkWell(
-                                onTap: () {
-                                  widget.valueNotifier.value = item.value;
-                                  _controller.text =
-                                      item.fieldText ?? item.label;
-                                  _closeMenu(false);
-                                },
-                                child: Container(
-                                  color: isSelected
-                                      ? AppColors.primary.shade50
-                                      : Colors.transparent,
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 16.w,
-                                    vertical: 12.h,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      if (item.leading != null) ...[
-                                        item.leading!,
-                                        SizedBox(width: 8.w),
-                                      ],
-                                      Expanded(
-                                        child: Text(
-                                          item.label,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.copyWith(
-                                                color: AppColors.black,
-                                                fontWeight: isSelected
-                                                    ? FontWeight.w600
-                                                    : FontWeight.normal,
-                                              ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
+                      return ListView.builder(
+                        padding: EdgeInsets.zero,
+                        itemCount: filteredItems.length,
+                        itemBuilder: (context, index) {
+                          final item = filteredItems[index];
+                          final isSelected = item.value == currentSelected;
+
+                          return InkWell(
+                            onTap: () {
+                              if (widget.valueNotifier != null) {
+                                widget.valueNotifier!.value = item.value;
+                              }
+                              widget.onChanged?.call(item.value);
+                              _controller.text =
+                                  item.fieldText ?? item.label;
+                              _closeMenu(false);
                             },
+                            child: Container(
+                              color: isSelected
+                                  ? AppColors.primary.shade50
+                                  : Colors.transparent,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 16.w,
+                                vertical: 12.h,
+                              ),
+                              child: Row(
+                                children: [
+                                  if (item.leading != null) ...[
+                                    item.leading!,
+                                    SizedBox(width: 8.w),
+                                  ],
+                                  Expanded(
+                                    child: Text(
+                                      item.label,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            color: AppColors.black,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w600
+                                                : FontWeight.normal,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           );
                         },
                       );

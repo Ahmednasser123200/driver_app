@@ -1,17 +1,13 @@
-import 'dart:io';
-
-import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
-import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/utils/auth_validators.dart';
 import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
 import 'package:driver_app/core/shared/widgets/custom_text_form_field.dart';
-import 'package:driver_app/features/auth/domain/entities/apply_entity/applications_entity.dart';
 import 'package:driver_app/features/auth/presentation/apply/manager/apply_cubit.dart';
+import 'package:driver_app/features/auth/presentation/apply/manager/apply_intent.dart';
 import 'package:driver_app/features/auth/presentation/apply/manager/apply_state.dart';
 
 import 'apply_country_field.dart';
@@ -31,21 +27,6 @@ class ApplyFormContent extends StatelessWidget {
     required this.nationalIdController,
     required this.passwordController,
     required this.confirmPasswordController,
-    required this.countryNotifier,
-    required this.vehicleTypeNotifier,
-    required this.licenseFileNotifier,
-    required this.idImageNotifier,
-    required this.isFemaleNotifier,
-    required this.onFirstNameChanged,
-    required this.onSecondNameChanged,
-    required this.onVehicleNumberChanged,
-    required this.onEmailChanged,
-    required this.onPhoneChanged,
-    required this.onNationalIdChanged,
-    required this.onPasswordChanged,
-    required this.onConfirmPasswordChanged,
-    required this.onPickLicense,
-    required this.onPickIdImage,
     required this.onContinuePressed,
   });
 
@@ -57,153 +38,161 @@ class ApplyFormContent extends StatelessWidget {
   final TextEditingController nationalIdController;
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
-
-  final ValueNotifier<Country> countryNotifier;
-  final ValueNotifier<VehicleType> vehicleTypeNotifier;
-  final ValueNotifier<File?> licenseFileNotifier;
-  final ValueNotifier<File?> idImageNotifier;
-  final ValueNotifier<bool?> isFemaleNotifier;
-
-  final ValueChanged<String> onFirstNameChanged;
-  final ValueChanged<String> onSecondNameChanged;
-  final ValueChanged<String> onVehicleNumberChanged;
-  final ValueChanged<String> onEmailChanged;
-  final ValueChanged<String> onPhoneChanged;
-  final ValueChanged<String> onNationalIdChanged;
-  final ValueChanged<String> onPasswordChanged;
-  final ValueChanged<String> onConfirmPasswordChanged;
-  final VoidCallback onPickLicense;
-  final VoidCallback onPickIdImage;
   final VoidCallback onContinuePressed;
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<ApplyCubit>();
     final gap = SizedBox(height: 16.h);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const ApplyHeader(),
-        gap,
-        ApplyCountryField(countryNotifier: countryNotifier),
-        gap,
-        CustomTextFormField(
-          label: AppStrings.firstLegalName,
-          hint: AppStrings.enterFirstLegalName,
-          controller: firstNameController,
-          validator: AuthValidators.firstName,
-          textInputAction: TextInputAction.next,
-          onChanged: onFirstNameChanged,
-        ),
-        gap,
-        CustomTextFormField(
-          label: AppStrings.secondLegalName,
-          hint: AppStrings.enterSecondLegalName,
-          controller: secondNameController,
-          validator: AuthValidators.lastName,
-          textInputAction: TextInputAction.next,
-          onChanged: onSecondNameChanged,
-        ),
-        gap,
-        ApplyVehicleTypeField(vehicleTypeNotifier: vehicleTypeNotifier),
-        gap,
-        CustomTextFormField(
-          label: AppStrings.vehicleNumber,
-          hint: AppStrings.enterVehicleNumber,
-          controller: vehicleNumberController,
-          validator: AuthValidators.addressFields,
-          textInputAction: TextInputAction.next,
-          onChanged: onVehicleNumberChanged,
-        ),
-        gap,
-        ApplyFileUploadField(
-          label: AppStrings.vehicleLicense,
-          hint: AppStrings.uploadLicensePhoto,
-          fileNotifier: licenseFileNotifier,
-          onTap: onPickLicense,
-        ),
-        gap,
-        CustomTextFormField(
-          label: AppStrings.email,
-          hint: AppStrings.enterEmail,
-          controller: emailController,
-          keyboardType: TextInputType.emailAddress,
-          validator: AuthValidators.email,
-          textInputAction: TextInputAction.next,
-          onChanged: onEmailChanged,
-        ),
-        gap,
-        CustomTextFormField(
-          label: AppStrings.phoneNumber,
-          hint: AppStrings.enterPhoneNumber,
-          controller: phoneController,
-          keyboardType: TextInputType.phone,
-          validator: AuthValidators.phone,
-          textInputAction: TextInputAction.next,
-          onChanged: onPhoneChanged,
-        ),
-        gap,
-        CustomTextFormField(
-          label: AppStrings.idNumber,
-          hint: AppStrings.enterNationalIdNumber,
-          controller: nationalIdController,
-          keyboardType: TextInputType.number,
-          validator: AuthValidators.addressFields,
-          textInputAction: TextInputAction.next,
-          onChanged: onNationalIdChanged,
-        ),
-        gap,
-        ApplyFileUploadField(
-          label: AppStrings.idImage,
-          hint: AppStrings.uploadIdImage,
-          fileNotifier: idImageNotifier,
-          onTap: onPickIdImage,
-        ),
-        gap,
-        Row(
+    return BlocBuilder<ApplyCubit, ApplyState>(
+      builder: (context, state) {
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: CustomTextFormField(
-                label: AppStrings.password,
-                hint: AppStrings.enterPassword,
-                controller: passwordController,
-                obscureText: true,
-                validator: AuthValidators.strongPassword,
-                textInputAction: TextInputAction.next,
-                onChanged: onPasswordChanged,
-              ),
+            const ApplyHeader(),
+            gap,
+            ApplyCountryField(
+              countries: state.countriesStatus.data ?? [],
+              selectedCountry: state.selectedCountry,
+              onCountrySelected: (country) =>
+                  cubit.processIntent(SelectCountryIntent(country)),
             ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: CustomTextFormField(
-                label: AppStrings.confirmPassword,
-                hint: AppStrings.confirmPassword,
-                controller: confirmPasswordController,
-                obscureText: true,
-                validator: (value) => AuthValidators.confirmPassword(
-                  value,
-                  passwordController.text,
+            gap,
+            CustomTextFormField(
+              label: AppStrings.firstLegalName,
+              hint: AppStrings.enterFirstLegalName,
+              controller: firstNameController,
+              validator: AuthValidators.firstName,
+              textInputAction: TextInputAction.next,
+              onChanged: (val) =>
+                  cubit.processIntent(ChangeFirstNameIntent(val)),
+            ),
+            gap,
+            CustomTextFormField(
+              label: AppStrings.secondLegalName,
+              hint: AppStrings.enterSecondLegalName,
+              controller: secondNameController,
+              validator: AuthValidators.lastName,
+              textInputAction: TextInputAction.next,
+              onChanged: (val) =>
+                  cubit.processIntent(ChangeSecondNameIntent(val)),
+            ),
+            gap,
+            ApplyVehicleTypeField(
+              vehicleTypes: state.vehicleTypesStatus.data ?? [],
+              selectedVehicleType: state.selectedVehicleType,
+              onVehicleTypeSelected: (type) =>
+                  cubit.processIntent(SelectVehicleTypeIntent(type)),
+            ),
+            gap,
+            CustomTextFormField(
+              label: AppStrings.vehicleNumber,
+              hint: AppStrings.enterVehicleNumber,
+              controller: vehicleNumberController,
+              validator: AuthValidators.addressFields,
+              textInputAction: TextInputAction.next,
+              onChanged: (val) =>
+                  cubit.processIntent(ChangeVehicleNumberIntent(val)),
+            ),
+            gap,
+            ApplyFileUploadField(
+              label: AppStrings.vehicleLicense,
+              hint: AppStrings.uploadLicensePhoto,
+              filePath: state.vehicleLicencePath,
+              onTap: () =>
+                  cubit.processIntent(const PickLicenseImageIntent()),
+            ),
+            gap,
+            CustomTextFormField(
+              label: AppStrings.email,
+              hint: AppStrings.enterEmail,
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
+              validator: AuthValidators.email,
+              textInputAction: TextInputAction.next,
+              onChanged: (val) =>
+                  cubit.processIntent(ChangeEmailIntent(val)),
+            ),
+            gap,
+            CustomTextFormField(
+              label: AppStrings.phoneNumber,
+              hint: AppStrings.enterPhoneNumber,
+              controller: phoneController,
+              keyboardType: TextInputType.phone,
+              validator: AuthValidators.phone,
+              textInputAction: TextInputAction.next,
+              onChanged: (val) =>
+                  cubit.processIntent(ChangePhoneIntent(val)),
+            ),
+            gap,
+            CustomTextFormField(
+              label: AppStrings.idNumber,
+              hint: AppStrings.enterNationalIdNumber,
+              controller: nationalIdController,
+              keyboardType: TextInputType.number,
+              validator: AuthValidators.addressFields,
+              textInputAction: TextInputAction.next,
+              onChanged: (val) =>
+                  cubit.processIntent(ChangeNationalIdIntent(val)),
+            ),
+            gap,
+            ApplyFileUploadField(
+              label: AppStrings.idImage,
+              hint: AppStrings.uploadIdImage,
+              filePath: state.idImagePath,
+              onTap: () =>
+                  cubit.processIntent(const PickIdImageIntent()),
+            ),
+            gap,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: CustomTextFormField(
+                    label: AppStrings.password,
+                    hint: AppStrings.enterPassword,
+                    controller: passwordController,
+                    obscureText: true,
+                    validator: AuthValidators.strongPassword,
+                    textInputAction: TextInputAction.next,
+                    onChanged: (val) =>
+                        cubit.processIntent(ChangePasswordIntent(val)),
+                  ),
                 ),
-                onChanged: onConfirmPasswordChanged,
-              ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: CustomTextFormField(
+                    label: AppStrings.confirmPassword,
+                    hint: AppStrings.confirmPassword,
+                    controller: confirmPasswordController,
+                    obscureText: true,
+                    validator: (value) => AuthValidators.confirmPassword(
+                      value,
+                      passwordController.text,
+                    ),
+                    onChanged: (val) =>
+                        cubit.processIntent(ChangeConfirmPasswordIntent(val)),
+                  ),
+                ),
+              ],
+            ),
+            gap,
+            ApplyGenderSelector(
+              selectedGender: state.gender,
+              onGenderChanged: (gender) =>
+                  cubit.processIntent(ChangeGenderIntent(gender)),
+            ),
+            SizedBox(height: 32.h),
+            CustomButton(
+              label: AppStrings.continueLabel,
+              width: double.infinity,
+              isLoading: state.applyStatus.isLoading,
+              onPressed: onContinuePressed,
             ),
           ],
-        ),
-        gap,
-        ApplyGenderSelector(isFemaleNotifier: isFemaleNotifier),
-        SizedBox(height: 32.h),
-        BlocBuilder<ApplyCubit, BaseState<ApplyState>>(
-          buildWhen: (previous, current) =>
-              previous.isLoading != current.isLoading,
-          builder: (context, state) => CustomButton(
-            label: AppStrings.continueLabel,
-            width: double.infinity,
-            isLoading: state.isLoading,
-            onPressed: onContinuePressed,
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 }

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
@@ -7,48 +5,44 @@ import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 class ApplyFileUploadField extends StatelessWidget {
   final String label;
   final String hint;
-  final ValueNotifier<File?> fileNotifier;
+  final String? filePath;
   final VoidCallback onTap;
 
   const ApplyFileUploadField({
     super.key,
     required this.label,
     required this.hint,
-    required this.fileNotifier,
+    this.filePath,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ValueListenableBuilder<File?>(
-      valueListenable: fileNotifier,
-      builder: (context, file, _) {
-        final fileName = file == null
-            ? hint
-            : file.path.split(RegExp(r'[\\/]')).last;
+    final hasFile = filePath != null && filePath!.isNotEmpty;
+    final fileName = hasFile
+        ? filePath!.split(RegExp(r'[\\/]')).last
+        : hint;
 
-        return InkWell(
-          borderRadius: BorderRadius.circular(4),
-          onTap: onTap,
-          child: InputDecorator(
-            isEmpty: false,
-            decoration: InputDecoration(
-              labelText: label,
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              suffixIcon: const Icon(Icons.file_upload_outlined),
-            ),
-            child: Text(
-              fileName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: file == null
-                  ? theme.inputDecorationTheme.hintStyle
-                  : theme.textTheme.bodyMedium?.copyWith(color: AppColors.black),
-            ),
-          ),
-        );
-      },
+    return InkWell(
+      borderRadius: BorderRadius.circular(4),
+      onTap: onTap,
+      child: InputDecorator(
+        isEmpty: false,
+        decoration: InputDecoration(
+          labelText: label,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          suffixIcon: const Icon(Icons.file_upload_outlined),
+        ),
+        child: Text(
+          fileName,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: !hasFile
+              ? theme.inputDecorationTheme.hintStyle
+              : theme.textTheme.bodyMedium?.copyWith(color: AppColors.black),
+        ),
+      ),
     );
   }
 }

@@ -39,7 +39,7 @@ class ApplicationRequestDto {
       countryCode: entity.countryCode,
       firstName: entity.firstName,
       secondName: entity.secondName,
-      vehicleType: entity.vehicleType.apiValue,
+      vehicleType: entity.vehicleType,
       vehicleNumber: entity.vehicleNumber,
       email: entity.email,
       phoneNumber: PhoneNumberFormatter.stripLeadingTrunkZero(entity.phoneNumber),

@@ -17,12 +17,13 @@ abstract class AuthClient {
   @factoryMethod
   factory AuthClient(Dio dio) = _AuthClient;
 
-  @POST(ApiStrings.driverApplications)
   @GET(ApiStrings.countries)
   Future<List<CountryDto>> getCountries();
 
   @GET(ApiStrings.vehicleTypes)
   Future<List<VehicleTypeDto>> getVehicleTypes();
+
+  @POST(ApiStrings.driverApplications)
   @MultiPart()
   Future<ApplicationResponseDto> addApplication(
     @PartMap() Map<String, dynamic> body,

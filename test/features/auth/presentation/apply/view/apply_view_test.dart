@@ -1,66 +1,92 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:driver_app/config/base/base_state.dart';
+
 import 'package:driver_app/config/base/base_ui_event.dart';
+import 'package:driver_app/config/di/di.dart';
+import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/config/routing/routes.dart';
 import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
+import 'package:driver_app/features/auth/domain/entities/apply_entity/country_entity.dart';
+import 'package:driver_app/features/auth/domain/entities/apply_entity/vehicle_type_entity.dart';
 import 'package:driver_app/features/auth/presentation/apply/manager/apply_cubit.dart';
-import 'package:driver_app/features/auth/presentation/apply/manager/apply_event.dart';
+import 'package:driver_app/features/auth/presentation/apply/manager/apply_intent.dart';
 import 'package:driver_app/features/auth/presentation/apply/manager/apply_state.dart';
 import 'package:driver_app/features/auth/presentation/apply/view/apply_view.dart';
 import 'package:driver_app/features/auth/presentation/apply/view/widgets/apply_file_upload_field.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 
 class MockApplyCubit extends Mock implements ApplyCubit {}
-class MockImagePicker extends Mock implements ImagePicker {}
 
 void main() {
+  const sampleCountry = CountryEntity(
+    isoCode: 'EG',
+    name: 'Egypt',
+    phoneCode: '20',
+    flag: '🇪🇬',
+  );
+
+  const sampleVehicle = VehicleTypeEntity(
+    id: '1',
+    name: 'Car',
+  );
+
   setUpAll(() {
-    registerFallbackValue(File('dummy.jpg'));
+    registerFallbackValue(const LoadInitialDataIntent());
+    registerFallbackValue(const SubmitApplicationIntent());
+    registerFallbackValue(const ChangeFirstNameIntent(''));
+    registerFallbackValue(const ChangeSecondNameIntent(''));
+    registerFallbackValue(const ChangeVehicleNumberIntent(''));
+    registerFallbackValue(const ChangeEmailIntent(''));
+    registerFallbackValue(const ChangePhoneIntent(''));
+    registerFallbackValue(const ChangeNationalIdIntent(''));
+    registerFallbackValue(const ChangePasswordIntent(''));
+    registerFallbackValue(const ChangeConfirmPasswordIntent(''));
+    registerFallbackValue(const ChangeGenderIntent(''));
+    registerFallbackValue(const SelectCountryIntent(sampleCountry));
+    registerFallbackValue(const SelectVehicleTypeIntent(sampleVehicle));
+    registerFallbackValue(const PickLicenseImageIntent());
+    registerFallbackValue(const PickIdImageIntent());
   });
 
   late MockApplyCubit mockApplyCubit;
-  late MockImagePicker mockImagePicker;
-  late StreamController<BaseState<ApplyState>> stateController;
+  late StreamController<ApplyState> stateController;
   late StreamController<BaseUiEvent> eventController;
 
   setUp(() {
     mockApplyCubit = MockApplyCubit();
-    mockImagePicker = MockImagePicker();
-    stateController = StreamController<BaseState<ApplyState>>.broadcast();
+    stateController = StreamController<ApplyState>.broadcast();
     eventController = StreamController<BaseUiEvent>.broadcast();
 
-    when(() => mockApplyCubit.state).thenReturn(const BaseState(data: ApplyState()));
+    when(() => mockApplyCubit.state).thenReturn(
+      const ApplyState(
+        selectedCountry: sampleCountry,
+        selectedVehicleType: sampleVehicle,
+      ),
+    );
     when(() => mockApplyCubit.stream).thenAnswer((_) => stateController.stream);
     when(() => mockApplyCubit.uiEventStream).thenAnswer((_) => eventController.stream);
-    when(() => mockApplyCubit.close()).thenAnswer((_) async {});
+    when(() => mockApplyCubit.close()).thenAnswer((_) => Future<void>.value());
+    when(() => mockApplyCubit.processIntent(any())).thenReturn(null);
 
-    when(() => mockApplyCubit.onFirstNameChanged(any())).thenReturn(null);
-    when(() => mockApplyCubit.onSecondNameChanged(any())).thenReturn(null);
-    when(() => mockApplyCubit.onEmailChanged(any())).thenReturn(null);
-    when(() => mockApplyCubit.onPhoneChanged(any())).thenReturn(null);
-    when(() => mockApplyCubit.onNationalIdChanged(any())).thenReturn(null);
-    when(() => mockApplyCubit.onVehicleNumberChanged(any())).thenReturn(null);
-    when(() => mockApplyCubit.onPasswordChanged(any())).thenReturn(null);
-    when(() => mockApplyCubit.onConfirmPasswordChanged(any())).thenReturn(null);
-    when(() => mockApplyCubit.onGenderChanged(any())).thenReturn(null);
-    when(() => mockApplyCubit.onLicenseFilePicked(any())).thenReturn(null);
-    when(() => mockApplyCubit.onIdImagePicked(any())).thenReturn(null);
-    when(() => mockApplyCubit.submit()).thenAnswer((_) async {});
+    if (getIt.isRegistered<ApplyCubit>()) {
+      getIt.unregister<ApplyCubit>();
+    }
+    getIt.registerFactory<ApplyCubit>(() => mockApplyCubit);
   });
 
   tearDown(() {
     stateController.close();
     eventController.close();
+    if (getIt.isRegistered<ApplyCubit>()) {
+      getIt.unregister<ApplyCubit>();
+    }
   });
 
-  Widget buildTestWidget({ApplyCubit? cubit, ImagePicker? picker}) {
+  Widget buildTestWidget() {
     return ScreenUtilPlusInit(
       designSize: const Size(375, 812),
       builder: (context, child) {
@@ -69,12 +95,10 @@ void main() {
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('en'),
           routes: {
-            Routes.successApply: (context) => const Scaffold(body: Text('Success Screen')),
+            Routes.successApply: (context) =>
+                const Scaffold(body: Text('Success Screen')),
           },
-          home: ApplyView(
-            cubit: cubit ?? mockApplyCubit,
-            imagePicker: picker ?? mockImagePicker,
-          ),
+          home: const ApplyView(),
         );
       },
     );
@@ -86,68 +110,41 @@ void main() {
 
     expect(find.byType(ApplyView), findsOneWidget);
     expect(find.byType(Form), findsOneWidget);
+    expect(find.text(AppStrings.apply), findsOneWidget);
     expect(find.text(AppStrings.continueLabel), findsOneWidget);
     expect(find.text(AppStrings.gender), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
   });
 
   testWidgets('Tapping Continue with empty fields triggers validation and does not submit', (tester) async {
     await tester.pumpWidget(buildTestWidget());
     await tester.pumpAndSettle();
 
-    // Tap continue button without entering data
     final continueButton = find.widgetWithText(CustomButton, AppStrings.continueLabel);
     await tester.ensureVisible(continueButton);
     await tester.tap(continueButton);
     await tester.pumpAndSettle();
 
-    // Verify submit was not called because form is invalid
-    verifyNever(() => mockApplyCubit.submit());
+    verifyNever(() => mockApplyCubit.processIntent(any(that: isA<SubmitApplicationIntent>())));
+
+    await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('Cubit emitting ApplyGenderMissingEvent displays SnackBar error', (tester) async {
+  testWidgets('Typing text field dispatches change intent', (tester) async {
     await tester.pumpWidget(buildTestWidget());
     await tester.pumpAndSettle();
 
-    eventController.add(const ApplyGenderMissingEvent());
+    final firstNameField = find.widgetWithText(TextFormField, AppStrings.enterFirstLegalName);
+    await tester.enterText(firstNameField, 'John');
     await tester.pumpAndSettle();
 
-    expect(find.text(AppStrings.pleaseSelectGender), findsOneWidget);
+    verify(() => mockApplyCubit.processIntent(any(that: isA<ChangeFirstNameIntent>()))).called(greaterThanOrEqualTo(1));
+
+    await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('Cubit emitting ApplyLicenseMissingEvent displays SnackBar error', (tester) async {
-    await tester.pumpWidget(buildTestWidget());
-    await tester.pumpAndSettle();
-
-    eventController.add(const ApplyLicenseMissingEvent());
-    await tester.pumpAndSettle();
-
-    expect(find.text(AppStrings.pleaseUploadVehicleLicense), findsOneWidget);
-  });
-
-  testWidgets('Cubit emitting ApplyIdImageMissingEvent displays SnackBar error', (tester) async {
-    await tester.pumpWidget(buildTestWidget());
-    await tester.pumpAndSettle();
-
-    eventController.add(const ApplyIdImageMissingEvent());
-    await tester.pumpAndSettle();
-
-    expect(find.text(AppStrings.pleaseUploadIdImage), findsOneWidget);
-  });
-
-  testWidgets('Cubit emitting ApplySuccessEvent navigates to successApply route', (tester) async {
-    await tester.pumpWidget(buildTestWidget());
-    await tester.pumpAndSettle();
-
-    eventController.add(const ApplySuccessEvent());
-    await tester.pumpAndSettle();
-
-    expect(find.text('Success Screen'), findsOneWidget);
-  });
-
-  testWidgets('Tapping file upload field triggers image picker', (tester) async {
-    when(() => mockImagePicker.pickImage(source: ImageSource.gallery))
-        .thenAnswer((_) async => XFile('test/license.jpg'));
-
+  testWidgets('Tapping upload field triggers image pick intents', (tester) async {
     await tester.pumpWidget(buildTestWidget());
     await tester.pumpAndSettle();
 
@@ -158,6 +155,88 @@ void main() {
     await tester.tap(uploadFields.first);
     await tester.pumpAndSettle();
 
-    verify(() => mockImagePicker.pickImage(source: ImageSource.gallery)).called(1);
+    verify(() => mockApplyCubit.processIntent(any(that: isA<PickLicenseImageIntent>()))).called(1);
+
+    await tester.ensureVisible(uploadFields.last);
+    await tester.tap(uploadFields.last);
+    await tester.pumpAndSettle();
+
+    verify(() => mockApplyCubit.processIntent(any(that: isA<PickIdImageIntent>()))).called(1);
+
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('Tapping gender triggers ChangeGenderIntent', (tester) async {
+    await tester.pumpWidget(buildTestWidget());
+    await tester.pumpAndSettle();
+
+    final femaleOption = find.text(AppStrings.female);
+    await tester.ensureVisible(femaleOption);
+    await tester.tap(femaleOption);
+    await tester.pumpAndSettle();
+
+    verify(() => mockApplyCubit.processIntent(any(that: isA<ChangeGenderIntent>()))).called(1);
+
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('Cubit emitting ApplyGenderMissingEvent displays SnackBar error', (tester) async {
+    await tester.pumpWidget(buildTestWidget());
+    await tester.pumpAndSettle();
+
+    eventController.add(const ApplyGenderMissingEvent());
+    await tester.pumpAndSettle();
+
+    expect(find.text(AppStrings.pleaseSelectGender), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('Cubit emitting ApplyLicenseMissingEvent displays SnackBar error', (tester) async {
+    await tester.pumpWidget(buildTestWidget());
+    await tester.pumpAndSettle();
+
+    eventController.add(const ApplyLicenseMissingEvent());
+    await tester.pumpAndSettle();
+
+    expect(find.text(AppStrings.pleaseUploadVehicleLicense), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('Cubit emitting ApplyIdImageMissingEvent displays SnackBar error', (tester) async {
+    await tester.pumpWidget(buildTestWidget());
+    await tester.pumpAndSettle();
+
+    eventController.add(const ApplyIdImageMissingEvent());
+    await tester.pumpAndSettle();
+
+    expect(find.text(AppStrings.pleaseUploadIdImage), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('Cubit emitting ApplyFailureEvent displays SnackBar with message', (tester) async {
+    await tester.pumpWidget(buildTestWidget());
+    await tester.pumpAndSettle();
+
+    eventController.add(const ApplyFailureEvent(ServerFailure()));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SnackBar), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('Cubit emitting ApplySuccessEvent navigates to successApply route', (tester) async {
+    await tester.pumpWidget(buildTestWidget());
+    await tester.pumpAndSettle();
+
+    eventController.add(const ApplySuccessEvent());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Success Screen'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
   });
 }
