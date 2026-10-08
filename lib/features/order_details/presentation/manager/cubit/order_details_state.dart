@@ -1,45 +1,37 @@
+import 'package:driver_app/config/base/base_state.dart';
+import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
+import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
+import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
 import 'package:equatable/equatable.dart';
 
-import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
-
 class OrderDetailsState extends Equatable {
-  final bool isLoading;
-  final String errorMessage;
-  final DriverOrderDetailsEntity? data;
-  final bool updateStatusSuccess;
-  final bool reportLocationSuccess;
+  final BaseState<DriverOrderDetailsEntity> orderDetails;
+  final BaseState<UpdateOrderStatusEntity> updateOrderStatus;
+  final BaseState<ReportDriverLocationEntity> reportDriverLocation;
 
   const OrderDetailsState({
-    this.isLoading = false,
-    this.errorMessage = '',
-    this.data,
-    this.updateStatusSuccess = false,
-    this.reportLocationSuccess = false,
+    this.orderDetails = const BaseState(),
+    this.updateOrderStatus = const BaseState(),
+    this.reportDriverLocation = const BaseState(),
   });
 
   OrderDetailsState copyWith({
-    bool? isLoading,
-    String? errorMessage,
-    DriverOrderDetailsEntity? data,
-    bool? updateStatusSuccess,
-    bool? reportLocationSuccess,
+    BaseState<DriverOrderDetailsEntity>? orderDetails,
+    BaseState<UpdateOrderStatusEntity>? updateOrderStatus,
+    BaseState<ReportDriverLocationEntity>? reportDriverLocation,
   }) {
     return OrderDetailsState(
-      isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage ?? this.errorMessage,
-      data: data ?? this.data,
-      updateStatusSuccess: updateStatusSuccess ?? this.updateStatusSuccess,
-      reportLocationSuccess:
-          reportLocationSuccess ?? this.reportLocationSuccess,
+      orderDetails: orderDetails ?? this.orderDetails,
+      updateOrderStatus: updateOrderStatus ?? this.updateOrderStatus,
+      reportDriverLocation:
+          reportDriverLocation ?? this.reportDriverLocation,
     );
   }
 
   @override
   List<Object?> get props => [
-    isLoading,
-    errorMessage,
-    data,
-    updateStatusSuccess,
-    reportLocationSuccess,
-  ];
+        orderDetails,
+        updateOrderStatus,
+        reportDriverLocation,
+      ];
 }

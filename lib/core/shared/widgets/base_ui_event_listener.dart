@@ -24,8 +24,10 @@ class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
       _BaseUiEventListenerState<C, S, E>();
 }
 
-class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
-    extends State<BaseUiEventListener<C, S, E>> {
+class _BaseUiEventListenerState<
+    C extends BaseCubit<S, E>,
+    S,
+    E extends BaseUiEvent> extends State<BaseUiEventListener<C, S, E>> {
   StreamSubscription<E>? _subscription;
 
   @override
@@ -39,6 +41,7 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
     covariant BaseUiEventListener<C, S, E> oldWidget,
   ) {
     super.didUpdateWidget(oldWidget);
+
     if (oldWidget.cubit != widget.cubit) {
       _unsubscribe();
       _subscribe();
@@ -47,6 +50,7 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
 
   void _subscribe() {
     final targetCubit = widget.cubit ?? context.read<C>();
+
     _subscription = targetCubit.uiEventStream.listen((event) {
       if (mounted) {
         _handleEvent(context, event);
@@ -54,9 +58,10 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
     });
   }
 
-  void _handleEvent(BuildContext context, E event) {
-    widget.onCustomEvent?.call(context, event);
-
+  void _handleEvent(
+    BuildContext context,
+    E event,
+  ) {
     switch (event) {
       case ShowSuccessMessage():
         ScaffoldMessenger.of(context).showSnackBar(
@@ -65,6 +70,7 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
             backgroundColor: Colors.green,
           ),
         );
+
       case ShowErrorMessage():
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -72,14 +78,27 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
             backgroundColor: Colors.red,
           ),
         );
+
       case NavigateTo():
         Navigator.of(context).pushNamed(
           event.routeName,
           arguments: event.arguments,
         );
+
       case PopRoute():
         Navigator.of(context).pop(event.result);
+
+      case ShowFailureMessage():
+        break;
+
+      case ShowOrderStatusUpdated():
+        break;
     }
+
+    widget.onCustomEvent?.call(
+      context,
+      event,
+    );
   }
 
   void _unsubscribe() {
@@ -94,5 +113,7 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
 }

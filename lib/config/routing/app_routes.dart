@@ -61,18 +61,13 @@ abstract final class AppRoutes {
             ? settings.arguments as String
             : '1';
 
-        return MaterialPageRoute(
-          settings: settings,
-          builder: (context) => BlocProvider(
-            create: (_) => OrderDetailsCubit(
-              getDriverOrderDetailsUseCase: getIt(),
-              updateOrderStatusUseCase: getIt(),
-              reportDriverLocationUseCase: getIt(),
-              l10n: AppLocalizations.of(context)!,
-            ),
-            child: OrderDetailsView(orderId: orderId),
-          ),
-        );
+       return MaterialPageRoute(
+  settings: settings,
+  builder: (context) => BlocProvider(
+    create: (_) => getIt<OrderDetailsCubit>(),
+    child: OrderDetailsView(orderId: orderId),
+  ),
+);
       case Routes.tracking:
         return MaterialPageRoute(
           settings: settings,

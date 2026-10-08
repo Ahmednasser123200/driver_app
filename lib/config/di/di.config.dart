@@ -32,6 +32,8 @@ import '../../features/order_details/domain/usecases/report_driver_location_use_
     as _i59;
 import '../../features/order_details/domain/usecases/update_order_status_use_case.dart'
     as _i591;
+import '../../features/order_details/presentation/manager/cubit/order_details_cubit.dart'
+    as _i841;
 import '../dio/auth_interceptor.dart' as _i839;
 import '../dio/dio_module.dart' as _i977;
 import '../utils/secure_storage_module.dart' as _i327;
@@ -58,7 +60,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => dioModule.dio(gh<_i839.AuthInterceptors>()),
     );
     gh.singleton<_i329.OrderDetailsApiClient>(
-      () => _i329.OrderDetailsApiClient(gh<_i361.Dio>(), baseUrl: gh<String>()),
+      () => _i329.OrderDetailsApiClient(gh<_i361.Dio>()),
     );
     gh.lazySingleton<_i702.OrderDetailsRemoteDataSource>(
       () => _i537.OrderDetailsRemoteDataSourceImpl(
@@ -77,6 +79,13 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i591.UpdateOrderStatusUseCase>(
       () => _i591.UpdateOrderStatusUseCase(gh<_i788.OrderDetailsRepo>()),
+    );
+    gh.factory<_i841.OrderDetailsCubit>(
+      () => _i841.OrderDetailsCubit(
+        getDriverOrderDetailsUseCase: gh<_i837.GetDriverOrderDetailsUseCase>(),
+        updateOrderStatusUseCase: gh<_i591.UpdateOrderStatusUseCase>(),
+        reportDriverLocationUseCase: gh<_i59.ReportDriverLocationUseCase>(),
+      ),
     );
     return this;
   }
