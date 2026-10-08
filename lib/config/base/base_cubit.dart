@@ -1,0 +1,26 @@
+import 'dart:async';
+
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'base_ui_event.dart';
+
+abstract class BaseCubit<State, UiEvent extends BaseUiEvent>
+    extends Cubit<State> {
+  BaseCubit(super.initialState);
+
+  final StreamController<UiEvent> _uiEventController =
+      StreamController<UiEvent>.broadcast();
+
+  Stream<UiEvent> get uiEventStream => _uiEventController.stream;
+
+  void emitEvent(UiEvent event) {
+    if (_uiEventController.isClosed) return;
+    _uiEventController.add(event);
+  }
+
+  @override
+  Future<void> close() async {
+    await _uiEventController.close();
+    return super.close();
+  }
+}
