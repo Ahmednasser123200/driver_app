@@ -14,6 +14,7 @@ import 'package:driver_app/features/auth/presentation/apply/manager/apply_intent
 import 'package:driver_app/features/auth/presentation/apply/manager/apply_state.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 
+import '../manager/apply_ui_event.dart';
 import 'widgets/apply_form_content.dart';
 
 class ApplyView extends StatelessWidget {
@@ -113,8 +114,8 @@ class _ApplyViewBodyState extends State<_ApplyViewBody> {
 
   @override
   Widget build(BuildContext context) {
-    return BaseUiEventListener<ApplyCubit, ApplyState, BaseUiEvent>(
-      onCustomEvent: _onCustomEvent,
+    return BaseUiEventListener<ApplyCubit, ApplyState, ApplyUiEvent>(
+      onCustomEvent: (context, event) => _onCustomEvent(context, event),
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(

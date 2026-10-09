@@ -3,7 +3,6 @@ import 'package:injectable/injectable.dart';
 import '../../../../../config/base/base_cubit.dart';
 import '../../../../../config/base/base_response.dart';
 import '../../../../../config/base/base_state.dart';
-import '../../../../../config/base/base_ui_event.dart';
 import '../../../../../core/services/media_service.dart';
 import '../../../domain/entities/apply_entity/applications_entity.dart';
 import '../../../domain/entities/apply_entity/country_entity.dart';
@@ -13,15 +12,16 @@ import '../../../domain/use_case/get_countries_use_case.dart';
 import '../../../domain/use_case/get_vehicle_types_use_case.dart';
 import 'apply_intent.dart';
 import 'apply_state.dart';
+import 'apply_ui_event.dart'; // الملف الجديد
 
 @injectable
-class ApplyCubit extends BaseCubit<ApplyState, BaseUiEvent> {
+class ApplyCubit extends BaseCubit<ApplyState, ApplyUiEvent> { // استخدام ApplyUiEvent بدلاً من BaseUiEvent
   ApplyCubit(
-    this._addApplicationUseCase,
-    this._getCountriesUseCase,
-    this._getVehicleTypesUseCase,
-    this._mediaService,
-  ) : super(const ApplyState()) {
+      this._addApplicationUseCase,
+      this._getCountriesUseCase,
+      this._getVehicleTypesUseCase,
+      this._mediaService,
+      ) : super(const ApplyState()) {
     processIntent(const LoadInitialDataIntent());
   }
 
@@ -76,67 +76,62 @@ class ApplyCubit extends BaseCubit<ApplyState, BaseUiEvent> {
   }
 
   Future<void> _loadInitialData() async {
-    emit(
-      state.copyWith(
-        countriesStatus: const BaseState(isLoading: true),
-        vehicleTypesStatus: const BaseState(isLoading: true),
-      ),
-    );
-
-    final results = await Future.wait([
-      _getCountriesUseCase.execute(),
-      _getVehicleTypesUseCase.execute(),
+    await Future.wait([
+      _loadCountries(),
+      _loadVehicleTypes(),
     ]);
+  }
 
-    final countriesRes = results[0] as BaseResponse<List<CountryEntity>>;
-    final vehiclesRes = results[1] as BaseResponse<List<VehicleTypeEntity>>;
+  Future<void> _loadCountries() async {
+    emit(state.copyWith(countriesStatus: const BaseState(isLoading: true)));
+    final response = await _getCountriesUseCase.execute();
 
-    BaseState<List<CountryEntity>> countriesState = state.countriesStatus;
-    CountryEntity? initialCountry = state.selectedCountry;
-    String countryCode = state.countryCode;
-
-    switch (countriesRes) {
+    switch (response) {
       case Success<List<CountryEntity>>(:final data):
-        countriesState = BaseState(isLoading: false, data: data);
-        if (data.isNotEmpty) {
-          initialCountry = data.first;
-          countryCode = '+${data.first.phoneCode}';
-        }
+        final firstCountry = data.isNotEmpty ? data.first : null;
+        emit(
+          state.copyWith(
+            countriesStatus: BaseState(isLoading: false, data: data),
+            selectedCountry: firstCountry,
+            countryCode: firstCountry != null ? '+${firstCountry.phoneCode}' : state.countryCode,
+          ),
+        );
       case Error<List<CountryEntity>>(:final failure):
-        countriesState = BaseState(
-          isLoading: false,
-          errorMessage: failure.toString(),
+        emit(
+          state.copyWith(
+            countriesStatus: BaseState(
+              isLoading: false,
+              errorMessage: failure.toString(),
+            ),
+          ),
         );
     }
+  }
 
-    BaseState<List<VehicleTypeEntity>> vehiclesState = state.vehicleTypesStatus;
-    VehicleTypeEntity? initialVehicle = state.selectedVehicleType;
-    String vehicleType = state.vehicleType;
+  Future<void> _loadVehicleTypes() async {
+    emit(state.copyWith(vehicleTypesStatus: const BaseState(isLoading: true)));
+    final response = await _getVehicleTypesUseCase.execute();
 
-    switch (vehiclesRes) {
+    switch (response) {
       case Success<List<VehicleTypeEntity>>(:final data):
-        vehiclesState = BaseState(isLoading: false, data: data);
-        if (data.isNotEmpty) {
-          initialVehicle = data.first;
-          vehicleType = data.first.id;
-        }
+        final firstVehicle = data.isNotEmpty ? data.first : null;
+        emit(
+          state.copyWith(
+            vehicleTypesStatus: BaseState(isLoading: false, data: data),
+            selectedVehicleType: firstVehicle,
+            vehicleType: firstVehicle != null ? firstVehicle.id : state.vehicleType,
+          ),
+        );
       case Error<List<VehicleTypeEntity>>(:final failure):
-        vehiclesState = BaseState(
-          isLoading: false,
-          errorMessage: failure.toString(),
+        emit(
+          state.copyWith(
+            vehicleTypesStatus: BaseState(
+              isLoading: false,
+              errorMessage: failure.toString(),
+            ),
+          ),
         );
     }
-
-    emit(
-      state.copyWith(
-        countriesStatus: countriesState,
-        vehicleTypesStatus: vehiclesState,
-        selectedCountry: initialCountry,
-        countryCode: countryCode,
-        selectedVehicleType: initialVehicle,
-        vehicleType: vehicleType,
-      ),
-    );
   }
 
   Future<void> _pickLicenseImage() async {
@@ -154,6 +149,14 @@ class ApplyCubit extends BaseCubit<ApplyState, BaseUiEvent> {
   }
 
   Future<void> _submit() async {
+    if (state.selectedCountry == null) {
+      emitEvent(const ApplyCountryMissingEvent());
+      return;
+    }
+    if (state.selectedVehicleType == null) {
+      emitEvent(const ApplyVehicleTypeMissingEvent());
+      return;
+    }
     if (state.gender == null) {
       emitEvent(const ApplyGenderMissingEvent());
       return;

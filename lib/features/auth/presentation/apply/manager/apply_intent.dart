@@ -77,28 +77,3 @@ class PickIdImageIntent extends ApplyIntent {
 class SubmitApplicationIntent extends ApplyIntent {
   const SubmitApplicationIntent();
 }
-
-sealed class ApplyUiEvent extends BaseUiEvent {
-  const ApplyUiEvent();
-}
-
-class ApplySuccessEvent extends ApplyUiEvent {
-  const ApplySuccessEvent();
-}
-
-class ApplyFailureEvent extends ApplyUiEvent {
-  final AppFailure failure;
-  const ApplyFailureEvent(this.failure);
-}
-
-class ApplyGenderMissingEvent extends ApplyUiEvent {
-  const ApplyGenderMissingEvent();
-}
-
-class ApplyLicenseMissingEvent extends ApplyUiEvent {
-  const ApplyLicenseMissingEvent();
-}
-
-class ApplyIdImageMissingEvent extends ApplyUiEvent {
-  const ApplyIdImageMissingEvent();
-}

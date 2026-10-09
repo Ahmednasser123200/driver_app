@@ -7,7 +7,7 @@ part 'vehicle_type_dto.g.dart';
 @JsonSerializable()
 class VehicleTypeDto {
   @JsonKey(name: 'id')
-  final dynamic id; // قد يأتي كـ int أو String من الباك إند
+  final int? id; // قد يأتي كـ int أو String من الباك إند
   @JsonKey(name: 'name')
   final String? name;
 
