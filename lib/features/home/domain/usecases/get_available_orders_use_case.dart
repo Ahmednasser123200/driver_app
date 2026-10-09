@@ -5,7 +5,7 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class GetAvailableOrdersUseCase {
- final HomeRepo homeRepo;
+  final HomeRepo homeRepo;
 
   GetAvailableOrdersUseCase(this.homeRepo);
   Future<BaseResponse<AvailableOrders>> call({int page = 1}) =>

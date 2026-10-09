@@ -10,7 +10,7 @@ import 'package:injectable/injectable.dart';
 
 @Injectable(as: HomeRemoteDataSource)
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
-  final  HomeApiClient apiClient;
+  final HomeApiClient apiClient;
   HomeRemoteDataSourceImpl(this.apiClient);
   @override
   Future<BaseResponse<AvailableOrdersResponseDto>> getAvailableOrders({

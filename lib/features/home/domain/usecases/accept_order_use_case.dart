@@ -4,7 +4,7 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class AcceptOrderUseCase {
- final HomeRepo homeRepo;
+  final HomeRepo homeRepo;
 
   AcceptOrderUseCase(this.homeRepo);
 

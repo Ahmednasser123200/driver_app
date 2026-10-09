@@ -7,7 +7,7 @@ import 'package:injectable/injectable.dart';
 
 @Injectable(as: HomeRepo)
 class HomeRepoImpl implements HomeRepo {
-final  HomeRemoteDataSource homeRemoteDataSource;
+  final HomeRemoteDataSource homeRemoteDataSource;
 
   HomeRepoImpl(this.homeRemoteDataSource);
   @override
