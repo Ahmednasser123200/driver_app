@@ -10,10 +10,12 @@ import 'package:injectable/injectable.dart';
 
 @Injectable(as: HomeRemoteDataSource)
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
-  HomeApiClient apiClient;
+  final  HomeApiClient apiClient;
   HomeRemoteDataSourceImpl(this.apiClient);
   @override
-  Future<BaseResponse<AvailableOrdersResponseDto>> getAvailableOrders({int page = 1}) async {
+  Future<BaseResponse<AvailableOrdersResponseDto>> getAvailableOrders({
+    int page = 1,
+  }) async {
     return _excecuteApiCall(() => apiClient.getAvailableOrders(page: page));
     // try {
     //   var response = await apiClient.getAvailableOrders();
@@ -37,6 +39,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     //   return Error<void>(const UnknownFailure());
     // }
   }
+
   Future<BaseResponse<T>> _excecuteApiCall<T>(
     Future<T> Function() request,
   ) async {
@@ -44,8 +47,8 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       return Success<T>(await request());
     } on DioException catch (e) {
       return Error<T>(mapDioExceptionToAppFailure(e));
-    } catch (e,st) {
-       debugPrint('REAL ERROR => $e\n$st');
+    } catch (e, st) {
+      debugPrint('REAL ERROR => $e\n$st');
       return Error<T>(const UnknownFailure());
     }
   }

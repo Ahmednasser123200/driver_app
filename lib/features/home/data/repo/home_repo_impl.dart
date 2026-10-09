@@ -7,7 +7,7 @@ import 'package:injectable/injectable.dart';
 
 @Injectable(as: HomeRepo)
 class HomeRepoImpl implements HomeRepo {
-  HomeRemoteDataSource homeRemoteDataSource;
+final  HomeRemoteDataSource homeRemoteDataSource;
 
   HomeRepoImpl(this.homeRemoteDataSource);
   @override
@@ -26,7 +26,9 @@ class HomeRepoImpl implements HomeRepo {
   }
 
   @override
-  Future<BaseResponse<AvailableOrders>> getAvailableOrders({int page = 1}) async {
+  Future<BaseResponse<AvailableOrders>> getAvailableOrders({
+    int page = 1,
+  }) async {
     return _execureRepCall<AvailableOrdersResponseDto, AvailableOrders>(
       () => homeRemoteDataSource.getAvailableOrders(page: page),
       (data) => data.toDomain(),

@@ -46,13 +46,15 @@ class AvailableOrdersList extends StatelessWidget {
               context.read<HomeCubit>().doEvent(GetAvailableOrdersEvent()),
           child: NotificationListener<ScrollNotification>(
             onNotification: (notification) {
-              final metrics = notification.metrics;
-              final distance = metrics.maxScrollExtent - 200;
-              // log(metrics.pixels.toString(), name: 'metrics.pixels');
-              // log(distance.toString(), name: 'distance');
-              // log( metrics.maxScrollExtent.toString(),name: 'metrics.maxScrollExtent');
-              if (metrics.pixels >= distance) {
-                context.read<HomeCubit>().doEvent(LoadMoreOrdersEvent());
+              if (notification is ScrollEndNotification) {
+                final metrics = notification.metrics;
+                final distance = metrics.maxScrollExtent - 200;
+                // log(metrics.pixels.toString(), name: 'metrics.pixels');
+                // log(distance.toString(), name: 'distance');
+                // log( metrics.maxScrollExtent.toString(),name: 'metrics.maxScrollExtent');
+                if (metrics.pixels >= distance) {
+                  context.read<HomeCubit>().doEvent(LoadMoreOrdersEvent());
+                }
               }
               return false;
             },

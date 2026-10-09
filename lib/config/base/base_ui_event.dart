@@ -5,8 +5,6 @@ sealed class BaseUiEvent {
   const BaseUiEvent();
 }
 
-
-
 final class ShowSuccessMessage extends BaseUiEvent {
   final AppMessage message;
   const ShowSuccessMessage(this.message);

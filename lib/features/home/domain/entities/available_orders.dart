@@ -5,10 +5,7 @@ class AvailableOrders {
   final List<AvailableOrder> items;
   final Pagination pagination;
 
-  const AvailableOrders({
-    required this.items,
-    required this.pagination,
-  });
+  const AvailableOrders({required this.items, required this.pagination});
 
   @override
   String toString() {

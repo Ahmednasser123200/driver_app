@@ -26,5 +26,9 @@ class HomeState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [getAvailableOrdersState, acceptOrderId , isLoadingMore];
+  List<Object?> get props => [
+    getAvailableOrdersState,
+    acceptOrderId,
+    isLoadingMore,
+  ];
 }

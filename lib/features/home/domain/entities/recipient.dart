@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 
 class Recipient extends Equatable {
@@ -6,17 +5,9 @@ class Recipient extends Equatable {
   final String city;
   final String area;
 
-  const Recipient({
-    required this.name,
-    required this.city,
-    required this.area,
-  });
+  const Recipient({required this.name, required this.city, required this.area});
 
   @override
   // TODO: implement props
-  List<Object?> get props => [
-    name,
-    city,
-    area,
-  ];
+  List<Object?> get props => [name, city, area];
 }

@@ -40,8 +40,15 @@ class AcceptOrderButton extends StatelessWidget {
               shape: const StadiumBorder(),
             ),
             child: isLoading
-                ? Center(child: SizedBox(
-                    width: 25, height: 25,  child: const CircularProgressIndicator(color: Colors.white)))
+                ? Center(
+                    child: SizedBox(
+                      width: 25,
+                      height: 25,
+                      child: const CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
                 : Text(local.accept),
           ),
         );

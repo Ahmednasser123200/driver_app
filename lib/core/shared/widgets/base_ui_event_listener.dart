@@ -9,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../config/base/base_cubit.dart';
 import '../../../config/base/base_ui_event.dart';
 
- class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
+class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
     extends StatefulWidget {
   const BaseUiEventListener({
     super.key,
@@ -27,7 +27,11 @@ import '../../../config/base/base_ui_event.dart';
       _BaseUiEventListenerState<C, S, E>();
 }
 
- class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
+class _BaseUiEventListenerState<
+  C extends BaseCubit<S, E>,
+  S,
+  E extends BaseUiEvent
+>
     extends State<BaseUiEventListener<C, S, E>> {
   StreamSubscription<E>? _subscription;
 
@@ -38,9 +42,7 @@ import '../../../config/base/base_ui_event.dart';
   }
 
   @override
-  void didUpdateWidget(
-    covariant BaseUiEventListener<C, S, E> oldWidget,
-  ) {
+  void didUpdateWidget(covariant BaseUiEventListener<C, S, E> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.cubit != widget.cubit) {
       _unsubscribe();
@@ -62,7 +64,6 @@ import '../../../config/base/base_ui_event.dart';
 
     final local = AppLocalizations.of(context)!;
 
-
     switch (event) {
       case ShowSuccessMessage():
         ScaffoldMessenger.of(context).showSnackBar(
@@ -71,7 +72,7 @@ import '../../../config/base/base_ui_event.dart';
             backgroundColor: Colors.green,
           ),
         );
-        
+
       case ShowFailureMessage():
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -80,15 +81,12 @@ import '../../../config/base/base_ui_event.dart';
           ),
         );
 
-      
       case NavigateTo():
-        Navigator.of(context).pushNamed(
-          event.routeName,
-          arguments: event.arguments,
-        );
+        Navigator.of(
+          context,
+        ).pushNamed(event.routeName, arguments: event.arguments);
       case PopRoute():
         Navigator.of(context).pop(event.result);
-        
     }
   }
 

@@ -1,14 +1,14 @@
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:flutter/material.dart';
 
-
 class InformationCard extends StatelessWidget {
   final String image;
   final String title;
   final String address;
   final ThemeData theme;
 
-  const InformationCard({super.key, 
+  const InformationCard({
+    super.key,
     required this.image,
     required this.title,
     required this.address,
@@ -20,18 +20,17 @@ class InformationCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
 
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: AppColors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.3),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: const Offset(0,0), // changes position of shadow
-            ),
-          ]
-
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: AppColors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.3),
+            spreadRadius: 1,
+            blurRadius: 3,
+            offset: const Offset(0, 0), // changes position of shadow
+          ),
+        ],
       ),
       child: Row(
         children: [

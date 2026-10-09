@@ -14,20 +14,12 @@ class RecipientDto {
   @JsonKey(name: 'area')
   final String area;
 
-  RecipientDto({
-    required this.name,
-    required this.city,
-    required this.area,
-  });
+  RecipientDto({required this.name, required this.city, required this.area});
 
   factory RecipientDto.fromJson(Map<String, dynamic> json) =>
       _$RecipientDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$RecipientDtoToJson(this);
 
-  Recipient toDomain() => Recipient(
-    name: name,
-    city: city,
-    area: area,
-  );
+  Recipient toDomain() => Recipient(name: name, city: city, area: area);
 }

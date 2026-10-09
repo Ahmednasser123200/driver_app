@@ -1,6 +1,4 @@
-sealed class HomeEvent {
-}
-
+sealed class HomeEvent {}
 
 class GetAvailableOrdersEvent extends HomeEvent {}
 

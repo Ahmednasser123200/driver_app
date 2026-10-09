@@ -15,7 +15,7 @@ class HomeDriverView extends StatefulWidget {
   State<HomeDriverView> createState() => _HomeDriverViewState();
 }
 
-class _HomeDriverViewState extends State<HomeDriverView> with HandleEventUi  {
+class _HomeDriverViewState extends State<HomeDriverView> with HandleEventUi {
   late final HomeCubit _cubit;
   late final StreamSubscription<BaseUiEvent> _subscription;
   //   String _successText(AppLocalizations local, AppMessage message) {
@@ -30,7 +30,7 @@ class _HomeDriverViewState extends State<HomeDriverView> with HandleEventUi  {
     _cubit = context.read<HomeCubit>();
     _subscription = _cubit.uiEventStream.listen((event) {
       if (!mounted) return;
-  //  final local = AppLocalizations.of(context)!;
+      //  final local = AppLocalizations.of(context)!;
       handleEvent(context, event);
       // switch (event) {
       //   case ShowSuccessMessage():
@@ -58,6 +58,7 @@ class _HomeDriverViewState extends State<HomeDriverView> with HandleEventUi  {
       // }
     });
   }
+
   @override
   void dispose() {
     _subscription.cancel();
@@ -81,7 +82,7 @@ class _HomeDriverViewState extends State<HomeDriverView> with HandleEventUi  {
           ),
         ),
       ),
-      body:  AvailableOrdersList(),
+      body: AvailableOrdersList(),
     );
   }
 }
