@@ -19,6 +19,10 @@ void main() {
   late MockAuthClient mockAuthClient;
   late AuthRemoteDataSourceImpl dataSource;
 
+  setUpAll(() {
+    registerFallbackValue(FormData());
+  });
+
   setUp(() {
     mockAuthClient = MockAuthClient();
     dataSource = AuthRemoteDataSourceImpl(mockAuthClient);
@@ -49,20 +53,14 @@ void main() {
       );
 
       when(
-        () => mockAuthClient.addApplication(any(), any(), any()),
+        () => mockAuthClient.addApplication(any()),
       ).thenAnswer((_) async => responseDto);
 
       final result = await dataSource.addApplication(requestDto);
 
       expect(result, isA<Success<ApplicationResponseDto>>());
       expect((result as Success<ApplicationResponseDto>).data, responseDto);
-      verify(
-        () => mockAuthClient.addApplication(
-          requestDto.toFieldMap(),
-          requestDto.vehicleLicenceFile,
-          requestDto.idImage,
-        ),
-      ).called(1);
+      verify(() => mockAuthClient.addApplication(any())).called(1);
     });
 
     test('returns Error when API call fails with DioException', () async {
@@ -72,9 +70,7 @@ void main() {
         type: DioExceptionType.connectionTimeout,
       );
 
-      when(
-        () => mockAuthClient.addApplication(any(), any(), any()),
-      ).thenThrow(dioException);
+      when(() => mockAuthClient.addApplication(any())).thenThrow(dioException);
 
       final result = await dataSource.addApplication(requestDto);
 

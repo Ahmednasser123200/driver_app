@@ -19,13 +19,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<BaseResponse<ApplicationResponseDto>> addApplication(
     ApplicationRequestDto request,
   ) {
-    return executeApi(
-      () => _client.addApplication(
-        request.toFieldMap(),
-        request.vehicleLicenceFile,
-        request.idImage,
-      ),
-    );
+    return executeApi(() => _client.addApplication(request.toFormData()));
   }
 
   @override

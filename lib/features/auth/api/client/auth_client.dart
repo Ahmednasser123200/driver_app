@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:driver_app/core/constants/api_strings/api_strings.dart';
 import 'package:injectable/injectable.dart';
@@ -24,10 +22,5 @@ abstract class AuthClient {
   Future<VehicleTypesResponseDto> getVehicleTypes();
 
   @POST(ApiStrings.driverApplications)
-  @MultiPart()
-  Future<ApplicationResponseDto> addApplication(
-    @PartMap() Map<String, dynamic> body,
-    @Part(name: ApiStrings.vehicleLicenceFile) File? vehicleLicenceFile,
-    @Part(name: ApiStrings.idImage) File? idImage,
-  );
+  Future<ApplicationResponseDto> addApplication(@Body() FormData body);
 }

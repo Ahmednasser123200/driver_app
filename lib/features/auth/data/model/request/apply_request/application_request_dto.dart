@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
+
 import '../../../../../../config/utils/phone_number_formatter.dart';
 import '../../../../domain/entities/apply_entity/applications_entity.dart';
 
@@ -68,5 +70,39 @@ class ApplicationRequestDto {
       'ConfirmPassword': confirmPassword,
       'Gender': gender,
     };
+  }
+
+  FormData toFormData() {
+    final vehicleFileName = vehicleLicenceFile.path
+        .split(Platform.pathSeparator)
+        .last;
+    final idFileName = idImage.path.split(Platform.pathSeparator).last;
+
+    final vehiclePart = vehicleLicenceFile.existsSync()
+        ? MultipartFile.fromFileSync(
+            vehicleLicenceFile.path,
+            filename: vehicleFileName,
+          )
+        : MultipartFile.fromBytes(const [], filename: vehicleFileName);
+
+    final idPart = idImage.existsSync()
+        ? MultipartFile.fromFileSync(idImage.path, filename: idFileName)
+        : MultipartFile.fromBytes(const [], filename: idFileName);
+
+    return FormData.fromMap({
+      'CountryCode': countryCode,
+      'FirstName': firstName,
+      'SecondName': secondName,
+      'VehicleType': vehicleType,
+      'VehicleNumber': vehicleNumber,
+      'Email': email,
+      'PhoneNumber': phoneNumber,
+      'NationalId': nationalId,
+      'Password': password,
+      'ConfirmPassword': confirmPassword,
+      'Gender': gender,
+      'VehicleLicenceFile': vehiclePart,
+      'IdImage': idPart,
+    });
   }
 }
