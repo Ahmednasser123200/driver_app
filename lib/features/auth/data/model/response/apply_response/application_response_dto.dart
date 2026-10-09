@@ -10,11 +10,7 @@ class ApplicationResponseDto {
   final String? message;
   final ApplicationDto? data;
 
-  const ApplicationResponseDto({
-    this.success,
-    this.message,
-    this.data,
-  });
+  const ApplicationResponseDto({this.success, this.message, this.data});
 
   factory ApplicationResponseDto.fromJson(Map<String, dynamic> json) =>
       _$ApplicationResponseDtoFromJson(json);

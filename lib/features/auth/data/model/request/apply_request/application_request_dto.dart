@@ -42,7 +42,9 @@ class ApplicationRequestDto {
       vehicleType: entity.vehicleType,
       vehicleNumber: entity.vehicleNumber,
       email: entity.email,
-      phoneNumber: PhoneNumberFormatter.stripLeadingTrunkZero(entity.phoneNumber),
+      phoneNumber: PhoneNumberFormatter.stripLeadingTrunkZero(
+        entity.phoneNumber,
+      ),
       nationalId: entity.nationalId,
       password: entity.password,
       confirmPassword: entity.confirmPassword,

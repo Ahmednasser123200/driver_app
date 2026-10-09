@@ -199,9 +199,8 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
                           ),
                           child: Text(
                             'No results',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppColors.grey.shade400,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: AppColors.grey.shade400),
                           ),
                         );
                       }
@@ -221,8 +220,7 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
                                 widget.valueNotifier!.value = item.value;
                               }
                               widget.onChanged?.call(item.value);
-                              _controller.text =
-                                  item.fieldText ?? item.label;
+                              _controller.text = item.fieldText ?? item.label;
                               _closeMenu(false);
                             },
                             child: Container(
@@ -291,9 +289,9 @@ class _ApplyDropdownFieldState<T> extends State<ApplyDropdownField<T>> {
                 if (!_isOpen) _openMenu();
               }
             : null,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.black,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.bodyMedium?.copyWith(color: AppColors.black),
         decoration: InputDecoration(
           labelText: widget.label,
           hintText: widget.hint,

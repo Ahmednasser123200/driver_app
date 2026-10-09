@@ -7,5 +7,4 @@ abstract final class AppImages {
 
   static const String checkCircle = '$_basePath/check_circle.png';
   static const String bottomGraphic = '$_basePath/bottom_graphic.png';
-
 }

@@ -12,10 +12,15 @@ import 'package:driver_app/features/auth/domain/use_case/get_countries_use_case.
 import 'package:driver_app/features/auth/domain/use_case/get_vehicle_types_use_case.dart';
 import 'package:driver_app/features/auth/presentation/apply/manager/apply_cubit.dart';
 import 'package:driver_app/features/auth/presentation/apply/manager/apply_intent.dart';
+import 'package:driver_app/features/auth/presentation/apply/manager/apply_ui_event.dart';
 
 class MockAddApplicationUseCase extends Mock implements AddApplicationUseCase {}
+
 class MockGetCountriesUseCase extends Mock implements GetCountriesUseCase {}
-class MockGetVehicleTypesUseCase extends Mock implements GetVehicleTypesUseCase {}
+
+class MockGetVehicleTypesUseCase extends Mock
+    implements GetVehicleTypesUseCase {}
+
 class MockMediaService extends Mock implements MediaService {}
 
 class FakeApplicationEntity extends Fake implements ApplicationEntity {}
@@ -37,10 +42,7 @@ void main() {
     flag: '🇪🇬',
   );
 
-  const sampleVehicleType = VehicleTypeEntity(
-    id: '1',
-    name: 'Car',
-  );
+  const sampleVehicleType = VehicleTypeEntity(id: '1', name: 'Car');
 
   ApplyCubit createCubit() {
     return ApplyCubit(
@@ -57,36 +59,43 @@ void main() {
     mockGetVehicleTypesUseCase = MockGetVehicleTypesUseCase();
     mockMediaService = MockMediaService();
 
-    when(() => mockGetCountriesUseCase.execute())
-        .thenAnswer((_) async => const Success([sampleCountry]));
-    when(() => mockGetVehicleTypesUseCase.execute())
-        .thenAnswer((_) async => const Success([sampleVehicleType]));
+    when(
+      () => mockGetCountriesUseCase.execute(),
+    ).thenAnswer((_) async => const Success([sampleCountry]));
+    when(
+      () => mockGetVehicleTypesUseCase.execute(),
+    ).thenAnswer((_) async => const Success([sampleVehicleType]));
   });
 
   group('ApplyCubit Initial & LoadInitialData', () {
-    test('initial state has empty defaults and loads initial data successfully', () async {
-      final cubit = createCubit();
+    test(
+      'initial state has empty defaults and loads initial data successfully',
+      () async {
+        final cubit = createCubit();
 
-      await pumpEventQueue();
+        await pumpEventQueue();
 
-      expect(cubit.state.countriesStatus.isLoading, false);
-      expect(cubit.state.countriesStatus.data, [sampleCountry]);
-      expect(cubit.state.selectedCountry, sampleCountry);
-      expect(cubit.state.countryCode, '+20');
+        expect(cubit.state.countriesStatus.isLoading, false);
+        expect(cubit.state.countriesStatus.data, [sampleCountry]);
+        expect(cubit.state.selectedCountry, sampleCountry);
+        expect(cubit.state.countryCode, '+20');
 
-      expect(cubit.state.vehicleTypesStatus.isLoading, false);
-      expect(cubit.state.vehicleTypesStatus.data, [sampleVehicleType]);
-      expect(cubit.state.selectedVehicleType, sampleVehicleType);
-      expect(cubit.state.vehicleType, '1');
+        expect(cubit.state.vehicleTypesStatus.isLoading, false);
+        expect(cubit.state.vehicleTypesStatus.data, [sampleVehicleType]);
+        expect(cubit.state.selectedVehicleType, sampleVehicleType);
+        expect(cubit.state.vehicleType, '1');
 
-      await cubit.close();
-    });
+        await cubit.close();
+      },
+    );
 
     test('handles empty country and vehicle type lists gracefully', () async {
-      when(() => mockGetCountriesUseCase.execute())
-          .thenAnswer((_) async => const Success<List<CountryEntity>>([]));
-      when(() => mockGetVehicleTypesUseCase.execute())
-          .thenAnswer((_) async => const Success<List<VehicleTypeEntity>>([]));
+      when(
+        () => mockGetCountriesUseCase.execute(),
+      ).thenAnswer((_) async => const Success<List<CountryEntity>>([]));
+      when(
+        () => mockGetVehicleTypesUseCase.execute(),
+      ).thenAnswer((_) async => const Success<List<VehicleTypeEntity>>([]));
 
       final cubit = createCubit();
       await pumpEventQueue();
@@ -100,10 +109,12 @@ void main() {
     });
 
     test('handles failure when loading countries and vehicle types', () async {
-      when(() => mockGetCountriesUseCase.execute())
-          .thenAnswer((_) async => const Error(ServerFailure()));
-      when(() => mockGetVehicleTypesUseCase.execute())
-          .thenAnswer((_) async => const Error(ServerFailure()));
+      when(
+        () => mockGetCountriesUseCase.execute(),
+      ).thenAnswer((_) async => const Error(ServerFailure()));
+      when(
+        () => mockGetVehicleTypesUseCase.execute(),
+      ).thenAnswer((_) async => const Error(ServerFailure()));
 
       final cubit = createCubit();
       await pumpEventQueue();
@@ -138,10 +149,7 @@ void main() {
       );
       cubit.processIntent(const SelectCountryIntent(newCountry));
 
-      const newVehicle = VehicleTypeEntity(
-        id: '2',
-        name: 'Motorcycle',
-      );
+      const newVehicle = VehicleTypeEntity(id: '2', name: 'Motorcycle');
       cubit.processIntent(const SelectVehicleTypeIntent(newVehicle));
 
       expect(cubit.state.firstName, 'Jane');
@@ -163,40 +171,49 @@ void main() {
   });
 
   group('ApplyCubit Media Picking Intents', () {
-    test('PickLicenseImageIntent updates state when path is returned', () async {
-      when(() => mockMediaService.pickImageFromGallery())
-          .thenAnswer((_) async => '/path/to/license.jpg');
+    test(
+      'PickLicenseImageIntent updates state when path is returned',
+      () async {
+        when(
+          () => mockMediaService.pickImageFromGallery(),
+        ).thenAnswer((_) async => '/path/to/license.jpg');
 
-      final cubit = createCubit();
-      await pumpEventQueue();
+        final cubit = createCubit();
+        await pumpEventQueue();
 
-      cubit.processIntent(const PickLicenseImageIntent());
-      await pumpEventQueue();
+        cubit.processIntent(const PickLicenseImageIntent());
+        await pumpEventQueue();
 
-      expect(cubit.state.vehicleLicencePath, '/path/to/license.jpg');
-      verify(() => mockMediaService.pickImageFromGallery()).called(1);
+        expect(cubit.state.vehicleLicencePath, '/path/to/license.jpg');
+        verify(() => mockMediaService.pickImageFromGallery()).called(1);
 
-      await cubit.close();
-    });
+        await cubit.close();
+      },
+    );
 
-    test('PickLicenseImageIntent does not change path when null is returned', () async {
-      when(() => mockMediaService.pickImageFromGallery())
-          .thenAnswer((_) async => null);
+    test(
+      'PickLicenseImageIntent does not change path when null is returned',
+      () async {
+        when(
+          () => mockMediaService.pickImageFromGallery(),
+        ).thenAnswer((_) async => null);
 
-      final cubit = createCubit();
-      await pumpEventQueue();
+        final cubit = createCubit();
+        await pumpEventQueue();
 
-      cubit.processIntent(const PickLicenseImageIntent());
-      await pumpEventQueue();
+        cubit.processIntent(const PickLicenseImageIntent());
+        await pumpEventQueue();
 
-      expect(cubit.state.vehicleLicencePath, isNull);
+        expect(cubit.state.vehicleLicencePath, isNull);
 
-      await cubit.close();
-    });
+        await cubit.close();
+      },
+    );
 
     test('PickIdImageIntent updates state when path is returned', () async {
-      when(() => mockMediaService.pickImageFromGallery())
-          .thenAnswer((_) async => '/path/to/id.jpg');
+      when(
+        () => mockMediaService.pickImageFromGallery(),
+      ).thenAnswer((_) async => '/path/to/id.jpg');
 
       final cubit = createCubit();
       await pumpEventQueue();
@@ -210,20 +227,24 @@ void main() {
       await cubit.close();
     });
 
-    test('PickIdImageIntent does not change path when null is returned', () async {
-      when(() => mockMediaService.pickImageFromGallery())
-          .thenAnswer((_) async => null);
+    test(
+      'PickIdImageIntent does not change path when null is returned',
+      () async {
+        when(
+          () => mockMediaService.pickImageFromGallery(),
+        ).thenAnswer((_) async => null);
 
-      final cubit = createCubit();
-      await pumpEventQueue();
+        final cubit = createCubit();
+        await pumpEventQueue();
 
-      cubit.processIntent(const PickIdImageIntent());
-      await pumpEventQueue();
+        cubit.processIntent(const PickIdImageIntent());
+        await pumpEventQueue();
 
-      expect(cubit.state.idImagePath, isNull);
+        expect(cubit.state.idImagePath, isNull);
 
-      await cubit.close();
-    });
+        await cubit.close();
+      },
+    );
   });
 
   group('ApplyCubit Submit Validation & Execution', () {
@@ -231,10 +252,7 @@ void main() {
       final cubit = createCubit();
       await pumpEventQueue();
 
-      expectLater(
-        cubit.uiEventStream,
-        emits(isA<ApplyGenderMissingEvent>()),
-      );
+      expectLater(cubit.uiEventStream, emits(isA<ApplyGenderMissingEvent>()));
 
       cubit.processIntent(const SubmitApplicationIntent());
       await pumpEventQueue();
@@ -243,50 +261,59 @@ void main() {
       await cubit.close();
     });
 
-    test('emits ApplyLicenseMissingEvent when vehicleLicencePath is null or empty', () async {
-      final cubit = createCubit();
-      await pumpEventQueue();
-      cubit.processIntent(const ChangeGenderIntent('Male'));
+    test(
+      'emits ApplyLicenseMissingEvent when vehicleLicencePath is null or empty',
+      () async {
+        final cubit = createCubit();
+        await pumpEventQueue();
+        cubit.processIntent(const ChangeGenderIntent('Male'));
 
-      expectLater(
-        cubit.uiEventStream,
-        emits(isA<ApplyLicenseMissingEvent>()),
-      );
+        expectLater(
+          cubit.uiEventStream,
+          emits(isA<ApplyLicenseMissingEvent>()),
+        );
 
-      cubit.processIntent(const SubmitApplicationIntent());
-      await pumpEventQueue();
+        cubit.processIntent(const SubmitApplicationIntent());
+        await pumpEventQueue();
 
-      verifyNever(() => mockAddApplicationUseCase.execute(any()));
-      await cubit.close();
-    });
+        verifyNever(() => mockAddApplicationUseCase.execute(any()));
+        await cubit.close();
+      },
+    );
 
-    test('emits ApplyIdImageMissingEvent when idImagePath is null or empty', () async {
-      when(() => mockMediaService.pickImageFromGallery())
-          .thenAnswer((_) async => '/path/license.jpg');
+    test(
+      'emits ApplyIdImageMissingEvent when idImagePath is null or empty',
+      () async {
+        when(
+          () => mockMediaService.pickImageFromGallery(),
+        ).thenAnswer((_) async => '/path/license.jpg');
 
-      final cubit = createCubit();
-      await pumpEventQueue();
-      cubit.processIntent(const ChangeGenderIntent('Male'));
-      cubit.processIntent(const PickLicenseImageIntent());
-      await pumpEventQueue();
+        final cubit = createCubit();
+        await pumpEventQueue();
+        cubit.processIntent(const ChangeGenderIntent('Male'));
+        cubit.processIntent(const PickLicenseImageIntent());
+        await pumpEventQueue();
 
-      expectLater(
-        cubit.uiEventStream,
-        emits(isA<ApplyIdImageMissingEvent>()),
-      );
+        expectLater(
+          cubit.uiEventStream,
+          emits(isA<ApplyIdImageMissingEvent>()),
+        );
 
-      cubit.processIntent(const SubmitApplicationIntent());
-      await pumpEventQueue();
+        cubit.processIntent(const SubmitApplicationIntent());
+        await pumpEventQueue();
 
-      verifyNever(() => mockAddApplicationUseCase.execute(any()));
-      await cubit.close();
-    });
+        verifyNever(() => mockAddApplicationUseCase.execute(any()));
+        await cubit.close();
+      },
+    );
 
     test('executes usecase successfully and emits ApplySuccessEvent', () async {
-      when(() => mockMediaService.pickImageFromGallery())
-          .thenAnswer((_) async => '/path/file.jpg');
-      when(() => mockAddApplicationUseCase.execute(any()))
-          .thenAnswer((_) async => const Success(null));
+      when(
+        () => mockMediaService.pickImageFromGallery(),
+      ).thenAnswer((_) async => '/path/file.jpg');
+      when(
+        () => mockAddApplicationUseCase.execute(any()),
+      ).thenAnswer((_) async => const Success(null));
 
       final cubit = createCubit();
       await pumpEventQueue();
@@ -298,10 +325,7 @@ void main() {
       cubit.processIntent(const PickIdImageIntent());
       await pumpEventQueue();
 
-      expectLater(
-        cubit.uiEventStream,
-        emits(isA<ApplySuccessEvent>()),
-      );
+      expectLater(cubit.uiEventStream, emits(isA<ApplySuccessEvent>()));
 
       cubit.processIntent(const SubmitApplicationIntent());
       await pumpEventQueue();
@@ -312,37 +336,44 @@ void main() {
       await cubit.close();
     });
 
-    test('executes usecase and handles failure emitting ApplyFailureEvent', () async {
-      when(() => mockMediaService.pickImageFromGallery())
-          .thenAnswer((_) async => '/path/file.jpg');
-      when(() => mockAddApplicationUseCase.execute(any()))
-          .thenAnswer((_) async => const Error(ServerFailure()));
+    test(
+      'executes usecase and handles failure emitting ApplyFailureEvent',
+      () async {
+        when(
+          () => mockMediaService.pickImageFromGallery(),
+        ).thenAnswer((_) async => '/path/file.jpg');
+        when(
+          () => mockAddApplicationUseCase.execute(any()),
+        ).thenAnswer((_) async => const Error(ServerFailure()));
 
-      final cubit = createCubit();
-      await pumpEventQueue();
+        final cubit = createCubit();
+        await pumpEventQueue();
 
-      cubit.processIntent(const ChangeGenderIntent('Male'));
-      cubit.processIntent(const PickLicenseImageIntent());
-      cubit.processIntent(const PickIdImageIntent());
-      await pumpEventQueue();
+        cubit.processIntent(const ChangeGenderIntent('Male'));
+        cubit.processIntent(const PickLicenseImageIntent());
+        cubit.processIntent(const PickIdImageIntent());
+        await pumpEventQueue();
 
-      expectLater(
-        cubit.uiEventStream,
-        emits(isA<ApplyFailureEvent>().having(
-          (e) => e.failure,
-          'failure',
-          isA<ServerFailure>(),
-        )),
-      );
+        expectLater(
+          cubit.uiEventStream,
+          emits(
+            isA<ApplyFailureEvent>().having(
+              (e) => e.failure,
+              'failure',
+              isA<ServerFailure>(),
+            ),
+          ),
+        );
 
-      cubit.processIntent(const SubmitApplicationIntent());
-      await pumpEventQueue();
+        cubit.processIntent(const SubmitApplicationIntent());
+        await pumpEventQueue();
 
-      verify(() => mockAddApplicationUseCase.execute(any())).called(1);
-      expect(cubit.state.applyStatus.isLoading, false);
-      expect(cubit.state.applyStatus.errorMessage, isNotEmpty);
+        verify(() => mockAddApplicationUseCase.execute(any())).called(1);
+        expect(cubit.state.applyStatus.isLoading, false);
+        expect(cubit.state.applyStatus.errorMessage, isNotEmpty);
 
-      await cubit.close();
-    });
+        await cubit.close();
+      },
+    );
   });
 }

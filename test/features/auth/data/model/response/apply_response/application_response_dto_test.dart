@@ -5,10 +5,7 @@ import 'package:driver_app/features/auth/data/model/response/apply_response/appl
 void main() {
   group('ApplicationResponseDto & ApplicationDto', () {
     test('ApplicationDto fromJson and toJson work correctly', () {
-      final json = {
-        'applicationId': 'app_123',
-        'status': 'pending',
-      };
+      final json = {'applicationId': 'app_123', 'status': 'pending'};
 
       final dto = ApplicationDto.fromJson(json);
 
@@ -24,10 +21,7 @@ void main() {
       final json = {
         'success': true,
         'message': 'Success',
-        'data': {
-          'applicationId': 'app_123',
-          'status': 'pending',
-        },
+        'data': {'applicationId': 'app_123', 'status': 'pending'},
       };
 
       final responseDto = ApplicationResponseDto.fromJson(json);

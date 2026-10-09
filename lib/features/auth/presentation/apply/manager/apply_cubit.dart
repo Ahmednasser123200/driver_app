@@ -15,13 +15,14 @@ import 'apply_state.dart';
 import 'apply_ui_event.dart'; // الملف الجديد
 
 @injectable
-class ApplyCubit extends BaseCubit<ApplyState, ApplyUiEvent> { // استخدام ApplyUiEvent بدلاً من BaseUiEvent
+class ApplyCubit extends BaseCubit<ApplyState, ApplyUiEvent> {
+  // استخدام ApplyUiEvent بدلاً من BaseUiEvent
   ApplyCubit(
-      this._addApplicationUseCase,
-      this._getCountriesUseCase,
-      this._getVehicleTypesUseCase,
-      this._mediaService,
-      ) : super(const ApplyState()) {
+    this._addApplicationUseCase,
+    this._getCountriesUseCase,
+    this._getVehicleTypesUseCase,
+    this._mediaService,
+  ) : super(const ApplyState()) {
     processIntent(const LoadInitialDataIntent());
   }
 
@@ -76,10 +77,7 @@ class ApplyCubit extends BaseCubit<ApplyState, ApplyUiEvent> { // استخدام
   }
 
   Future<void> _loadInitialData() async {
-    await Future.wait([
-      _loadCountries(),
-      _loadVehicleTypes(),
-    ]);
+    await Future.wait([_loadCountries(), _loadVehicleTypes()]);
   }
 
   Future<void> _loadCountries() async {
@@ -93,7 +91,9 @@ class ApplyCubit extends BaseCubit<ApplyState, ApplyUiEvent> { // استخدام
           state.copyWith(
             countriesStatus: BaseState(isLoading: false, data: data),
             selectedCountry: firstCountry,
-            countryCode: firstCountry != null ? '+${firstCountry.phoneCode}' : state.countryCode,
+            countryCode: firstCountry != null
+                ? '+${firstCountry.phoneCode}'
+                : state.countryCode,
           ),
         );
       case Error<List<CountryEntity>>(:final failure):
@@ -119,7 +119,9 @@ class ApplyCubit extends BaseCubit<ApplyState, ApplyUiEvent> { // استخدام
           state.copyWith(
             vehicleTypesStatus: BaseState(isLoading: false, data: data),
             selectedVehicleType: firstVehicle,
-            vehicleType: firstVehicle != null ? firstVehicle.id : state.vehicleType,
+            vehicleType: firstVehicle != null
+                ? firstVehicle.id
+                : state.vehicleType,
           ),
         );
       case Error<List<VehicleTypeEntity>>(:final failure):

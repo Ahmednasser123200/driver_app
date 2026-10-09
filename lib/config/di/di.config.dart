@@ -14,8 +14,11 @@ import 'package:dio/dio.dart' as _i361;
 import 'package:flutter/services.dart' as _i281;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
+import 'package:image_picker/image_picker.dart' as _i183;
 import 'package:injectable/injectable.dart' as _i526;
 
+import '../../core/services/media_service.dart' as _i902;
+import '../../core/services/media_service_impl.dart' as _i679;
 import '../../features/auth/api/client/auth_client.dart' as _i824;
 import '../../features/auth/api/data_source_impl/remote/auth_remote_data_source_impl.dart'
     as _i319;
@@ -25,6 +28,10 @@ import '../../features/auth/data/repo_impl/auth_repo_impl.dart' as _i279;
 import '../../features/auth/domain/repo/auth_repo.dart' as _i170;
 import '../../features/auth/domain/use_case/add_application_use_case.dart'
     as _i823;
+import '../../features/auth/domain/use_case/get_countries_use_case.dart'
+    as _i374;
+import '../../features/auth/domain/use_case/get_vehicle_types_use_case.dart'
+    as _i911;
 import '../../features/auth/presentation/apply/manager/apply_cubit.dart'
     as _i1009;
 import '../dio/auth_interceptor.dart' as _i839;
@@ -43,6 +50,7 @@ extension GetItInjectableX on _i174.GetIt {
     final secureStorageModule = _$SecureStorageModule();
     final dioModule = _$DioModule();
     gh.lazySingleton<_i281.AssetBundle>(() => appModule.assetBundle);
+    gh.lazySingleton<_i183.ImagePicker>(() => appModule.imagePicker);
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => secureStorageModule.secureStorage,
     );
@@ -56,14 +64,28 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i885.AuthRemoteDataSource>(
       () => _i319.AuthRemoteDataSourceImpl(gh<_i824.AuthClient>()),
     );
+    gh.lazySingleton<_i902.MediaService>(
+      () => _i679.MediaServiceImpl(gh<_i183.ImagePicker>()),
+    );
     gh.factory<_i170.AuthRepo>(
       () => _i279.AuthRepoImpl(gh<_i885.AuthRemoteDataSource>()),
     );
     gh.factory<_i823.AddApplicationUseCase>(
       () => _i823.AddApplicationUseCase(gh<_i170.AuthRepo>()),
     );
+    gh.factory<_i374.GetCountriesUseCase>(
+      () => _i374.GetCountriesUseCase(gh<_i170.AuthRepo>()),
+    );
+    gh.factory<_i911.GetVehicleTypesUseCase>(
+      () => _i911.GetVehicleTypesUseCase(gh<_i170.AuthRepo>()),
+    );
     gh.factory<_i1009.ApplyCubit>(
-      () => _i1009.ApplyCubit(gh<_i823.AddApplicationUseCase>()),
+      () => _i1009.ApplyCubit(
+        gh<_i823.AddApplicationUseCase>(),
+        gh<_i374.GetCountriesUseCase>(),
+        gh<_i911.GetVehicleTypesUseCase>(),
+        gh<_i902.MediaService>(),
+      ),
     );
     return this;
   }

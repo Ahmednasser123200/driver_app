@@ -164,7 +164,8 @@ abstract final class AppStrings {
   static const String deliveryTime = 'Delivery time';
   static const String estimatedArrival = 'Estimated arrival';
   static const String itIsGift = 'It is a gift';
-  static const String orderPlacedSuccessfully = 'Your order placed successfully!';
+  static const String orderPlacedSuccessfully =
+      'Your order placed successfully!';
   static const String orderDeliveredSuccessfully =
       'Thank you!! The order delivered successfully';
   static const String thankYou = 'Thank you';
@@ -206,7 +207,8 @@ abstract final class AppStrings {
   static const String graduation = 'Graduation';
   static const String birthday = 'Birthday';
   static const String wedding = 'Wedding';
-  static const String applicationSubmittedTitle = 'Your application has been\nsubmitted!';
+  static const String applicationSubmittedTitle =
+      'Your application has been\nsubmitted!';
   static const String applicationSubmittedBody =
       'Thank you for providing your application,\nwe will review your application and will\nget back to you soon.';
 }

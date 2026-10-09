@@ -77,7 +77,9 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         _effectiveController.text != (widget.value ?? '')) {
       _effectiveController.text = widget.value ?? '';
     }
-    _obscureText.value = widget.obscureText;
+    if (oldWidget.obscureText != widget.obscureText) {
+      _obscureText.value = widget.obscureText;
+    }
   }
 
   @override
@@ -101,29 +103,33 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           style: theme.textTheme.titleSmall?.copyWith(color: AppColors.black),
         ),
         SizedBox(height: 8.h),
-        TextFormField(
-          controller: _effectiveController,
-          validator: widget.validator == null
-              ? null
-              : (value) =>
-                    mapValidationErrorToMessage(widget.validator!(value), l10n),
-          obscureText: _obscureText.value,
-          enabled: widget.enabled,
-          keyboardType: widget.keyboardType,
-          textInputAction: widget.textInputAction,
-          inputFormatters: widget.inputFormatters,
-          onChanged: widget.onChanged,
-          maxLines: widget.obscureText ? 1 : widget.maxLines,
-          focusNode: widget.focusNode,
-          style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.black),
-          decoration: InputDecoration(
-            hintText: widget.hint,
-            prefixIcon: widget.prefixIcon,
-            suffixIcon: widget.obscureText && widget.suffixIcon == null
-                ? ValueListenableBuilder<bool>(
-                    valueListenable: _obscureText,
-                    builder: (context, obscure, _) {
-                      return IconButton(
+        ValueListenableBuilder<bool>(
+          valueListenable: _obscureText,
+          builder: (context, obscure, _) {
+            return TextFormField(
+              controller: _effectiveController,
+              validator: widget.validator == null
+                  ? null
+                  : (value) => mapValidationErrorToMessage(
+                      widget.validator!(value),
+                      l10n,
+                    ),
+              obscureText: obscure,
+              enabled: widget.enabled,
+              keyboardType: widget.keyboardType,
+              textInputAction: widget.textInputAction,
+              inputFormatters: widget.inputFormatters,
+              onChanged: widget.onChanged,
+              maxLines: obscure ? 1 : widget.maxLines,
+              focusNode: widget.focusNode,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: AppColors.black,
+              ),
+              decoration: InputDecoration(
+                hintText: widget.hint,
+                prefixIcon: widget.prefixIcon,
+                suffixIcon: widget.obscureText && widget.suffixIcon == null
+                    ? IconButton(
                         icon: Icon(
                           obscure
                               ? Icons.visibility_off_outlined
@@ -134,11 +140,11 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                         onPressed: () {
                           _obscureText.value = !obscure;
                         },
-                      );
-                    },
-                  )
-                : widget.suffixIcon,
-          ),
+                      )
+                    : widget.suffixIcon,
+              ),
+            );
+          },
         ),
       ],
     );

@@ -1,8 +1,4 @@
-
-
 import 'package:equatable/equatable.dart';
-
-
 
 class ApplicationEntity extends Equatable {
   final String countryCode;
@@ -49,6 +45,6 @@ class ApplicationEntity extends Equatable {
     confirmPassword,
     gender,
     vehicleLicencePath,
-    idImagePath
+    idImagePath,
   ];
 }

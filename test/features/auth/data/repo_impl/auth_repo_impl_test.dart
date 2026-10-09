@@ -42,26 +42,31 @@ void main() {
       idImagePath: 'id.jpg',
     );
 
-    test('returns Success<void> when remote data source returns Success', () async {
-      const responseDto = ApplicationResponseDto(
-        success: true,
-        message: 'Success',
-      );
+    test(
+      'returns Success<void> when remote data source returns Success',
+      () async {
+        const responseDto = ApplicationResponseDto(
+          success: true,
+          message: 'Success',
+        );
 
-      when(() => mockRemoteDataSource.addApplication(any()))
-          .thenAnswer((_) async => const Success(responseDto));
+        when(
+          () => mockRemoteDataSource.addApplication(any()),
+        ).thenAnswer((_) async => const Success(responseDto));
 
-      final result = await repoImpl.addApplication(applicationEntity);
+        final result = await repoImpl.addApplication(applicationEntity);
 
-      expect(result, isA<Success<void>>());
-      verify(() => mockRemoteDataSource.addApplication(any())).called(1);
-    });
+        expect(result, isA<Success<void>>());
+        verify(() => mockRemoteDataSource.addApplication(any())).called(1);
+      },
+    );
 
     test('returns Error when remote data source returns Error', () async {
       const failure = ServerFailure();
 
-      when(() => mockRemoteDataSource.addApplication(any()))
-          .thenAnswer((_) async => const Error(failure));
+      when(
+        () => mockRemoteDataSource.addApplication(any()),
+      ).thenAnswer((_) async => const Error(failure));
 
       final result = await repoImpl.addApplication(applicationEntity);
 

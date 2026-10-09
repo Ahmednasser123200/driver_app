@@ -15,18 +15,14 @@ class CountryDto {
   @JsonKey(name: 'flag')
   final String? flag;
 
-  const CountryDto({
-    this.isoCode,
-    this.name,
-    this.phoneCode,
-    this.flag,
-  });
+  const CountryDto({this.isoCode, this.name, this.phoneCode, this.flag});
 
   factory CountryDto.fromJson(Map<String, dynamic> json) =>
       _$CountryDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$CountryDtoToJson(this);
 }
+
 extension CountryDtoMapper on CountryDto {
   CountryEntity toEntity() {
     return CountryEntity(

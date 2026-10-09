@@ -19,9 +19,11 @@ class AuthRepoImpl implements AuthRepo {
 
   @override
   Future<BaseResponse<void>> addApplication(
-      ApplicationEntity application) async {
-    final response = await _remoteDataSource
-        .addApplication(ApplicationRequestDto.fromEntity(application));
+    ApplicationEntity application,
+  ) async {
+    final response = await _remoteDataSource.addApplication(
+      ApplicationRequestDto.fromEntity(application),
+    );
 
     switch (response) {
       case Success<ApplicationResponseDto>():
@@ -30,6 +32,7 @@ class AuthRepoImpl implements AuthRepo {
         return Error<void>(response.failure);
     }
   }
+
   @override
   Future<BaseResponse<List<CountryEntity>>> getCountries() async {
     final response = await _remoteDataSource.getCountries();

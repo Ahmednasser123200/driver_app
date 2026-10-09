@@ -9,6 +9,10 @@ import 'package:driver_app/features/auth/data/model/request/apply_request/applic
 import 'package:driver_app/features/auth/data/model/response/apply_response/application_dto.dart';
 import 'package:driver_app/features/auth/data/model/response/apply_response/application_response_dto.dart';
 
+import 'package:driver_app/features/auth/data/model/response/apply_response/country_dto.dart';
+import 'package:driver_app/features/auth/data/model/response/apply_response/vehicle_type_dto.dart';
+import 'package:driver_app/features/auth/data/model/response/apply_response/vehicle_types_response_dto.dart';
+
 class MockAuthClient extends Mock implements AuthClient {}
 
 void main() {
@@ -45,11 +49,7 @@ void main() {
       );
 
       when(
-        () => mockAuthClient.addApplication(
-          any(),
-          any(),
-          any(),
-        ),
+        () => mockAuthClient.addApplication(any(), any(), any()),
       ).thenAnswer((_) async => responseDto);
 
       final result = await dataSource.addApplication(requestDto);
@@ -73,16 +73,91 @@ void main() {
       );
 
       when(
-        () => mockAuthClient.addApplication(
-          any(),
-          any(),
-          any(),
-        ),
+        () => mockAuthClient.addApplication(any(), any(), any()),
       ).thenThrow(dioException);
 
       final result = await dataSource.addApplication(requestDto);
 
       expect(result, isA<Error<ApplicationResponseDto>>());
+    });
+  });
+
+  group('AuthRemoteDataSourceImpl - getVehicleTypes', () {
+    test(
+      'returns Success with unwrapped vehicle types when API succeeds',
+      () async {
+        const vehicleList = [
+          VehicleTypeDto(id: 1, name: 'Car'),
+          VehicleTypeDto(id: 2, name: 'Motorcycle'),
+        ];
+        const responseDto = VehicleTypesResponseDto(
+          success: true,
+          message: 'Request completed successfully',
+          data: vehicleList,
+        );
+
+        when(
+          () => mockAuthClient.getVehicleTypes(),
+        ).thenAnswer((_) async => responseDto);
+
+        final result = await dataSource.getVehicleTypes();
+
+        expect(result, isA<Success<List<VehicleTypeDto>>>());
+        expect((result as Success<List<VehicleTypeDto>>).data, vehicleList);
+        verify(() => mockAuthClient.getVehicleTypes()).called(1);
+      },
+    );
+
+    test('returns Success with empty list when data is null', () async {
+      const responseDto = VehicleTypesResponseDto(
+        success: true,
+        message: 'Empty',
+        data: null,
+      );
+
+      when(
+        () => mockAuthClient.getVehicleTypes(),
+      ).thenAnswer((_) async => responseDto);
+
+      final result = await dataSource.getVehicleTypes();
+
+      expect(result, isA<Success<List<VehicleTypeDto>>>());
+      expect((result as Success<List<VehicleTypeDto>>).data, isEmpty);
+    });
+
+    test(
+      'returns Error when getVehicleTypes fails with DioException',
+      () async {
+        final dioException = DioException(
+          requestOptions: RequestOptions(path: '/api/v1/vehicle-types'),
+          error: 'Not Found',
+          type: DioExceptionType.badResponse,
+        );
+
+        when(() => mockAuthClient.getVehicleTypes()).thenThrow(dioException);
+
+        final result = await dataSource.getVehicleTypes();
+
+        expect(result, isA<Error<List<VehicleTypeDto>>>());
+      },
+    );
+  });
+
+  group('AuthRemoteDataSourceImpl - getCountries', () {
+    test('returns Success with country list when API succeeds', () async {
+      const countryList = [
+        CountryDto(isoCode: 'EG', name: 'Egypt', phoneCode: '20', flag: '🇪🇬'),
+      ];
+
+      when(
+        () => mockAuthClient.getCountries(),
+      ).thenAnswer((_) async => countryList);
+
+      final result = await dataSource.getCountries();
+
+      expect(result, isA<Success<List<CountryDto>>>());
+      expect((result as Success<List<CountryDto>>).data, countryList);
+      verify(() => mockAuthClient.getCountries()).called(1);
     });
   });
 }

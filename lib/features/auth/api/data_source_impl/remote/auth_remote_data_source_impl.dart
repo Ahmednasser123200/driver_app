@@ -27,6 +27,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       ),
     );
   }
+
   @override
   Future<BaseResponse<List<CountryDto>>> getCountries() {
     return executeApi(() => _client.getCountries());
@@ -34,6 +35,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<BaseResponse<List<VehicleTypeDto>>> getVehicleTypes() {
-    return executeApi(() => _client.getVehicleTypes());
+    return executeApi(() async {
+      final response = await _client.getVehicleTypes();
+      return response.data ?? [];
+    });
   }
 }

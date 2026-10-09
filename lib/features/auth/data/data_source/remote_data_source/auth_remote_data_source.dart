@@ -7,7 +7,8 @@ import '../../model/response/apply_response/vehicle_type_dto.dart';
 
 abstract interface class AuthRemoteDataSource {
   Future<BaseResponse<ApplicationResponseDto>> addApplication(
-      ApplicationRequestDto request);
+    ApplicationRequestDto request,
+  );
   Future<BaseResponse<List<CountryDto>>> getCountries();
   Future<BaseResponse<List<VehicleTypeDto>>> getVehicleTypes();
 }

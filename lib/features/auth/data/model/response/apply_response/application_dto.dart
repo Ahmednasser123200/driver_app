@@ -9,10 +9,7 @@ class ApplicationDto {
   @JsonKey(name: 'status')
   final String? status;
 
-  const ApplicationDto({
-    this.applicationId,
-    this.status,
-  });
+  const ApplicationDto({this.applicationId, this.status});
 
   factory ApplicationDto.fromJson(Map<String, dynamic> json) =>
       _$ApplicationDtoFromJson(json);

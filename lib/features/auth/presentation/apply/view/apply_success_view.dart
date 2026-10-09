@@ -35,11 +35,7 @@ class ApplySuccessView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   const Spacer(flex: 3),
-                  Image.asset(
-                    AppImages.checkCircle,
-                    width: 96.w,
-                    height: 96.w,
-                  ),
+                  Image.asset(AppImages.checkCircle, width: 96.w, height: 96.w),
                   SizedBox(height: 24.h),
                   Text(
                     AppStrings.applicationSubmittedTitle,
@@ -63,7 +59,7 @@ class ApplySuccessView extends StatelessWidget {
                     onPressed: () => Navigator.pushNamedAndRemoveUntil(
                       context,
                       Routes.login,
-                          (route) => false,
+                      (route) => false,
                     ),
                   ),
                   SizedBox(height: 32.h),

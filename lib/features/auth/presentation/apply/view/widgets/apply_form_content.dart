@@ -52,7 +52,7 @@ class ApplyFormContent extends StatelessWidget {
         gap,
         BlocBuilder<ApplyCubit, ApplyState>(
           buildWhen: (prev, curr) =>
-          prev.countriesStatus != curr.countriesStatus ||
+              prev.countriesStatus != curr.countriesStatus ||
               prev.selectedCountry != curr.selectedCountry,
           builder: (context, state) {
             return ApplyCountryField(
@@ -84,7 +84,7 @@ class ApplyFormContent extends StatelessWidget {
         gap,
         BlocBuilder<ApplyCubit, ApplyState>(
           buildWhen: (prev, curr) =>
-          prev.vehicleTypesStatus != curr.vehicleTypesStatus ||
+              prev.vehicleTypesStatus != curr.vehicleTypesStatus ||
               prev.selectedVehicleType != curr.selectedVehicleType,
           builder: (context, state) {
             return ApplyVehicleTypeField(

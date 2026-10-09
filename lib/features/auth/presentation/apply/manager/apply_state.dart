@@ -5,7 +5,6 @@ import '../../../domain/entities/apply_entity/country_entity.dart';
 import '../../../domain/entities/apply_entity/vehicle_type_entity.dart';
 
 class ApplyState extends Equatable {
-
   final String countryCode;
   final String firstName;
   final String secondName;

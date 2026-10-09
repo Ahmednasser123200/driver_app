@@ -20,9 +20,7 @@ class ApplyFileUploadField extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final hasFile = filePath != null && filePath!.isNotEmpty;
-    final fileName = hasFile
-        ? filePath!.split(RegExp(r'[\\/]')).last
-        : hint;
+    final fileName = hasFile ? filePath!.split(RegExp(r'[\\/]')).last : hint;
 
     return InkWell(
       borderRadius: BorderRadius.circular(4),

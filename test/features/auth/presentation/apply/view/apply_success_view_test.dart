@@ -9,6 +9,7 @@ import 'package:driver_app/features/auth/presentation/apply/view/apply_success_v
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
+
 class FakeRoute extends Fake implements Route<dynamic> {}
 
 void main() {
@@ -32,7 +33,8 @@ void main() {
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('en'),
           routes: {
-            Routes.login: (context) => const Scaffold(body: Text('Login Screen')),
+            Routes.login: (context) =>
+                const Scaffold(body: Text('Login Screen')),
           },
           home: const ApplySuccessView(),
         );

@@ -7,7 +7,7 @@ import 'package:retrofit/retrofit.dart';
 
 import '../../data/model/response/apply_response/application_response_dto.dart';
 import '../../data/model/response/apply_response/country_dto.dart';
-import '../../data/model/response/apply_response/vehicle_type_dto.dart';
+import '../../data/model/response/apply_response/vehicle_types_response_dto.dart';
 
 part 'auth_client.g.dart';
 
@@ -21,7 +21,7 @@ abstract class AuthClient {
   Future<List<CountryDto>> getCountries();
 
   @GET(ApiStrings.vehicleTypes)
-  Future<List<VehicleTypeDto>> getVehicleTypes();
+  Future<VehicleTypesResponseDto> getVehicleTypes();
 
   @POST(ApiStrings.driverApplications)
   @MultiPart()

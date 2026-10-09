@@ -7,6 +7,5 @@ class VehicleTypeEntity extends Equatable {
   const VehicleTypeEntity({required this.id, required this.name});
 
   @override
-
   List<Object?> get props => [id, name];
 }
