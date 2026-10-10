@@ -245,6 +245,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get userAddress => 'عنوان المستخدم';
 
   @override
+  String get unknown => 'غير معروف';
+
+  @override
   String get flowery => 'فلاوري';
 
   @override
@@ -471,4 +474,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get failureUnknown => 'حدث خطأ ما. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get call => 'اتصال';
+
+  @override
+  String get whatsApp => 'واتساب';
 }

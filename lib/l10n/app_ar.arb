@@ -168,5 +168,8 @@
   "failureUnprocessableEntity": "تعذر معالجة الطلب بسبب بيانات غير صالحة.",
   "failureServerError": "حدث خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.",
   "failureTooManyRequests": "طلبات كثيرة جداً. يرجى المحاولة مرة أخرى لاحقاً.",
-  "failureUnknown": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+  "failureUnknown": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+  "call": "اتصال",
+  "whatsApp": "واتساب",
+  "unknown": "غير معروف"
 }

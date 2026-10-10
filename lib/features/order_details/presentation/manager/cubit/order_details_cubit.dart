@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:driver_app/config/base/base_cubit.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
@@ -12,6 +14,7 @@ import 'package:driver_app/features/order_details/domain/usecases/report_driver_
 import 'package:driver_app/features/order_details/domain/usecases/update_order_status_use_case.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_event.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_state.dart';
+import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_ui_event.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
@@ -45,6 +48,11 @@ class OrderDetailsCubit extends BaseCubit<OrderDetailsState, BaseUiEvent> {
         );
     }
   }
+  final StreamController<ShowOrderStatusUpdated> _orderDetailsUiEvents =
+    StreamController<ShowOrderStatusUpdated>.broadcast();
+
+Stream<ShowOrderStatusUpdated> get orderDetailsUiEventStream =>
+    _orderDetailsUiEvents.stream;
 
   Future<void> _getOrderDetails(String orderId) async {
     emit(
@@ -119,9 +127,9 @@ class OrderDetailsCubit extends BaseCubit<OrderDetailsState, BaseUiEvent> {
           ),
         );
 
-        emitEvent(
-          const ShowOrderStatusUpdated(),
-        );
+       if (!_orderDetailsUiEvents.isClosed) {
+  _orderDetailsUiEvents.add(const ShowOrderStatusUpdated());
+}
 
       case Error<UpdateOrderStatusEntity>():
         emit(
@@ -191,5 +199,10 @@ class OrderDetailsCubit extends BaseCubit<OrderDetailsState, BaseUiEvent> {
         );
     }
   }
+  @override
+Future<void> close() async {
+  await _orderDetailsUiEvents.close();
+  return super.close();
+}
 }
 

@@ -33,13 +33,18 @@ class OrderDetailsRemoteDataSourceImpl implements OrderDetailsRemoteDataSource {
     String orderId,
   ) => _execute(() => _apiClient.updateOrderStatus(orderId, requestDto));
 
-  Future<BaseResponse<T>> _execute<T>(Future<T> Function() request) async {
-    try {
-      return Success<T>(await request());
-    } on DioException catch (error) {
-      return Error<T>(mapDioExceptionToAppFailure(error));
-    } catch (_) {
-      return Error<T>(const UnknownFailure());
-    }
-  }
+  
+Future<BaseResponse<T>> _execute<T>(
+  Future<T> Function() request,
+) async {
+  try {
+    return Success<T>(await request());
+  } on DioException catch (error) {
+    return Error<T>(mapDioExceptionToAppFailure(error));
+ } catch (error) {
+  return Error<T>(const UnknownFailure());
+}
+}
+
+
 }

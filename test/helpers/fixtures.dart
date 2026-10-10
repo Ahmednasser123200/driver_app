@@ -157,7 +157,15 @@ DriverOrderDetailsDto buildDriverOrderDetailsDto({
   userAddress: userAddress ?? buildUserAddressDto(),
   recipientInfo: recipientInfo ?? buildRecipientInfoDto(),
   items: items ?? [buildOrderItemDto()],
-  timeline: timeline ?? [buildTimelineDto()],
+  timeline:
+      timeline ??
+      [
+        buildTimelineDto(),
+        buildTimelineDto(
+          status: 'PickedUp',
+          timestamp: '2026-09-19T17:30:00Z',
+        ),
+      ],
 );
 
 UpdateOrderStatusResponseDto buildUpdateOrderStatusResponseDto() =>
@@ -174,51 +182,19 @@ ReportDriverLocationResponseDto buildReportDriverLocationResponseDto() =>
     );
 
 ReportDriverLocationEntity buildReportDriverLocationEntity() =>
-    ReportDriverLocationEntity(success: true, recordedAt: '2026-09-19T18:00:00Z');
+    ReportDriverLocationEntity(
+      success: true,
+      recordedAt: '2026-09-19T18:00:00Z',
+    );
 
-Map<String, dynamic> driverOrderDetailsJson() => <String, dynamic>{
-  'orderId': kOrderId,
-  'orderNumber': 'ORD-12345',
-  'status': 'PickedUp',
-  'totalPrice': 3000.0,
-  'currency': 'EGP',
-  'paymentMethod': 'COD',
-  'notes': 'Handle flowers with care',
-  'pickupAddress': <String, dynamic>{
-    'storeName': 'Flowery store',
-    'addressLine': '20th st, Sheikh Zayed, Giza',
-    'latitude': 30.0511,
-    'longitude': 31.3656,
-  },
-  'userAddress': <String, dynamic>{
-    'recipientName': 'Nour Mohamed',
-    'phone': '+201012345678',
-    'addressLine': '20th st, Sheikh Zayed, Giza',
-    'latitude': 30.0444,
-    'longitude': 31.2357,
-  },
-  'recipientInfo': <String, dynamic>{
-    'isGift': true,
-    'recipientName': 'Sara',
-    'recipientPhone': '+201012345678',
-  },
-  'items': <Map<String, dynamic>>[
-    <String, dynamic>{
-      'productId': '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-      'productName': 'Red Roses Bouquet',
-      'quantity': 2,
-      'unitPrice': 1500.0,
-      'imageUrl': 'https://example.com/rose.png',
-    },
-  ],
-  'timeline': <Map<String, dynamic>>[
-    <String, dynamic>{
-      'status': 'Placed',
-      'timestamp': '2026-09-19T17:00:00Z',
-    },
-    <String, dynamic>{
-      'status': 'PickedUp',
-      'timestamp': '2026-09-19T17:30:00Z',
-    },
-  ],
-};
+Map<String, dynamic> driverOrderDetailsJson() {
+  final dto = buildDriverOrderDetailsDto();
+  final json = dto.toJson()
+    ..['pickupAddress'] = dto.pickupAddress.toJson()
+    ..['userAddress'] = dto.userAddress.toJson()
+    ..['recipientInfo'] = dto.recipientInfo.toJson()
+    ..['items'] = dto.items.map((item) => item.toJson()).toList()
+    ..['timeline'] = dto.timeline.map((entry) => entry.toJson()).toList();
+
+  return json;
+}

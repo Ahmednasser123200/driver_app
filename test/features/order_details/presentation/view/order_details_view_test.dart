@@ -87,15 +87,15 @@ void main() {
   }
 
   void mockSuccess() {
-    when(() => getOrderDetails.execute(any())).thenAnswer(
-      (_) async => Success(buildDriverOrderDetailsEntity()),
-    );
+    when(
+      () => getOrderDetails.execute(any()),
+    ).thenAnswer((_) async => Success(buildDriverOrderDetailsEntity()));
   }
 
   void mockFailure([AppFailure failure = const NotFoundFailure()]) {
-    when(() => getOrderDetails.execute(any())).thenAnswer(
-      (_) async => Error<DriverOrderDetailsEntity>(failure),
-    );
+    when(
+      () => getOrderDetails.execute(any()),
+    ).thenAnswer((_) async => Error<DriverOrderDetailsEntity>(failure));
   }
 
   group('initial load', () {
@@ -147,8 +147,8 @@ void main() {
       await pumpView(tester);
       await tester.pumpAndSettle();
 
-      expect(find.text('status: PickedUp'), findsOneWidget);
-      expect(find.text('Order ID: ORD-12345'), findsOneWidget);
+      expect(find.text('PickedUp'), findsOneWidget);
+      expect(find.text('ORD-12345'), findsOneWidget);
     });
 
     testWidgets('uses the last timeline timestamp as the header date', (
@@ -200,7 +200,7 @@ void main() {
       await pumpView(tester);
       await tester.pumpAndSettle();
 
-      expect(find.text('Payment Method'), findsOneWidget);
+      expect(find.text('Payment method'), findsOneWidget);
       expect(find.text('COD'), findsOneWidget);
     });
 
@@ -212,15 +212,14 @@ void main() {
 
       expect(find.byType(StepProgressIndicator), findsOneWidget);
       expect(
-        tester.widget<StepProgressIndicator>(find.byType(StepProgressIndicator))
+        tester
+            .widget<StepProgressIndicator>(find.byType(StepProgressIndicator))
             .currentStep,
         1,
       );
     });
 
-    testWidgets('renders the localized start delivery action', (
-      tester,
-    ) async {
+    testWidgets('renders the localized start delivery action', (tester) async {
       await pumpView(tester);
       await tester.pumpAndSettle();
 
@@ -238,7 +237,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.error_outline), findsOneWidget);
-      expect(find.text('Something went wrong. Please try again.'), findsOneWidget);
+      expect(
+        find.text('Something went wrong. Please try again.'),
+        findsOneWidget,
+      );
       expect(find.text('Continue'), findsOneWidget);
       expect(find.text('Order ID: #abc-123'), findsNothing);
     });
@@ -268,7 +270,7 @@ void main() {
       await tester.pumpAndSettle();
 
       verify(() => getOrderDetails.execute(kOrderId)).called(1);
-      expect(find.text('Order ID: ORD-12345'), findsOneWidget);
+      expect(find.text('ORD-12345'), findsOneWidget);
       expect(find.byIcon(Icons.error_outline), findsNothing);
     });
   });
@@ -276,9 +278,9 @@ void main() {
   group('start delivery action', () {
     setUp(() {
       mockSuccess();
-      when(() => updateOrderStatus.execute(any())).thenAnswer(
-        (_) async => Success(buildUpdateOrderStatusEntity()),
-      );
+      when(
+        () => updateOrderStatus.execute(any()),
+      ).thenAnswer((_) async => Success(buildUpdateOrderStatusEntity()));
     });
 
     testWidgets('updates the status to OnTheWay when tapped', (tester) async {
@@ -352,24 +354,37 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        tester.widget<StepProgressIndicator>(find.byType(StepProgressIndicator))
+        tester
+            .widget<StepProgressIndicator>(find.byType(StepProgressIndicator))
             .currentStep,
         expectedStep,
       );
     }
 
-    testWidgets('maps picked_up to step 4', (t) =>
-        expectStepFor(t, 'picked_up', 4));
-    testWidgets('maps delivered to step 5', (t) =>
-        expectStepFor(t, 'delivered', 5));
-    testWidgets('maps on_the_way to step 3', (t) =>
-        expectStepFor(t, 'on_the_way', 3));
-    testWidgets('maps accepted to step 2', (t) =>
-        expectStepFor(t, 'accepted', 2));
-    testWidgets('maps pending to step 1', (t) =>
-        expectStepFor(t, 'pending', 1));
-    testWidgets('falls back to step 1 for an unknown status', (t) =>
-        expectStepFor(t, 'something-else', 1));
+    testWidgets(
+      'maps picked_up to step 4',
+      (t) => expectStepFor(t, 'picked_up', 4),
+    );
+    testWidgets(
+      'maps delivered to step 5',
+      (t) => expectStepFor(t, 'delivered', 5),
+    );
+    testWidgets(
+      'maps on_the_way to step 3',
+      (t) => expectStepFor(t, 'on_the_way', 3),
+    );
+    testWidgets(
+      'maps accepted to step 2',
+      (t) => expectStepFor(t, 'accepted', 2),
+    );
+    testWidgets(
+      'maps pending to step 1',
+      (t) => expectStepFor(t, 'pending', 1),
+    );
+    testWidgets(
+      'falls back to step 1 for an unknown status',
+      (t) => expectStepFor(t, 'something-else', 1),
+    );
   });
 
   group('localized status label', () {
@@ -385,16 +400,24 @@ void main() {
       await pumpView(tester);
       await tester.pumpAndSettle();
 
-      expect(find.text('status: $expected'), findsOneWidget);
+      expect(find.text(expected), findsOneWidget);
     }
 
-    testWidgets('localizes picked_up', (t) =>
-        expectLabel(t, 'picked_up', 'Picked'));
-    testWidgets('localizes on_the_way', (t) =>
-        expectLabel(t, 'on_the_way', 'Out for delivery'));
-    testWidgets('localizes delivered', (t) =>
-        expectLabel(t, 'delivered', 'Delivered'));
-    testWidgets('falls back to the raw status for unknown values', (t) =>
-        expectLabel(t, 'mystery', 'mystery'));
+    testWidgets(
+      'localizes picked_up',
+      (t) => expectLabel(t, 'picked_up', 'Picked'),
+    );
+    testWidgets(
+      'localizes on_the_way',
+      (t) => expectLabel(t, 'on_the_way', 'Out for delivery'),
+    );
+    testWidgets(
+      'localizes delivered',
+      (t) => expectLabel(t, 'delivered', 'Delivered'),
+    );
+    testWidgets(
+      'falls back to the raw status for unknown values',
+      (t) => expectLabel(t, 'mystery', 'mystery'),
+    );
   });
 }

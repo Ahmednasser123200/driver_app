@@ -5,8 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../helpers/widget_harness.dart';
 
 void main() {
-  Widget subject({Widget child = const SizedBox.shrink()}) =>
-      wrapWidget(child);
+  Widget subject({Widget child = const SizedBox.shrink()}) => wrapWidget(child);
 
   group('variants', () {
     testWidgets('filled variant builds an ElevatedButton', (tester) async {
@@ -42,13 +41,12 @@ void main() {
       expect(find.text('Confirm order'), findsOneWidget);
     });
 
-    testWidgets('renders the icon before the label when provided', (tester) async {
+    testWidgets('renders the icon before the label when provided', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         subject(
-          child: const CustomButton(
-            label: 'Call',
-            icon: Icon(Icons.phone),
-          ),
+          child: CustomButton(label: 'Call', icon: const Icon(Icons.phone)),
         ),
       );
 
@@ -57,7 +55,9 @@ void main() {
     });
 
     testWidgets('renders no icon by default', (tester) async {
-      await tester.pumpWidget(subject(child: const CustomButton(label: 'Call')));
+      await tester.pumpWidget(
+        subject(child: const CustomButton(label: 'Call')),
+      );
 
       expect(find.byIcon(Icons.phone), findsNothing);
     });
@@ -79,7 +79,9 @@ void main() {
     });
 
     testWidgets('does nothing when onPressed is null', (tester) async {
-      await tester.pumpWidget(subject(child: const CustomButton(label: 'Confirm')));
+      await tester.pumpWidget(
+        subject(child: const CustomButton(label: 'Confirm')),
+      );
 
       await tester.tap(find.text('Confirm'));
       await tester.pump();
@@ -111,7 +113,9 @@ void main() {
   });
 
   group('loading state', () {
-    testWidgets('shows a progress indicator instead of the label', (tester) async {
+    testWidgets('shows a progress indicator instead of the label', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         subject(child: const CustomButton(label: 'Confirm', isLoading: true)),
       );
@@ -175,7 +179,9 @@ void main() {
   });
 
   group('sizing', () {
-    testWidgets('uses the custom width and height when provided', (tester) async {
+    testWidgets('uses the custom width and height when provided', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         subject(
           child: const CustomButton(label: 'Confirm', width: 300, height: 60),
@@ -196,7 +202,9 @@ void main() {
     });
 
     testWidgets('falls back to the design defaults', (tester) async {
-      await tester.pumpWidget(subject(child: const CustomButton(label: 'Confirm')));
+      await tester.pumpWidget(
+        subject(child: const CustomButton(label: 'Confirm')),
+      );
 
       final box = tester.widget<SizedBox>(
         find

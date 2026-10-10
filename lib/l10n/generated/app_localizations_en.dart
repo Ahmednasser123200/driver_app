@@ -244,6 +244,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userAddress => 'User address';
 
   @override
+  String get unknown => 'Unknown';
+
+  @override
   String get flowery => 'Flowery';
 
   @override
@@ -476,4 +479,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failureUnknown => 'Something went wrong. Please try again.';
+
+  @override
+  String get call => 'Call';
+
+  @override
+  String get whatsApp => 'WhatsApp';
 }

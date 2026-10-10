@@ -142,6 +142,8 @@ abstract class ApiStrings {
   // Driver Orders
   // =========================
 
+  static const String orderIdPath = 'orderId';
+
   static const String availableOrders = '/order/drivers/available-orders';
 
   static String acceptOrder(String orderId) =>
@@ -152,12 +154,13 @@ abstract class ApiStrings {
   static const String driverOrderHistory = '/order/drivers/me/orders';
 
   static const String driverOrderDetailsRoute =
-      '/order/drivers/me/orders/{orderId}';
+      '/order/drivers/me/orders/{$orderIdPath}';
 
   static String driverOrderDetails(String orderId) =>
       '/order/drivers/me/orders/$orderId';
 
-  static const String updateOrderStatusRoute = '/order/orders/{orderId}/status';
+  static const String updateOrderStatusRoute =
+      '/order/orders/{$orderIdPath}/status';
 
   static String updateOrderStatus(String orderId) =>
       '/order/orders/$orderId/status';

@@ -29,6 +29,3 @@ class ShowFailureMessage extends BaseUiEvent {
 
   const ShowFailureMessage(this.failure);
 }
-class ShowOrderStatusUpdated extends BaseUiEvent {
-  const ShowOrderStatusUpdated();
-}

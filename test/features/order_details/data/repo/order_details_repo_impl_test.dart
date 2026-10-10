@@ -4,6 +4,9 @@ import 'package:driver_app/features/order_details/data/datasources/order_details
 import 'package:driver_app/features/order_details/data/dtos/requests/report_driver_location_request_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/requests/update_order_status_request_dto.dart';
 import 'package:driver_app/features/order_details/data/repo/order_details_repo_impl.dart';
+import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
+import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
+import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
 import 'package:driver_app/features/order_details/domain/params/report_driver_location_params.dart';
 import 'package:driver_app/features/order_details/domain/params/update_order_status_params.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -38,10 +41,8 @@ void main() {
 
       final result = await repository.getOrderDetails(kOrderId);
 
-      expect(result, isA<Success>());
-      final entity = (result as Success<dynamic>).data;
-      expect(entity, isA<dynamic>());
-      final details = entity as dynamic;
+      expect(result, isA<Success<DriverOrderDetailsEntity>>());
+      final details = (result as Success<DriverOrderDetailsEntity>).data;
       expect(details.orderId, kOrderId);
       expect(details.orderNumber, 'ORD-12345');
       expect(details.status, 'PickedUp');
@@ -56,8 +57,9 @@ void main() {
       expect(details.items, hasLength(1));
       expect(details.items.first.productName, 'Red Roses Bouquet');
       expect(details.items.first.quantity, 2);
-      expect(details.timeline, hasLength(1));
+      expect(details.timeline, hasLength(2));
       expect(details.timeline.first.status, 'Placed');
+      expect(details.timeline.last.status, 'PickedUp');
     });
 
     test('forwards the orderId to the data source', () async {
@@ -78,7 +80,10 @@ void main() {
       final result = await repository.getOrderDetails(kOrderId);
 
       expect(result, isA<Error>());
-      expect((result as Error<dynamic>).failure, isA<NotFoundFailure>());
+      expect(
+        (result as Error<DriverOrderDetailsEntity>).failure,
+        isA<NotFoundFailure>(),
+      );
     });
   });
 
@@ -96,8 +101,8 @@ void main() {
         ),
       );
 
-      expect(result, isA<Success>());
-      final entity = (result as Success<dynamic>).data as dynamic;
+      expect(result, isA<Success<ReportDriverLocationEntity>>());
+      final entity = (result as Success<ReportDriverLocationEntity>).data;
       expect(entity.success, isTrue);
       expect(entity.recordedAt, '2026-09-19T18:00:00Z');
 
@@ -141,7 +146,7 @@ void main() {
 
       expect(result, isA<Error>());
       expect(
-        (result as Error<dynamic>).failure,
+        (result as Error<ReportDriverLocationEntity>).failure,
         isA<InternetConnectionFailure>(),
       );
     });
@@ -160,8 +165,8 @@ void main() {
         ),
       );
 
-      expect(result, isA<Success>());
-      final entity = (result as Success<dynamic>).data as dynamic;
+      expect(result, isA<Success<UpdateOrderStatusEntity>>());
+      final entity = (result as Success<UpdateOrderStatusEntity>).data;
       expect(entity.orderId, kOrderId);
       expect(entity.status, 'PickedUp');
       expect(entity.updatedAt, '2026-09-19T18:00:00Z');
@@ -192,7 +197,7 @@ void main() {
 
       expect(result, isA<Error>());
       expect(
-        (result as Error<dynamic>).failure,
+        (result as Error<UpdateOrderStatusEntity>).failure,
         isA<ConflictFailure>().having(
           (f) => f.serverMessage,
           'serverMessage',

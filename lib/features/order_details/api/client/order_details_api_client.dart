@@ -22,12 +22,12 @@ abstract class OrderDetailsApiClient {
 
   @GET(ApiStrings.driverOrderDetailsRoute)
   Future<DriverOrderDetailsDto> getOrderDetails(
-    @Path('orderId') String orderId,
+    @Path(ApiStrings.orderIdPath) String orderId,
   );
 
   @PATCH(ApiStrings.updateOrderStatusRoute)
   Future<UpdateOrderStatusResponseDto> updateOrderStatus(
-    @Path('orderId') String orderId,
+    @Path(ApiStrings.orderIdPath) String orderId,
     @Body() UpdateOrderStatusRequestDto request,
   );
 
@@ -36,5 +36,4 @@ abstract class OrderDetailsApiClient {
     @Body() ReportDriverLocationRequestDto request,
   );
 }
-
 

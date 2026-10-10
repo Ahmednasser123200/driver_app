@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../../l10n/generated/app_localizations.dart';
+
 class UserAddressCard extends StatelessWidget {
   const UserAddressCard({
     super.key,
@@ -21,8 +23,9 @@ class UserAddressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = userName.trim().isEmpty ? 'Unknown' : userName;
-    final displayAddress = address.trim().isEmpty ? 'Unknown' : address;
+    final l10n = AppLocalizations.of(context)!;
+    final displayName = userName.trim().isEmpty ? l10n.unknown : userName;
+    final displayAddress = address.trim().isEmpty ? l10n.unknown : address;
 
     return Container(
       width: 365.w,
@@ -77,19 +80,18 @@ class UserAddressCard extends StatelessWidget {
           ),
           SizedBox(width: 5.w),
           IconButton(
-            tooltip: 'Call',
+            tooltip: l10n.call,
             icon: const Icon(Icons.call, color: AppColors.primary),
             onPressed: onCallPressed,
           ),
           IconButton(
-            tooltip: 'WhatsApp',
+            tooltip: l10n.whatsApp,
             icon: const FaIcon(
               FontAwesomeIcons.whatsapp,
               color: AppColors.primary,
             ),
             onPressed: onWhatsAppPressed,
           ),
-          SizedBox(width: 0.w),
         ],
       ),
     );

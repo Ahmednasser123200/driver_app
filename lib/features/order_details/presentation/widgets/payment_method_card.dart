@@ -28,7 +28,6 @@ class PaymentMethodCard extends StatelessWidget {
             title,
             style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 4.h),
           Text(
             method,
             style: TextStyle(fontSize: 14.sp, color: AppColors.grey[600]),

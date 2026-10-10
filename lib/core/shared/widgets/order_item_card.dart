@@ -1,4 +1,6 @@
+import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
+import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
@@ -19,7 +21,7 @@ class OrderItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayProductName = productName.trim().isEmpty
-        ? 'Unknown'
+        ? AppStrings.Unknown
         : productName;
     final displayPrice = price.trim().isEmpty ? 'Unknown' : price;
     final displayQuantity = quantity <= 0 ? 0 : quantity;

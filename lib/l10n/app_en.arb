@@ -88,6 +88,7 @@
 
   "pickupAddress": "Pickup address",
   "userAddress": "User address",
+  "unknown": "Unknown",
   "flowery": "Flowery",
   "floweryStore": "Flowery store",
   "address": "20th st, Sheikh Zayed, Giza",
@@ -168,5 +169,8 @@
   "failureUnprocessableEntity": "Unable to process the request due to invalid data.",
   "failureServerError": "Something went wrong on our server. Please try again later.",
   "failureTooManyRequests": "Too many requests. Please try again later.",
-  "failureUnknown": "Something went wrong. Please try again."
+  "failureUnknown": "Something went wrong. Please try again.",
+  "call": "Call",
+  "whatsApp": "WhatsApp"
+
 }

@@ -1,6 +1,7 @@
+import 'dart:async';
+
 import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
-import 'package:driver_app/config/localization/app_failure_message_mapper.dart';
 import 'package:driver_app/core/shared/widgets/base_ui_event_listener.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
 import 'package:driver_app/core/shared/widgets/order_item_card.dart';
@@ -19,6 +20,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 
+import '../manager/cubit/order_details_ui_event.dart';
+
 class OrderDetailsView extends StatefulWidget {
   final String orderId;
 
@@ -29,6 +32,9 @@ class OrderDetailsView extends StatefulWidget {
 }
 
 class _OrderDetailsViewState extends State<OrderDetailsView> {
+    StreamSubscription<ShowOrderStatusUpdated>? _uiEventSubscription;
+
+  
   @override
   void initState() {
     super.initState();
@@ -37,6 +43,32 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
       GetDriverOrderDetailsEvent(orderId: widget.orderId),
     );
   }
+  @override
+void didChangeDependencies() {
+  super.didChangeDependencies();
+
+  _uiEventSubscription ??= context
+      .read<OrderDetailsCubit>()
+      .orderDetailsUiEventStream
+      .listen((event) {
+    if (!mounted) return;
+
+    final l10n = AppLocalizations.of(context)!;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.orderStatusUpdatedSuccessfully),
+        backgroundColor: Colors.green,
+      ),
+    );
+  });
+}
+
+@override
+void dispose() {
+  _uiEventSubscription?.cancel();
+  super.dispose();
+}
 
   int _statusStep(String? status) {
     switch (status?.toLowerCase()) {
@@ -86,6 +118,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
         return status ?? l10n.accepted;
     }
   }
+  
 
   String _currencyLabel(String? currency) {
     final value = currency ?? '\$';
@@ -95,32 +128,13 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
         : '$value ';
   }
 
-  void _handleCustomUiEvent(BuildContext context, BaseUiEvent event) {
-    final l10n = AppLocalizations.of(context)!;
-
-    switch (event) {
-      case ShowFailureMessage(:final failure):
-        final message = mapAppFailureToMessage(failure, l10n);
-
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
-
-      case ShowOrderStatusUpdated():
-        break;
-
-      default:
-        break;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return BaseUiEventListener<
       OrderDetailsCubit,
       OrderDetailsState,
       BaseUiEvent
-    >(onCustomEvent: _handleCustomUiEvent, child: _buildOrderDetails(context));
+    >(child: _buildOrderDetails(context));
   }
 
   Widget _buildOrderDetails(BuildContext context) {
