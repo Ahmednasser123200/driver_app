@@ -1,4 +1,8 @@
+import 'package:driver_app/config/di/di.dart';
+import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
+import 'package:driver_app/features/order_details/presentation/view/order_details_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'routes.dart';
 
@@ -52,10 +56,25 @@ abstract final class AppRoutes {
           builder: (_) => const _StubScreen('Orders'),
         );
       case Routes.orderDetails:
-        return MaterialPageRoute(
-          settings: settings,
-          builder: (_) => const _StubScreen('Order Details'),
-        );
+  final arguments = settings.arguments;
+
+  if (arguments is! String || arguments.isEmpty) {
+    return MaterialPageRoute(
+      settings: settings,
+      builder: (_) => const _StubScreen('Invalid Order ID'),
+    );
+  }
+
+  final orderId = arguments;
+
+  return MaterialPageRoute(
+    settings: settings,
+    builder: (_) => BlocProvider(
+      create: (_) => getIt<OrderDetailsCubit>(),
+      child: OrderDetailsView(orderId: orderId),
+    ),
+  
+);
       case Routes.tracking:
         return MaterialPageRoute(
           settings: settings,

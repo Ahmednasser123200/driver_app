@@ -560,6 +560,12 @@ abstract class AppLocalizations {
   /// **'User address'**
   String get userAddress;
 
+  /// No description provided for @unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get unknown;
+
   /// No description provided for @flowery.
   ///
   /// In en, this message translates to:
@@ -1003,6 +1009,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get failureUnknown;
+
+  /// No description provided for @call.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get call;
+
+  /// No description provided for @whatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get whatsApp;
 }
 
 class _AppLocalizationsDelegate

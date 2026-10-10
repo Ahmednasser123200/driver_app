@@ -11,10 +11,8 @@ abstract class BaseCubit<State, UiEvent extends BaseUiEvent>
   final StreamController<UiEvent> _uiEventController =
       StreamController<UiEvent>.broadcast();
 
-  /// الـ Stream اللي الـ UI بيسمع عليه
   Stream<UiEvent> get uiEventStream => _uiEventController.stream;
 
-  /// دالة موحدة لإرسال الحدث إلى الـ UI
   void emitEvent(UiEvent event) {
     if (_uiEventController.isClosed) return;
     _uiEventController.add(event);

@@ -1,3 +1,5 @@
+import 'package:driver_app/config/errors/app_failure.dart';
+
 sealed class BaseUiEvent {
   const BaseUiEvent();
 }
@@ -21,4 +23,9 @@ class NavigateTo extends BaseUiEvent {
 class PopRoute extends BaseUiEvent {
   final Object? result;
   const PopRoute([this.result]);
+}
+class ShowFailureMessage extends BaseUiEvent {
+  final AppFailure failure;
+
+  const ShowFailureMessage(this.failure);
 }

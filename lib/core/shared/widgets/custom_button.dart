@@ -60,6 +60,9 @@ class CustomButton extends StatelessWidget {
             )
           : ElevatedButton(
               onPressed: _canPress ? onPressed : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+              ),
               child: child,
             ),
     );
