@@ -80,6 +80,33 @@ class AppLocalizationsAr extends AppLocalizations {
   String get invalidCode => 'رمز غير صالح';
 
   @override
+  String resendInSeconds(Object seconds) {
+    return 'إعادة الإرسال خلال $seconds ث';
+  }
+
+  @override
+  String get resendAvailable => 'إعادة الإرسال الآن';
+
+  @override
+  String otpAttemptsRemaining(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count محاولة متبقية',
+      few: '$count محاولات متبقية',
+      two: 'محاولتان متبقيتان',
+      one: 'محاولة واحدة متبقية',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get otpMaxAttemptsReached => 'تم إدخال رموز خاطئة كثيرة.';
+
+  @override
+  String get requestNewCode => 'طلب رمز جديد';
+
+  @override
   String get resetPasswordTitle => 'إعادة تعيين كلمة المرور';
 
   @override
@@ -466,9 +493,18 @@ class AppLocalizationsAr extends AppLocalizations {
       'حدث خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.';
 
   @override
+  String get loginSuccess => 'تم تسجيل الدخول بنجاح';
+
+  @override
+  String get notDriverAccount => 'هذا الحساب غير مسجل كسائق في النظام.';
+
+  @override
   String get failureTooManyRequests =>
       'طلبات كثيرة جداً. يرجى المحاولة مرة أخرى لاحقاً.';
 
   @override
   String get failureUnknown => 'حدث خطأ ما. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get badResponse => 'استجابة غير صالحة من الخادم.';
 }

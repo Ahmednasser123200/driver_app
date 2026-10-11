@@ -1,3 +1,5 @@
+import 'package:driver_app/core/services/token_storage_service.dart';
+import 'package:driver_app/features/auth/api/service/secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:driver_app/config/base/base_response.dart';
@@ -9,6 +11,10 @@ import 'package:driver_app/features/auth/data/repo_impl/auth_repo_impl.dart';
 import 'package:driver_app/features/auth/domain/entities/apply_entity/applications_entity.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
+
+class MockTokenStorageService extends Mock implements TokenStorageService {}
+
+class MockSecureStorageService extends Mock implements SecureStorageService {}
 
 class FakeApplicationRequestDto extends Fake implements ApplicationRequestDto {}
 
@@ -22,7 +28,11 @@ void main() {
 
   setUp(() {
     mockRemoteDataSource = MockAuthRemoteDataSource();
-    repoImpl = AuthRepoImpl(mockRemoteDataSource);
+    repoImpl = AuthRepoImpl(
+      mockRemoteDataSource,
+      MockTokenStorageService(),
+      MockSecureStorageService(),
+    );
   });
 
   group('AuthRepoImpl - addApplication', () {

@@ -28,6 +28,11 @@
   "didntReceiveCode": "Didn''t receive code?",
   "resend": "Resend",
   "invalidCode": "Invalid code",
+  "resendInSeconds": "Resend in {seconds}s",
+  "resendAvailable": "Resend now",
+  "otpAttemptsRemaining": "{count, plural, =1{1 attempt remaining} other{{count} attempts remaining}}",
+  "otpMaxAttemptsReached": "Too many incorrect codes entered.",
+  "requestNewCode": "Request a new code",
 
   "resetPasswordTitle": "Reset password",
   "resetPasswordDescription": "Password must not be empty and must contain 6 characters with upper case letter and one number at least",
@@ -167,6 +172,9 @@
   "failureConflict": "A conflict occurred with the current state of the resource.",
   "failureUnprocessableEntity": "Unable to process the request due to invalid data.",
   "failureServerError": "Something went wrong on our server. Please try again later.",
+  "loginSuccess": "Logged in successfully",
+  "notDriverAccount": "This account is not registered as a driver in the system.",
   "failureTooManyRequests": "Too many requests. Please try again later.",
-  "failureUnknown": "Something went wrong. Please try again."
+  "failureUnknown": "Something went wrong. Please try again.",
+  "badResponse": "Invalid response received from the server."
 }

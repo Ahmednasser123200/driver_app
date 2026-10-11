@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:driver_app/config/base/base_response.dart';
+import 'package:driver_app/features/auth/api/client/auth_api_client.dart';
 import 'package:driver_app/features/auth/api/client/auth_client.dart';
 import 'package:driver_app/features/auth/api/data_source_impl/remote/auth_remote_data_source_impl.dart';
 import 'package:driver_app/features/auth/data/model/request/apply_request/application_request_dto.dart';
@@ -15,6 +16,8 @@ import 'package:driver_app/features/auth/data/model/response/apply_response/vehi
 
 class MockAuthClient extends Mock implements AuthClient {}
 
+class MockAuthApiClient extends Mock implements AuthApiClient {}
+
 void main() {
   late MockAuthClient mockAuthClient;
   late AuthRemoteDataSourceImpl dataSource;
@@ -25,7 +28,7 @@ void main() {
 
   setUp(() {
     mockAuthClient = MockAuthClient();
-    dataSource = AuthRemoteDataSourceImpl(mockAuthClient);
+    dataSource = AuthRemoteDataSourceImpl(mockAuthClient, MockAuthApiClient());
   });
 
   group('AuthRemoteDataSourceImpl - addApplication', () {

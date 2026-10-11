@@ -105,40 +105,36 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         SizedBox(height: 8.h),
         ValueListenableBuilder<bool>(
           valueListenable: _obscureText,
-          builder: (context, obscure, _) {
+          builder: (context, isObscured, _) {
             return TextFormField(
               controller: _effectiveController,
               validator: widget.validator == null
                   ? null
-                  : (value) => mapValidationErrorToMessage(
-                      widget.validator!(value),
-                      l10n,
-                    ),
-              obscureText: obscure,
+                  : (value) =>
+                      mapValidationErrorToMessage(widget.validator!(value), l10n),
+              obscureText: isObscured,
               enabled: widget.enabled,
               keyboardType: widget.keyboardType,
               textInputAction: widget.textInputAction,
               inputFormatters: widget.inputFormatters,
               onChanged: widget.onChanged,
-              maxLines: obscure ? 1 : widget.maxLines,
+              maxLines: isObscured ? 1 : widget.maxLines,
               focusNode: widget.focusNode,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: AppColors.black,
-              ),
+              style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.black),
               decoration: InputDecoration(
                 hintText: widget.hint,
                 prefixIcon: widget.prefixIcon,
                 suffixIcon: widget.obscureText && widget.suffixIcon == null
                     ? IconButton(
                         icon: Icon(
-                          obscure
+                          isObscured
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
                           color: AppColors.grey.shade400,
                           size: 20.w,
                         ),
                         onPressed: () {
-                          _obscureText.value = !obscure;
+                          _obscureText.value = !_obscureText.value;
                         },
                       )
                     : widget.suffixIcon,

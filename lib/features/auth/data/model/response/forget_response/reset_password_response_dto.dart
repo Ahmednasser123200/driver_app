@@ -1,0 +1,54 @@
+import 'package:json_annotation/json_annotation.dart';
+
+import '../../../../domain/entities/forget_entity/reset_passsword_entity.dart';
+part 'reset_password_response_dto.g.dart';
+
+@JsonSerializable()
+class ResetPasswordResponseDto {
+  @JsonKey(name: 'data')
+  final String data;
+  @JsonKey(name: 'message')
+  final String message;
+  @JsonKey(name: 'errorCode')
+  final String errorCode;
+  @JsonKey(name: 'isSuccess', defaultValue: false)
+  final bool isSuccess;
+
+  ResetPasswordEntity toDomain() {
+    return ResetPasswordEntity(isSuccess: isSuccess, message: message);
+  }
+
+  ResetPasswordResponseDto({
+    required this.data,
+    required this.message,
+    required this.errorCode,
+    required this.isSuccess,
+  });
+
+  factory ResetPasswordResponseDto.fromJson(Map<String, dynamic> json) {
+    if (json.containsKey('value')) {
+      final value = json['value'];
+      final message = value is Map
+          ? (value['message']?.toString() ?? '')
+          : value?.toString() ?? '';
+      return ResetPasswordResponseDto(
+        data: message,
+        message: message,
+        errorCode: json['error']?.toString() ?? '0',
+        isSuccess: json['isSuccess'] == true,
+      );
+    }
+    if (json.containsKey('message') && !json.containsKey('data')) {
+      final message = json['message']?.toString() ?? '';
+      return ResetPasswordResponseDto(
+        data: message,
+        message: message,
+        errorCode: json['error']?.toString() ?? '0',
+        isSuccess: json['isSuccess'] == true,
+      );
+    }
+    return _$ResetPasswordResponseDtoFromJson(json);
+  }
+
+  Map<String, dynamic> toJson() => _$ResetPasswordResponseDtoToJson(this);
+}

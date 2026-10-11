@@ -28,6 +28,11 @@
   "didntReceiveCode": "لم يصلك الرمز؟",
   "resend": "إعادة الإرسال",
   "invalidCode": "رمز غير صالح",
+  "resendInSeconds": "إعادة الإرسال خلال {seconds} ث",
+  "resendAvailable": "إعادة الإرسال الآن",
+  "otpAttemptsRemaining": "{count, plural, =1{محاولة واحدة متبقية} =2{محاولتان متبقيتان} few{{count} محاولات متبقية} other{{count} محاولة متبقية}}",
+  "otpMaxAttemptsReached": "تم إدخال رموز خاطئة كثيرة.",
+  "requestNewCode": "طلب رمز جديد",
 
   "resetPasswordTitle": "إعادة تعيين كلمة المرور",
   "resetPasswordDescription": "يجب ألا تكون كلمة المرور فارغة وأن تحتوي على 6 أحرف على الأقل مع حرف كبير ورقم واحد على الأقل",
@@ -167,6 +172,9 @@
   "failureConflict": "حدث تعارض مع الحالة الحالية للمورد.",
   "failureUnprocessableEntity": "تعذر معالجة الطلب بسبب بيانات غير صالحة.",
   "failureServerError": "حدث خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.",
+  "loginSuccess": "تم تسجيل الدخول بنجاح",
+  "notDriverAccount": "هذا الحساب غير مسجل كسائق في النظام.",
   "failureTooManyRequests": "طلبات كثيرة جداً. يرجى المحاولة مرة أخرى لاحقاً.",
-  "failureUnknown": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+  "failureUnknown": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+  "badResponse": "استجابة غير صالحة من الخادم."
 }

@@ -236,6 +236,36 @@ abstract class AppLocalizations {
   /// **'Invalid code'**
   String get invalidCode;
 
+  /// No description provided for @resendInSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend in {seconds}s'**
+  String resendInSeconds(Object seconds);
+
+  /// No description provided for @resendAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend now'**
+  String get resendAvailable;
+
+  /// No description provided for @otpAttemptsRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 attempt remaining} other{{count} attempts remaining}}'**
+  String otpAttemptsRemaining(num count);
+
+  /// No description provided for @otpMaxAttemptsReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many incorrect codes entered.'**
+  String get otpMaxAttemptsReached;
+
+  /// No description provided for @requestNewCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Request a new code'**
+  String get requestNewCode;
+
   /// No description provided for @resetPasswordTitle.
   ///
   /// In en, this message translates to:
@@ -992,6 +1022,18 @@ abstract class AppLocalizations {
   /// **'Something went wrong on our server. Please try again later.'**
   String get failureServerError;
 
+  /// No description provided for @loginSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged in successfully'**
+  String get loginSuccess;
+
+  /// No description provided for @notDriverAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is not registered as a driver in the system.'**
+  String get notDriverAccount;
+
   /// No description provided for @failureTooManyRequests.
   ///
   /// In en, this message translates to:
@@ -1003,6 +1045,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get failureUnknown;
+
+  /// No description provided for @badResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid response received from the server.'**
+  String get badResponse;
 }
 
 class _AppLocalizationsDelegate

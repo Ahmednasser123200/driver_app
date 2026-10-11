@@ -14,10 +14,15 @@ abstract final class AppColors {
     900: Color(0xFF522032),
   });
 
+  static const Color pinkBase = Color(0xFFD21E6A);
+
   static const Color secondary = Color(0xFFFFB655);
 
   static const Color black = Color(0xFF0C1015);
   static const Color white = Color(0xFFFFFFFF);
+  static const Color whiteBase = Color(0xFFFFFFFF);
+  static const Color white60 = Color(0x99FFFFFF);
+  static const Color white50 = Color(0x80FFFFFF);
 
   static const Color background = Color(0xFFF9F9F9);
   static const Color surface = Color(0xFFFFFFFF);
