@@ -1,5 +1,4 @@
 import 'package:driver_app/features/auth/api/client/auth_api_client.dart';
-import 'package:driver_app/features/auth/api/client/auth_client.dart';
 import 'package:driver_app/features/auth/api/data_source_impl/remote/auth_remote_data_source_impl.dart';
 import 'package:driver_app/features/auth/data/model/data_dto.dart';
 import 'package:driver_app/features/auth/data/model/request/login_request/login_request.dart';
@@ -8,8 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAuthApiClient extends Mock implements AuthApiClient {}
-
-class MockAuthClient extends Mock implements AuthClient {}
 
 class FakeLoginRequest extends Fake implements LoginRequest {}
 
@@ -23,10 +20,7 @@ void main() {
 
   setUp(() {
     mockAuthApiClient = MockAuthApiClient();
-    remoteDataSource = AuthRemoteDataSourceImpl(
-      MockAuthClient(),
-      mockAuthApiClient,
-    );
+    remoteDataSource = AuthRemoteDataSourceImpl(mockAuthApiClient);
   });
 
   group('RemoteDataSourceImpl - login', () {

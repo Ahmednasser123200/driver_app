@@ -19,14 +19,12 @@ import '../../../data/model/response/forget_response/reset_password_response_dto
 import '../../../data/model/response/forget_response/verify_otp_response.dart';
 import '../../../data/model/response/login_response/login_response.dart';
 import '../../client/auth_api_client.dart';
-import '../../client/auth_client.dart';
 
 @Injectable(as: AuthRemoteDataSource)
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final AuthClient _client;
   final AuthApiClient _authApiClient;
 
-  AuthRemoteDataSourceImpl(this._client, this._authApiClient);
+  AuthRemoteDataSourceImpl(this._authApiClient);
 
   @override
   Future<LoginResponse> login(LoginRequest login) async {
@@ -97,18 +95,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<BaseResponse<ApplicationResponseDto>> addApplication(
     ApplicationRequestDto request,
   ) {
-    return executeApi(() => _client.addApplication(request.toFormData()));
+    return executeApi(() => _authApiClient.addApplication(request.toFormData()));
   }
 
   @override
   Future<BaseResponse<List<CountryDto>>> getCountries() {
-    return executeApi(() => _client.getCountries());
+    return executeApi(() => _authApiClient.getCountries());
   }
 
   @override
   Future<BaseResponse<List<VehicleTypeDto>>> getVehicleTypes() {
     return executeApi(() async {
-      final response = await _client.getVehicleTypes();
+      final response = await _authApiClient.getVehicleTypes();
       return response.data ?? [];
     });
   }

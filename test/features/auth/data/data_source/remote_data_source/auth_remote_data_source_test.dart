@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/features/auth/api/client/auth_api_client.dart';
-import 'package:driver_app/features/auth/api/client/auth_client.dart';
 import 'package:driver_app/features/auth/api/data_source_impl/remote/auth_remote_data_source_impl.dart';
 import 'package:driver_app/features/auth/data/model/request/apply_request/application_request_dto.dart';
 import 'package:driver_app/features/auth/data/model/response/apply_response/application_dto.dart';
@@ -14,12 +13,10 @@ import 'package:driver_app/features/auth/data/model/response/apply_response/coun
 import 'package:driver_app/features/auth/data/model/response/apply_response/vehicle_type_dto.dart';
 import 'package:driver_app/features/auth/data/model/response/apply_response/vehicle_types_response_dto.dart';
 
-class MockAuthClient extends Mock implements AuthClient {}
-
 class MockAuthApiClient extends Mock implements AuthApiClient {}
 
 void main() {
-  late MockAuthClient mockAuthClient;
+  late MockAuthApiClient mockAuthApiClient;
   late AuthRemoteDataSourceImpl dataSource;
 
   setUpAll(() {
@@ -27,8 +24,8 @@ void main() {
   });
 
   setUp(() {
-    mockAuthClient = MockAuthClient();
-    dataSource = AuthRemoteDataSourceImpl(mockAuthClient, MockAuthApiClient());
+    mockAuthApiClient = MockAuthApiClient();
+    dataSource = AuthRemoteDataSourceImpl(mockAuthApiClient);
   });
 
   group('AuthRemoteDataSourceImpl - addApplication', () {
@@ -56,14 +53,14 @@ void main() {
       );
 
       when(
-        () => mockAuthClient.addApplication(any()),
+        () => mockAuthApiClient.addApplication(any()),
       ).thenAnswer((_) async => responseDto);
 
       final result = await dataSource.addApplication(requestDto);
 
       expect(result, isA<Success<ApplicationResponseDto>>());
       expect((result as Success<ApplicationResponseDto>).data, responseDto);
-      verify(() => mockAuthClient.addApplication(any())).called(1);
+      verify(() => mockAuthApiClient.addApplication(any())).called(1);
     });
 
     test('returns Error when API call fails with DioException', () async {
@@ -73,7 +70,7 @@ void main() {
         type: DioExceptionType.connectionTimeout,
       );
 
-      when(() => mockAuthClient.addApplication(any())).thenThrow(dioException);
+      when(() => mockAuthApiClient.addApplication(any())).thenThrow(dioException);
 
       final result = await dataSource.addApplication(requestDto);
 
@@ -96,14 +93,14 @@ void main() {
         );
 
         when(
-          () => mockAuthClient.getVehicleTypes(),
+          () => mockAuthApiClient.getVehicleTypes(),
         ).thenAnswer((_) async => responseDto);
 
         final result = await dataSource.getVehicleTypes();
 
         expect(result, isA<Success<List<VehicleTypeDto>>>());
         expect((result as Success<List<VehicleTypeDto>>).data, vehicleList);
-        verify(() => mockAuthClient.getVehicleTypes()).called(1);
+        verify(() => mockAuthApiClient.getVehicleTypes()).called(1);
       },
     );
 
@@ -115,7 +112,7 @@ void main() {
       );
 
       when(
-        () => mockAuthClient.getVehicleTypes(),
+        () => mockAuthApiClient.getVehicleTypes(),
       ).thenAnswer((_) async => responseDto);
 
       final result = await dataSource.getVehicleTypes();
@@ -133,7 +130,7 @@ void main() {
           type: DioExceptionType.badResponse,
         );
 
-        when(() => mockAuthClient.getVehicleTypes()).thenThrow(dioException);
+        when(() => mockAuthApiClient.getVehicleTypes()).thenThrow(dioException);
 
         final result = await dataSource.getVehicleTypes();
 
@@ -149,14 +146,14 @@ void main() {
       ];
 
       when(
-        () => mockAuthClient.getCountries(),
+        () => mockAuthApiClient.getCountries(),
       ).thenAnswer((_) async => countryList);
 
       final result = await dataSource.getCountries();
 
       expect(result, isA<Success<List<CountryDto>>>());
       expect((result as Success<List<CountryDto>>).data, countryList);
-      verify(() => mockAuthClient.getCountries()).called(1);
+      verify(() => mockAuthApiClient.getCountries()).called(1);
     });
   });
 }
