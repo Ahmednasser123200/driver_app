@@ -84,7 +84,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i841.OrderDetailsCubit(
         getDriverOrderDetailsUseCase: gh<_i837.GetDriverOrderDetailsUseCase>(),
         updateOrderStatusUseCase: gh<_i591.UpdateOrderStatusUseCase>(),
-        reportDriverLocationUseCase: gh<_i59.ReportDriverLocationUseCase>(),
       ),
     );
     return this;

@@ -1,8 +1,6 @@
-
 import 'package:driver_app/config/base/base_cubit.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_state.dart';
-import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
@@ -13,13 +11,17 @@ import 'package:driver_app/features/order_details/presentation/manager/cubit/ord
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_state.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../../config/base/base_ui_event.dart';
+
 @injectable
 class OrderDetailsCubit
     extends BaseCubit<OrderDetailsState, OrderDetailsUiEvent> {
   OrderDetailsCubit({
-    required this._getDriverOrderDetailsUseCase,
-    required this._updateOrderStatusUseCase,
-  }) : super(const OrderDetailsState());
+    required GetDriverOrderDetailsUseCase getDriverOrderDetailsUseCase,
+    required UpdateOrderStatusUseCase updateOrderStatusUseCase,
+  })  : _getDriverOrderDetailsUseCase = getDriverOrderDetailsUseCase,
+        _updateOrderStatusUseCase = updateOrderStatusUseCase,
+        super(const OrderDetailsState());
 
   final GetDriverOrderDetailsUseCase _getDriverOrderDetailsUseCase;
   final UpdateOrderStatusUseCase _updateOrderStatusUseCase;
@@ -37,8 +39,9 @@ class OrderDetailsCubit
   Future<void> _getOrderDetails(String orderId) async {
     emit(
       state.copyWith(
-        orderDetails: const BaseState<DriverOrderDetailsEntity>(
+        orderDetails: state.orderDetails.copyWith(
           isLoading: true,
+          clearFailure: true,
         ),
       ),
     );
@@ -49,9 +52,10 @@ class OrderDetailsCubit
       case Success<DriverOrderDetailsEntity>():
         emit(
           state.copyWith(
-            orderDetails: BaseState<DriverOrderDetailsEntity>(
+            orderDetails: state.orderDetails.copyWith(
               isLoading: false,
               data: result.data,
+              clearFailure: true,
             ),
           ),
         );
@@ -59,9 +63,9 @@ class OrderDetailsCubit
       case Error<DriverOrderDetailsEntity>():
         emit(
           state.copyWith(
-            orderDetails: BaseState<DriverOrderDetailsEntity>(
+            orderDetails: state.orderDetails.copyWith(
               isLoading: false,
-              errorMessage: result.failure.toString(),
+              failure: result.failure,
             ),
           ),
         );
@@ -78,7 +82,7 @@ class OrderDetailsCubit
       state.copyWith(
         updateOrderStatus: state.updateOrderStatus.copyWith(
           isLoading: true,
-          errorMessage: '',
+          clearFailure: true,
         ),
       ),
     );
@@ -97,7 +101,7 @@ class OrderDetailsCubit
             updateOrderStatus: state.updateOrderStatus.copyWith(
               isLoading: false,
               data: result.data,
-              errorMessage: '',
+              clearFailure: true,
             ),
           ),
         );
@@ -109,7 +113,7 @@ class OrderDetailsCubit
           state.copyWith(
             updateOrderStatus: state.updateOrderStatus.copyWith(
               isLoading: false,
-              errorMessage: result.failure.toString(),
+              failure: result.failure,
             ),
           ),
         );
@@ -122,4 +126,3 @@ class OrderDetailsCubit
     emitEvent(ShowOrderDetailsFailure(failure));
   }
 }
-
