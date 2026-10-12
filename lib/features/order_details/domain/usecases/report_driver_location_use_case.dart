@@ -5,7 +5,7 @@ import 'package:injectable/injectable.dart';
 
 import '../params/report_driver_location_params.dart';
 
-@lazySingleton
+@injectable
 class ReportDriverLocationUseCase {
   ReportDriverLocationUseCase(this._repository);
 

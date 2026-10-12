@@ -486,4 +486,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get orderStatusUpdatedSuccessfully => 'تم تحديث حالة الطلب بنجاح';
+
+  @override
+  String get retry => 'إعادة المحاولة';
 }

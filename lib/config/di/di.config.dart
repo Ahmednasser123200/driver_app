@@ -62,12 +62,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i329.OrderDetailsApiClient>(
       () => _i329.OrderDetailsApiClient(gh<_i361.Dio>()),
     );
-    gh.lazySingleton<_i702.OrderDetailsRemoteDataSource>(
+    gh.factory<_i702.OrderDetailsRemoteDataSource>(
       () => _i537.OrderDetailsRemoteDataSourceImpl(
         gh<_i329.OrderDetailsApiClient>(),
       ),
     );
-    gh.lazySingleton<_i788.OrderDetailsRepo>(
+    gh.factory<_i788.OrderDetailsRepo>(
       () =>
           _i692.OrderDetailsRepoImpl(gh<_i702.OrderDetailsRemoteDataSource>()),
     );

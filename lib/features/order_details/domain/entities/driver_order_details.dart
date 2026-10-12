@@ -1,13 +1,16 @@
+
+import 'package:equatable/equatable.dart';
 import 'package:driver_app/features/order_details/domain/entities/order_item.dart';
 import 'package:driver_app/features/order_details/domain/entities/pickup_address.dart';
 import 'package:driver_app/features/order_details/domain/entities/recipient_info.dart';
 import 'package:driver_app/features/order_details/domain/entities/timeline.dart';
 import 'package:driver_app/features/order_details/domain/entities/user_address.dart';
+import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
 
-class DriverOrderDetailsEntity {
+class DriverOrderDetailsEntity extends Equatable {
   final String orderId;
   final String orderNumber;
-  final String status;
+  final OrderStatus status;
   final double totalPrice;
   final String currency;
   final String paymentMethod;
@@ -18,7 +21,7 @@ class DriverOrderDetailsEntity {
   final List<OrderItemEntity> items;
   final List<TimelineEntity> timeline;
 
-  DriverOrderDetailsEntity({
+  const DriverOrderDetailsEntity({
     required this.orderId,
     required this.orderNumber,
     required this.status,
@@ -32,4 +35,20 @@ class DriverOrderDetailsEntity {
     required this.items,
     required this.timeline,
   });
+
+  @override
+  List<Object?> get props => [
+        orderId,
+        orderNumber,
+        status,
+        totalPrice,
+        currency,
+        paymentMethod,
+        notes,
+        pickupAddress,
+        userAddress,
+        recipientInfo,
+        items,
+        timeline,
+      ];
 }

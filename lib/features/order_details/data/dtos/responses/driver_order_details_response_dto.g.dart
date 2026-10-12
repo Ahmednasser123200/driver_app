@@ -11,7 +11,7 @@ DriverOrderDetailsDto _$DriverOrderDetailsDtoFromJson(
 ) => DriverOrderDetailsDto(
   orderId: json['orderId'] as String,
   orderNumber: json['orderNumber'] as String,
-  status: json['status'] as String,
+  status: DriverOrderDetailsDto._statusFromJson(json['status']),
   totalPrice: (json['totalPrice'] as num).toDouble(),
   currency: json['currency'] as String,
   paymentMethod: json['paymentMethod'] as String,
@@ -38,7 +38,7 @@ Map<String, dynamic> _$DriverOrderDetailsDtoToJson(
 ) => <String, dynamic>{
   'orderId': instance.orderId,
   'orderNumber': instance.orderNumber,
-  'status': instance.status,
+  'status': DriverOrderDetailsDto._statusToJson(instance.status),
   'totalPrice': instance.totalPrice,
   'currency': instance.currency,
   'paymentMethod': instance.paymentMethod,

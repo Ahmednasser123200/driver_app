@@ -1,120 +1,90 @@
+
+import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 
-class OrderStatusHelper {
-  OrderStatusHelper._();
-
-  static String _normalize(String? status) {
-    return status?.replaceAll(RegExp(r'[\s_-]+'), '').toLowerCase() ?? '';
-  }
-
-  static int getStep(String? status) {
-    switch (_normalize(status)) {
-      case 'pending':
+extension OrderStatusExtension on OrderStatus {
+  int get step {
+    switch (this) {
+      case OrderStatus.pending:
         return 1;
 
-      case 'accepted':
-      case 'assigned':
+      case OrderStatus.accepted:
+      case OrderStatus.assigned:
         return 2;
 
-      case 'outfordelivery':
-      case 'ontheway':
-      case 'inprogress':
+      case OrderStatus.onTheWay:
+      case OrderStatus.outForDelivery:
+      case OrderStatus.inProgress:
         return 3;
 
-      case 'pickedup':
-      case 'picked':
-      case 'arrived':
+      case OrderStatus.pickedUp:
+      case OrderStatus.picked:
+      case OrderStatus.arrived:
         return 4;
-
-      case 'delivered':
-      case 'completed':
-      case 'awaitingdeliveryconfirmation':
-        return 5;
-
-      default:
-        return 1;
     }
   }
 
-  static String getLocalizedStatus(String? status, AppLocalizations l10n) {
-    switch (_normalize(status)) {
-      case 'pending':
+  String getLocalizedStatus(AppLocalizations l10n) {
+    switch (this) {
+      case OrderStatus.pending:
         return l10n.pending;
 
-      case 'accepted':
-      case 'assigned':
+      case OrderStatus.accepted:
+      case OrderStatus.assigned:
         return l10n.accepted;
 
-      case 'pickedup':
-      case 'picked':
+      case OrderStatus.pickedUp:
+      case OrderStatus.picked:
         return l10n.picked;
 
-      case 'outfordelivery':
-      case 'ontheway':
-      case 'inprogress':
+      case OrderStatus.onTheWay:
+      case OrderStatus.outForDelivery:
+      case OrderStatus.inProgress:
         return l10n.outForDelivery;
 
-      case 'arrived':
+      case OrderStatus.arrived:
         return l10n.arrived;
-
-      case 'delivered':
-        return l10n.delivered;
-
-      case 'completed':
-        return l10n.completed;
-
-      case 'cancelled':
-        return l10n.cancelled;
-
-      default:
-        return status ?? l10n.accepted;
     }
   }
 
-  static String? getNextStatus(String? status) {
-    switch (_normalize(status)) {
-      case 'pending':
+  String? get nextStatus {
+    switch (this) {
+      case OrderStatus.pending:
         return 'accepted';
 
-      case 'accepted':
-      case 'assigned':
+      case OrderStatus.accepted:
+      case OrderStatus.assigned:
         return 'on_the_way';
 
-      case 'outfordelivery':
-      case 'ontheway':
-      case 'inprogress':
+      case OrderStatus.onTheWay:
+      case OrderStatus.outForDelivery:
+      case OrderStatus.inProgress:
         return 'arrived';
 
-      case 'pickedup':
-      case 'picked':
-      case 'arrived':
+      case OrderStatus.pickedUp:
+      case OrderStatus.picked:
+      case OrderStatus.arrived:
         return 'on_the_way';
-
-      default:
-        return null;
     }
   }
 
-  static String getNextStatusLabel(String? status, AppLocalizations l10n) {
-    switch (_normalize(status)) {
-      case 'pending':
+  String getNextStatusLabel(AppLocalizations l10n) {
+    switch (this) {
+      case OrderStatus.pending:
         return l10n.accepted;
 
-      case 'accepted':
-      case 'assigned':
+      case OrderStatus.accepted:
+      case OrderStatus.assigned:
         return l10n.outForDelivery;
 
-      case 'outfordelivery':
-      case 'ontheway':
-      case 'inprogress':
+      case OrderStatus.onTheWay:
+      case OrderStatus.outForDelivery:
+      case OrderStatus.inProgress:
         return l10n.arrived;
 
-      case 'pickedup':
-      case 'picked':
-      case 'arrived':
-        return l10n.startDeliver;
-
-      default:
+      case OrderStatus.pickedUp:
+      case OrderStatus.picked:
+      case OrderStatus.arrived:
         return l10n.startDeliver;
     }
   }

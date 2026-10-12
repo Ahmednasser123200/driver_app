@@ -173,5 +173,6 @@
   "whatsApp": "واتساب",
   "unknown": "غير معروف",
   "invalidOrderId": "رقم الطلب غير صالح",
-  "orderStatusUpdatedSuccessfully": "تم تحديث حالة الطلب بنجاح"
+  "orderStatusUpdatedSuccessfully": "تم تحديث حالة الطلب بنجاح",
+  "retry": "إعادة المحاولة"
 }

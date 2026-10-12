@@ -173,5 +173,6 @@
   "call": "Call",
   "whatsApp": "WhatsApp",
   "invalidOrderId": "Invalid order ID",
-  "orderStatusUpdatedSuccessfully": "Order status updated successfully"
+  "orderStatusUpdatedSuccessfully": "Order status updated successfully",
+  "retry": "Retry"
 }

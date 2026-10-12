@@ -1033,6 +1033,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Order status updated successfully'**
   String get orderStatusUpdatedSuccessfully;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
 }
 
 class _AppLocalizationsDelegate

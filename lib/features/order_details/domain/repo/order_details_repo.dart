@@ -6,7 +6,7 @@ import 'package:driver_app/features/order_details/domain/params/report_driver_lo
 
 import '../params/update_order_status_params.dart';
 
-abstract class OrderDetailsRepo {
+abstract interface class OrderDetailsRepo {
   Future<BaseResponse<DriverOrderDetailsEntity>> getOrderDetails(
     String orderId,
   );

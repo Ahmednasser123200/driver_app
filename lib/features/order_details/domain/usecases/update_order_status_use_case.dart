@@ -4,7 +4,7 @@ import 'package:driver_app/features/order_details/domain/params/update_order_sta
 import 'package:driver_app/features/order_details/domain/repo/order_details_repo.dart';
 import 'package:injectable/injectable.dart';
 
-@lazySingleton
+@injectable
 class UpdateOrderStatusUseCase {
   UpdateOrderStatusUseCase(this._repository);
 

@@ -1,4 +1,7 @@
-class UpdateOrderStatusParams {
+
+import 'package:equatable/equatable.dart';
+
+class UpdateOrderStatusParams extends Equatable {
   final String orderId;
   final String newStatus;
 
@@ -6,4 +9,10 @@ class UpdateOrderStatusParams {
     required this.orderId,
     required this.newStatus,
   });
+
+  @override
+  List<Object?> get props => [
+        orderId,
+        newStatus,
+      ];
 }

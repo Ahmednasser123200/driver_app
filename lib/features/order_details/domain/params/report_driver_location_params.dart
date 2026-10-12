@@ -1,4 +1,7 @@
-class ReportDriverLocationParams {
+
+import 'package:equatable/equatable.dart';
+
+class ReportDriverLocationParams extends Equatable {
   final double lat;
   final double lng;
   final String recordedAt;
@@ -8,4 +11,11 @@ class ReportDriverLocationParams {
     required this.lng,
     required this.recordedAt,
   });
+
+  @override
+  List<Object?> get props => [
+        lat,
+        lng,
+        recordedAt,
+      ];
 }

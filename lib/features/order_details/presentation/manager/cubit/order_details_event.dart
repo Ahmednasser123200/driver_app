@@ -6,17 +6,6 @@ class GetDriverOrderDetailsEvent extends OrderDetailsEvent {
   GetDriverOrderDetailsEvent({required this.orderId});
 }
 
-class ReportDriverLocationEvent extends OrderDetailsEvent {
-  final double lat;
-  final double lng;
-  final String recordedAt;
-
-  ReportDriverLocationEvent({
-    required this.lat,
-    required this.lng,
-    required this.recordedAt,
-  });
-}
 
 class UpdateOrderStatusEvent extends OrderDetailsEvent {
   final String orderId;

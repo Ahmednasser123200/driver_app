@@ -11,7 +11,7 @@ import 'package:injectable/injectable.dart';
 import '../../domain/params/update_order_status_params.dart';
 import '../../domain/repo/order_details_repo.dart';
 
-@LazySingleton(as: OrderDetailsRepo)
+@Injectable(as: OrderDetailsRepo)
 class OrderDetailsRepoImpl implements OrderDetailsRepo {
   OrderDetailsRepoImpl(this._remoteDataSource);
 

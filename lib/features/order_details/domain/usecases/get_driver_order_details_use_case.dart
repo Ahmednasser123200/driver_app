@@ -3,7 +3,7 @@ import 'package:driver_app/features/order_details/domain/entities/driver_order_d
 import 'package:driver_app/features/order_details/domain/repo/order_details_repo.dart';
 import 'package:injectable/injectable.dart';
 
-@lazySingleton
+@injectable
 class GetDriverOrderDetailsUseCase {
   GetDriverOrderDetailsUseCase(this._repository);
 

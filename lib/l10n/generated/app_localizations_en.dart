@@ -492,4 +492,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get orderStatusUpdatedSuccessfully =>
       'Order status updated successfully';
+
+  @override
+  String get retry => 'Retry';
 }

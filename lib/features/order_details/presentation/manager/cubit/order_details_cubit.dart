@@ -1,15 +1,13 @@
+
 import 'package:driver_app/config/base/base_cubit.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
-import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
-import 'package:driver_app/features/order_details/domain/params/report_driver_location_params.dart';
 import 'package:driver_app/features/order_details/domain/params/update_order_status_params.dart';
 import 'package:driver_app/features/order_details/domain/usecases/get_driver_order_details_use_case.dart';
-import 'package:driver_app/features/order_details/domain/usecases/report_driver_location_use_case.dart';
 import 'package:driver_app/features/order_details/domain/usecases/update_order_status_use_case.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_event.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_state.dart';
@@ -21,65 +19,61 @@ class OrderDetailsCubit
   OrderDetailsCubit({
     required this._getDriverOrderDetailsUseCase,
     required this._updateOrderStatusUseCase,
-    required this._reportDriverLocationUseCase,
   }) : super(const OrderDetailsState());
 
   final GetDriverOrderDetailsUseCase _getDriverOrderDetailsUseCase;
   final UpdateOrderStatusUseCase _updateOrderStatusUseCase;
-  final ReportDriverLocationUseCase _reportDriverLocationUseCase;
 
   Future<void> doEvent(OrderDetailsEvent event) async {
     switch (event) {
       case GetDriverOrderDetailsEvent():
         await _getOrderDetails(event.orderId);
 
-      case ReportDriverLocationEvent():
-        await _reportDriverLocation(event.lat, event.lng, event.recordedAt);
-
       case UpdateOrderStatusEvent():
         await _updateOrderStatus(event.orderId, event.newStatus);
     }
   }
 
-  
-Future<void> _getOrderDetails(String orderId) async {
-  emit(
-    state.copyWith(
-      orderDetails: const BaseState<DriverOrderDetailsEntity>(
-        isLoading: true,
+  Future<void> _getOrderDetails(String orderId) async {
+    emit(
+      state.copyWith(
+        orderDetails: const BaseState<DriverOrderDetailsEntity>(
+          isLoading: true,
+        ),
       ),
-    ),
-  );
+    );
 
-  final result = await _getDriverOrderDetailsUseCase.execute(orderId);
+    final result = await _getDriverOrderDetailsUseCase.execute(orderId);
 
-  switch (result) {
-    case Success<DriverOrderDetailsEntity>():
-      emit(
-        state.copyWith(
-          orderDetails: BaseState<DriverOrderDetailsEntity>(
-            isLoading: false,
-            data: result.data,
+    switch (result) {
+      case Success<DriverOrderDetailsEntity>():
+        emit(
+          state.copyWith(
+            orderDetails: BaseState<DriverOrderDetailsEntity>(
+              isLoading: false,
+              data: result.data,
+            ),
           ),
-        ),
-      );
+        );
 
-    case Error<DriverOrderDetailsEntity>():
-      emit(
-        state.copyWith(
-          orderDetails: BaseState<DriverOrderDetailsEntity>(
-            isLoading: false,
-            errorMessage: result.failure.toString(),
+      case Error<DriverOrderDetailsEntity>():
+        emit(
+          state.copyWith(
+            orderDetails: BaseState<DriverOrderDetailsEntity>(
+              isLoading: false,
+              errorMessage: result.failure.toString(),
+            ),
           ),
-        ),
-      );
+        );
 
-      _reportFailure(result.failure);
+        _reportFailure(result.failure);
+    }
   }
-}
 
-
-  Future<void> _updateOrderStatus(String orderId, String newStatus) async {
+  Future<void> _updateOrderStatus(
+    String orderId,
+    String newStatus,
+  ) async {
     emit(
       state.copyWith(
         updateOrderStatus: state.updateOrderStatus.copyWith(
@@ -90,7 +84,10 @@ Future<void> _getOrderDetails(String orderId) async {
     );
 
     final result = await _updateOrderStatusUseCase.execute(
-      UpdateOrderStatusParams(orderId: orderId, newStatus: newStatus),
+      UpdateOrderStatusParams(
+        orderId: orderId,
+        newStatus: newStatus,
+      ),
     );
 
     switch (result) {
@@ -121,51 +118,8 @@ Future<void> _getOrderDetails(String orderId) async {
     }
   }
 
-  Future<void> _reportDriverLocation(
-    double lat,
-    double lng,
-    String recordedAt,
-  ) async {
-    emit(
-      state.copyWith(
-        reportDriverLocation: state.reportDriverLocation.copyWith(
-          isLoading: true,
-          errorMessage: '',
-        ),
-      ),
-    );
-
-    final result = await _reportDriverLocationUseCase.execute(
-      ReportDriverLocationParams(lat: lat, lng: lng, recordedAt: recordedAt),
-    );
-
-    switch (result) {
-      case Success<ReportDriverLocationEntity>():
-        emit(
-          state.copyWith(
-            reportDriverLocation: state.reportDriverLocation.copyWith(
-              isLoading: false,
-              data: result.data,
-              errorMessage: '',
-            ),
-          ),
-        );
-
-      case Error<ReportDriverLocationEntity>():
-        emit(
-          state.copyWith(
-            reportDriverLocation: state.reportDriverLocation.copyWith(
-              isLoading: false,
-              errorMessage: result.failure.toString(),
-            ),
-          ),
-        );
-
-        _reportFailure(result.failure);
-    }
-  }
-
   void _reportFailure(AppFailure failure) {
     emitEvent(ShowOrderDetailsFailure(failure));
   }
 }
+
