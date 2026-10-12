@@ -10,6 +10,7 @@ import 'package:driver_app/features/order_details/domain/entities/update_order_s
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_event.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_state.dart';
+import 'package:driver_app/features/order_details/presentation/utils/order_status_helper.dart';
 import 'package:driver_app/features/order_details/presentation/widgets/order_status_header.dart';
 import 'package:driver_app/features/order_details/presentation/widgets/order_total.dart';
 import 'package:driver_app/features/order_details/presentation/widgets/payment_method_card.dart';
@@ -36,109 +37,6 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
     context.read<OrderDetailsCubit>().doEvent(
       GetDriverOrderDetailsEvent(orderId: widget.orderId),
     );
-  }
-
-  String _normalizedStatus(String? status) {
-    return status?.replaceAll(RegExp(r'[\s_-]+'), '').toLowerCase() ?? '';
-  }
-
-  int _statusStep(String? status) {
-    switch (_normalizedStatus(status)) {
-      case 'pending':
-        return 1;
-      case 'accepted':
-      case 'assigned':
-        return 2;
-      case 'outfordelivery':
-      case 'ontheway':
-      case 'inprogress':
-        return 3;
-      case 'pickedup':
-      case 'picked':
-      case 'arrived':
-        return 4;
-      case 'delivered':
-      case 'completed':
-      case 'awaitingdeliveryconfirmation':
-        return 5;
-      default:
-        return 1;
-    }
-  }
-
-  String? _nextOrderStatus(String? status) {
-    switch (_normalizedStatus(status)) {
-      case 'pending':
-        return 'Accepted';
-
-      case 'accepted':
-      case 'assigned':
-        return 'OnTheWay';
-
-      case 'outfordelivery':
-      case 'ontheway':
-      case 'inprogress':
-        return 'Arrived';
-
-      case 'pickedup':
-      case 'picked':
-      case 'arrived':
-        return 'Delivered';
-
-      default:
-        return null;
-    }
-  }
-
-  String _nextStatusLabel(String? status, AppLocalizations l10n) {
-    switch (_normalizedStatus(status)) {
-      case 'pending':
-        return l10n.accepted;
-
-      case 'accepted':
-      case 'assigned':
-        return l10n.outForDelivery;
-
-      case 'outfordelivery':
-      case 'ontheway':
-      case 'inprogress':
-        return l10n.arrived;
-
-      case 'pickedup':
-      case 'picked':
-      case 'arrived':
-        return l10n.delivered;
-
-      default:
-        return l10n.startDeliver;
-    }
-  }
-
-  String _localizedStatus(String? status, AppLocalizations l10n) {
-    switch (_normalizedStatus(status)) {
-      case 'pending':
-        return l10n.pending;
-      case 'accepted':
-      case 'assigned':
-        return l10n.accepted;
-      case 'pickedup':
-      case 'picked':
-        return l10n.picked;
-      case 'outfordelivery':
-      case 'ontheway':
-      case 'inprogress':
-        return l10n.outForDelivery;
-      case 'arrived':
-        return l10n.arrived;
-      case 'delivered':
-        return l10n.delivered;
-      case 'completed':
-        return l10n.completed;
-      case 'cancelled':
-        return l10n.cancelled;
-      default:
-        return status ?? l10n.accepted;
-    }
   }
 
   String _currencyLabel(String? currency) {
@@ -176,7 +74,6 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
             );
         }
       },
-
       child: _buildOrderDetails(context),
     );
   }
@@ -210,6 +107,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
           final message = failure != null
               ? mapAppFailureToMessage(failure, l10n)
               : l10n.failureUnknown;
+
           return Scaffold(
             appBar: AppBar(title: Text(l10n.orderDetails)),
             body: Center(
@@ -241,7 +139,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
           appBar: AppBar(title: Text(l10n.orderDetails)),
           body: SingleChildScrollView(
             child: Container(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -252,7 +150,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                         children: [
                           StepProgressIndicator(
                             totalSteps: 5,
-                            currentStep: _statusStep(status),
+                            currentStep: OrderStatusHelper.getStep(status),
                             selectedColor: Colors.green,
                             unselectedColor: Colors.grey,
                             size: 4,
@@ -260,7 +158,10 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                           ),
                           SizedBox(height: 12.h),
                           OrderStatusHeader(
-                            status: _localizedStatus(status, l10n),
+                            status: OrderStatusHelper.getLocalizedStatus(
+                              status,
+                              l10n,
+                            ),
                             orderId: data?.orderNumber ?? '#${widget.orderId}',
                             date: timeline.isNotEmpty
                                 ? timeline.last.timestamp
@@ -322,7 +223,7 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                   ),
                   if (itemList.isEmpty)
                     const Padding(
-                      padding: EdgeInsets.only(bottom: 8.0),
+                      padding: EdgeInsets.only(bottom: 8),
                       child: OrderItemCard(
                         productName: 'Unknown',
                         price: 'Unknown',
@@ -362,12 +263,19 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
                   selector: (state) => state.updateOrderStatus,
                   builder: (context, updateState) {
                     return CustomButton(
-                      label: _nextStatusLabel(data?.status, l10n),
+                      label: OrderStatusHelper.getNextStatusLabel(
+                        data?.status,
+                        l10n,
+                      ),
                       isLoading: updateState.isLoading,
                       onPressed: () {
-                        final nextStatus = _nextOrderStatus(data?.status);
+                        final nextStatus = OrderStatusHelper.getNextStatus(
+                          data?.status,
+                        );
 
-                        if (nextStatus == null) return;
+                        if (nextStatus == null || updateState.isLoading) {
+                          return;
+                        }
 
                         context.read<OrderDetailsCubit>().doEvent(
                           UpdateOrderStatusEvent(
