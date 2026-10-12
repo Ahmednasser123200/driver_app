@@ -55,21 +55,21 @@ void main() {
 
   tearDown(() => cubit.close());
 
-  Future<List<BaseUiEvent>> collectEvents(void Function() trigger) async {
+  Future<List<BaseUiEvent>> collectEvents(Future<void> Function() trigger) async {
     final events = <BaseUiEvent>[];
     final subscription = cubit.uiEventStream.listen(events.add);
-    trigger();
+    await trigger();
     await pumpEventQueue();
     await subscription.cancel();
     return events;
   }
 
   Future<List<BaseUiEvent>> collectOrderDetailsUiEvents(
-    void Function() trigger,
+    Future<void> Function() trigger,
   ) async {
     final events = <BaseUiEvent>[];
     final subscription = cubit.uiEventStream.listen(events.add);
-    trigger();
+    await trigger();
     await pumpEventQueue();
     await subscription.cancel();
     return events;
@@ -137,7 +137,7 @@ void main() {
       );
 
       final events = await collectEvents(
-        () => cubit.doEvent(GetDriverOrderDetailsEvent(orderId: kOrderId)),
+        () async => cubit.doEvent(GetDriverOrderDetailsEvent(orderId: kOrderId)),
       );
 
       expect(events, hasLength(1));

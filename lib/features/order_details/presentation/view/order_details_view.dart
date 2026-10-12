@@ -34,9 +34,13 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
   void initState() {
     super.initState();
 
-    context.read<OrderDetailsCubit>().doEvent(
-      GetDriverOrderDetailsEvent(orderId: widget.orderId),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      context.read<OrderDetailsCubit>().doEvent(
+        GetDriverOrderDetailsEvent(orderId: widget.orderId),
+      );
+    });
   }
 
   String _currencyLabel(String? currency) {

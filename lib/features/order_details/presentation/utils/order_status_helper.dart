@@ -74,21 +74,21 @@ class OrderStatusHelper {
   static String? getNextStatus(String? status) {
     switch (_normalize(status)) {
       case 'pending':
-        return 'Accepted';
+        return 'accepted';
 
       case 'accepted':
       case 'assigned':
-        return 'OnTheWay';
+        return 'on_the_way';
 
       case 'outfordelivery':
       case 'ontheway':
       case 'inprogress':
-        return 'Arrived';
+        return 'arrived';
 
       case 'pickedup':
       case 'picked':
       case 'arrived':
-        return 'Delivered';
+        return 'on_the_way';
 
       default:
         return null;
@@ -112,7 +112,7 @@ class OrderStatusHelper {
       case 'pickedup':
       case 'picked':
       case 'arrived':
-        return l10n.delivered;
+        return l10n.startDeliver;
 
       default:
         return l10n.startDeliver;

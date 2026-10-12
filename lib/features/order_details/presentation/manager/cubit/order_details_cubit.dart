@@ -73,6 +73,8 @@ Future<void> _getOrderDetails(String orderId) async {
           ),
         ),
       );
+
+      _reportFailure(result.failure);
   }
 }
 
