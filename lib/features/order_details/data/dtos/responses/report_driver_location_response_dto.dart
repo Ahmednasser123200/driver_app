@@ -19,10 +19,9 @@ class ReportDriverLocationResponseDto {
   factory ReportDriverLocationResponseDto.fromJson(Map<String, dynamic> json) =>
       _$ReportDriverLocationResponseDtoFromJson(json);
 
-  Map<String, dynamic> toJson() => _$ReportDriverLocationResponseDtoToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$ReportDriverLocationResponseDtoToJson(this);
 
-  ReportDriverLocationEntity toDomain() => ReportDriverLocationEntity(
-    success: success,
-    recordedAt: recordedAt,
-  );
+  ReportDriverLocationEntity toDomain() =>
+      ReportDriverLocationEntity(success: success, recordedAt: recordedAt);
 }

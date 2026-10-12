@@ -485,4 +485,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get whatsApp => 'WhatsApp';
+
+  @override
+  String get invalidOrderId => 'Invalid order ID';
+
+  @override
+  String get orderStatusUpdatedSuccessfully =>
+      'Order status updated successfully';
 }

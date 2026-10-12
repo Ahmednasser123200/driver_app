@@ -171,6 +171,7 @@
   "failureTooManyRequests": "Too many requests. Please try again later.",
   "failureUnknown": "Something went wrong. Please try again.",
   "call": "Call",
-  "whatsApp": "WhatsApp"
-
+  "whatsApp": "WhatsApp",
+  "invalidOrderId": "Invalid order ID",
+  "orderStatusUpdatedSuccessfully": "Order status updated successfully"
 }

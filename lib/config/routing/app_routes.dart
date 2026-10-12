@@ -1,6 +1,7 @@
 import 'package:driver_app/config/di/di.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
 import 'package:driver_app/features/order_details/presentation/view/order_details_view.dart';
+import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -61,7 +62,9 @@ abstract final class AppRoutes {
   if (arguments is! String || arguments.isEmpty) {
     return MaterialPageRoute(
       settings: settings,
-      builder: (_) => const _StubScreen('Invalid Order ID'),
+      builder: (context) => _StubScreen(
+  AppLocalizations.of(context)!.invalidOrderId,
+),
     );
   }
 

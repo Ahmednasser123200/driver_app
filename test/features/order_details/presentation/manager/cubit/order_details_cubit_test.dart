@@ -13,7 +13,6 @@ import 'package:driver_app/features/order_details/domain/usecases/update_order_s
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_event.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_state.dart';
-import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_ui_event.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -65,11 +64,11 @@ void main() {
     return events;
   }
 
-  Future<List<ShowOrderStatusUpdated>> collectOrderDetailsUiEvents(
+  Future<List<BaseUiEvent>> collectOrderDetailsUiEvents(
     void Function() trigger,
   ) async {
-    final events = <ShowOrderStatusUpdated>[];
-    final subscription = cubit.orderDetailsUiEventStream.listen(events.add);
+    final events = <BaseUiEvent>[];
+    final subscription = cubit.uiEventStream.listen(events.add);
     trigger();
     await pumpEventQueue();
     await subscription.cancel();
@@ -144,7 +143,7 @@ void main() {
       expect(events, hasLength(1));
       expect(
         events.single,
-        isA<ShowFailureMessage>().having(
+        isA<ShowOrderDetailsFailure>().having(
           (e) => e.failure,
           'failure',
           isA<NotFoundFailure>(),
@@ -254,7 +253,7 @@ void main() {
       expect(events, hasLength(1));
       expect(
         events.single,
-        isA<ShowFailureMessage>().having(
+        isA<ShowOrderDetailsFailure>().having(
           (e) => e.failure,
           'failure',
           isA<ConflictFailure>(),
@@ -343,7 +342,7 @@ void main() {
       expect(events, hasLength(1));
       expect(
         events.single,
-        isA<ShowFailureMessage>().having(
+        isA<ShowOrderDetailsFailure>().having(
           (e) => e.failure,
           'failure',
           isA<InternetConnectionFailure>(),

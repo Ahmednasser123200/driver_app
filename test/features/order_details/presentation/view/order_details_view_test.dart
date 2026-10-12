@@ -141,13 +141,13 @@ void main() {
       expect(find.text('Order details'), findsNWidgets(2));
     });
 
-    testWidgets('shows the order number and status in the header', (
+    testWidgets('shows the order number and localized status in the header', (
       tester,
     ) async {
       await pumpView(tester);
       await tester.pumpAndSettle();
 
-      expect(find.text('PickedUp'), findsOneWidget);
+      expect(find.text('Picked'), findsOneWidget);
       expect(find.text('ORD-12345'), findsOneWidget);
     });
 
@@ -204,7 +204,7 @@ void main() {
       expect(find.text('COD'), findsOneWidget);
     });
 
-    testWidgets('renders a five step progress indicator at step 1', (
+    testWidgets('renders a five step progress indicator at the picked-up step', (
       tester,
     ) async {
       await pumpView(tester);
@@ -215,7 +215,7 @@ void main() {
         tester
             .widget<StepProgressIndicator>(find.byType(StepProgressIndicator))
             .currentStep,
-        1,
+        4,
       );
     });
 
@@ -283,7 +283,7 @@ void main() {
       ).thenAnswer((_) async => Success(buildUpdateOrderStatusEntity()));
     });
 
-    testWidgets('updates the status to OnTheWay when tapped', (tester) async {
+    testWidgets('updates the status to on_the_way when tapped', (tester) async {
       await pumpView(tester);
       await tester.pumpAndSettle();
 
@@ -294,7 +294,7 @@ void main() {
           verify(() => updateOrderStatus.execute(captureAny())).captured.single
               as UpdateOrderStatusParams;
       expect(captured.orderId, kOrderId);
-      expect(captured.newStatus, 'OnTheWay');
+      expect(captured.newStatus, 'on_the_way');
     });
 
     testWidgets('shows a loading spinner on the button while updating', (
@@ -366,8 +366,16 @@ void main() {
       (t) => expectStepFor(t, 'picked_up', 4),
     );
     testWidgets(
+      'maps PickedUp to step 4',
+      (t) => expectStepFor(t, 'PickedUp', 4),
+    );
+    testWidgets(
       'maps delivered to step 5',
       (t) => expectStepFor(t, 'delivered', 5),
+    );
+    testWidgets(
+      'maps OutForDelivery to step 3',
+      (t) => expectStepFor(t, 'OutForDelivery', 3),
     );
     testWidgets(
       'maps on_the_way to step 3',
@@ -408,8 +416,16 @@ void main() {
       (t) => expectLabel(t, 'picked_up', 'Picked'),
     );
     testWidgets(
+      'localizes PickedUp',
+      (t) => expectLabel(t, 'PickedUp', 'Picked'),
+    );
+    testWidgets(
       'localizes on_the_way',
       (t) => expectLabel(t, 'on_the_way', 'Out for delivery'),
+    );
+    testWidgets(
+      'localizes OutForDelivery',
+      (t) => expectLabel(t, 'OutForDelivery', 'Out for delivery'),
     );
     testWidgets(
       'localizes delivered',

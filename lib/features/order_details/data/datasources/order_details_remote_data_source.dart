@@ -5,7 +5,7 @@ import 'package:driver_app/features/order_details/data/dtos/responses/driver_ord
 import 'package:driver_app/features/order_details/data/dtos/responses/report_driver_location_response_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/update_order_status_response_dto.dart';
 
-abstract class OrderDetailsRemoteDataSource {
+abstract interface class OrderDetailsRemoteDataSource {
   Future<BaseResponse<DriverOrderDetailsDto>> getOrderDetails(String orderId);
   Future<BaseResponse<ReportDriverLocationResponseDto>> reportDriverLocation(
     ReportDriverLocationRequestDto requestDto,

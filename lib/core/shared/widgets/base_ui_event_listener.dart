@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_ui_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -9,10 +8,7 @@ import '../../../config/base/base_ui_event.dart';
 import '../../../config/localization/app_failure_message_mapper.dart';
 import '../../../l10n/generated/app_localizations.dart';
 
-extension AppLocalizationsX on AppLocalizations {
-  String get orderStatusUpdatedSuccessfully =>
-      'Order status updated successfully';
-}
+
 
 class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
     extends StatefulWidget {
@@ -94,17 +90,8 @@ class _BaseUiEventListenerState<
           SnackBar(content: Text(message), backgroundColor: Colors.red),
         );
 
-      case ShowOrderStatusUpdated():
-        final l10n = AppLocalizations.of(context)!;
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.orderStatusUpdatedSuccessfully),
-            backgroundColor: Colors.green,
-          ),
-        );
-
-    
+      default:
+        widget.onCustomEvent?.call(context, event);
     }
   }
 

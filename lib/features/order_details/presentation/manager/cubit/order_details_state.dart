@@ -23,15 +23,14 @@ class OrderDetailsState extends Equatable {
     return OrderDetailsState(
       orderDetails: orderDetails ?? this.orderDetails,
       updateOrderStatus: updateOrderStatus ?? this.updateOrderStatus,
-      reportDriverLocation:
-          reportDriverLocation ?? this.reportDriverLocation,
+      reportDriverLocation: reportDriverLocation ?? this.reportDriverLocation,
     );
   }
 
   @override
   List<Object?> get props => [
-        orderDetails,
-        updateOrderStatus,
-        reportDriverLocation,
-      ];
+    orderDetails,
+    updateOrderStatus,
+    reportDriverLocation,
+  ];
 }

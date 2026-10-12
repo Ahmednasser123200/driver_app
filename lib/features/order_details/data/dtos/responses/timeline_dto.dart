@@ -11,18 +11,13 @@ class TimelineDto {
   @JsonKey(name: 'timestamp')
   final String timestamp;
 
-  TimelineDto({
-    required this.status,
-    required this.timestamp,
-  });
+  TimelineDto({required this.status, required this.timestamp});
 
   factory TimelineDto.fromJson(Map<String, dynamic> json) =>
       _$TimelineDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$TimelineDtoToJson(this);
 
-  TimelineEntity toDomain() => TimelineEntity(
-    status: status,
-    timestamp: timestamp,
-  );
+  TimelineEntity toDomain() =>
+      TimelineEntity(status: status, timestamp: timestamp);
 }

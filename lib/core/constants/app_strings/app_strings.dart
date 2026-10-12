@@ -69,8 +69,7 @@ abstract final class AppStrings {
       'You want to be a delivery man? Join our team';
   static const String vehicleInfo = 'Vehicle info';
   static const String vehicleType = 'Vehicle type';
-  static const String Unknown = 'Unknown';
-
+static const String unknown = 'Unknown';
   static const String vehicleNumber = 'Vehicle number';
   static const String vehicleLicense = 'Vehicle license';
   static const String enterVehicleNumber = 'Enter vehicle number';

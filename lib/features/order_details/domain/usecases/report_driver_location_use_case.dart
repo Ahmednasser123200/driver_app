@@ -12,6 +12,6 @@ class ReportDriverLocationUseCase {
   final OrderDetailsRepo _repository;
 
   Future<BaseResponse<ReportDriverLocationEntity>> execute(
-  ReportDriverLocationParams params,
+    ReportDriverLocationParams params,
   ) => _repository.reportDriverLocation(params);
 }

@@ -1021,6 +1021,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'WhatsApp'**
   String get whatsApp;
+
+  /// No description provided for @invalidOrderId.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid order ID'**
+  String get invalidOrderId;
+
+  /// No description provided for @orderStatusUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Order status updated successfully'**
+  String get orderStatusUpdatedSuccessfully;
 }
 
 class _AppLocalizationsDelegate

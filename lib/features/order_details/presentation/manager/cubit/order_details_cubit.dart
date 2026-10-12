@@ -1,9 +1,8 @@
-
-import 'dart:async';
-
 import 'package:driver_app/config/base/base_cubit.dart';
 import 'package:driver_app/config/base/base_response.dart';
+import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
+import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
@@ -14,90 +13,71 @@ import 'package:driver_app/features/order_details/domain/usecases/report_driver_
 import 'package:driver_app/features/order_details/domain/usecases/update_order_status_use_case.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_event.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_state.dart';
-import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_ui_event.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
-class OrderDetailsCubit extends BaseCubit<OrderDetailsState, BaseUiEvent> {
-  final GetDriverOrderDetailsUseCase _getDriverOrderDetailsUseCase;
-  final UpdateOrderStatusUseCase _updateOrderStatusUseCase;
-  final ReportDriverLocationUseCase _reportDriverLocationUseCase;
-
+class OrderDetailsCubit
+    extends BaseCubit<OrderDetailsState, OrderDetailsUiEvent> {
   OrderDetailsCubit({
     required this._getDriverOrderDetailsUseCase,
     required this._updateOrderStatusUseCase,
     required this._reportDriverLocationUseCase,
   }) : super(const OrderDetailsState());
 
-  void doEvent(OrderDetailsEvent event) {
+  final GetDriverOrderDetailsUseCase _getDriverOrderDetailsUseCase;
+  final UpdateOrderStatusUseCase _updateOrderStatusUseCase;
+  final ReportDriverLocationUseCase _reportDriverLocationUseCase;
+
+  Future<void> doEvent(OrderDetailsEvent event) async {
     switch (event) {
       case GetDriverOrderDetailsEvent():
-        _getOrderDetails(event.orderId);
+        await _getOrderDetails(event.orderId);
 
       case ReportDriverLocationEvent():
-        _reportDriverLocation(
-          event.lat,
-          event.lng,
-          event.recordedAt,
-        );
+        await _reportDriverLocation(event.lat, event.lng, event.recordedAt);
 
       case UpdateOrderStatusEvent():
-        _updateOrderStatus(
-          event.orderId,
-          event.newStatus,
-        );
+        await _updateOrderStatus(event.orderId, event.newStatus);
     }
   }
-  final StreamController<ShowOrderStatusUpdated> _orderDetailsUiEvents =
-    StreamController<ShowOrderStatusUpdated>.broadcast();
 
-Stream<ShowOrderStatusUpdated> get orderDetailsUiEventStream =>
-    _orderDetailsUiEvents.stream;
-
-  Future<void> _getOrderDetails(String orderId) async {
-    emit(
-      state.copyWith(
-        orderDetails: state.orderDetails.copyWith(
-          isLoading: true,
-          errorMessage: '',
-        ),
+  
+Future<void> _getOrderDetails(String orderId) async {
+  emit(
+    state.copyWith(
+      orderDetails: const BaseState<DriverOrderDetailsEntity>(
+        isLoading: true,
       ),
-    );
+    ),
+  );
 
-    final result =
-        await _getDriverOrderDetailsUseCase.execute(orderId);
+  final result = await _getDriverOrderDetailsUseCase.execute(orderId);
 
-    switch (result) {
-      case Success<DriverOrderDetailsEntity>():
-        emit(
-          state.copyWith(
-            orderDetails: state.orderDetails.copyWith(
-              isLoading: false,
-              data: result.data,
-              errorMessage: '',
-            ),
+  switch (result) {
+    case Success<DriverOrderDetailsEntity>():
+      emit(
+        state.copyWith(
+          orderDetails: BaseState<DriverOrderDetailsEntity>(
+            isLoading: false,
+            data: result.data,
           ),
-        );
+        ),
+      );
 
-      case Error<DriverOrderDetailsEntity>():
-        emit(
-          state.copyWith(
-            orderDetails: state.orderDetails.copyWith(
-              isLoading: false,
-            ),
+    case Error<DriverOrderDetailsEntity>():
+      emit(
+        state.copyWith(
+          orderDetails: BaseState<DriverOrderDetailsEntity>(
+            isLoading: false,
+            errorMessage: result.failure.toString(),
           ),
-        );
-
-        emitEvent(
-          ShowFailureMessage(result.failure),
-        );
-    }
+        ),
+      );
   }
+}
 
-  Future<void> _updateOrderStatus(
-    String orderId,
-    String newStatus,
-  ) async {
+
+  Future<void> _updateOrderStatus(String orderId, String newStatus) async {
     emit(
       state.copyWith(
         updateOrderStatus: state.updateOrderStatus.copyWith(
@@ -108,18 +88,14 @@ Stream<ShowOrderStatusUpdated> get orderDetailsUiEventStream =>
     );
 
     final result = await _updateOrderStatusUseCase.execute(
-      UpdateOrderStatusParams(
-        orderId: orderId,
-        newStatus: newStatus,
-      ),
+      UpdateOrderStatusParams(orderId: orderId, newStatus: newStatus),
     );
 
     switch (result) {
       case Success<UpdateOrderStatusEntity>():
         emit(
           state.copyWith(
-            updateOrderStatus:
-                state.updateOrderStatus.copyWith(
+            updateOrderStatus: state.updateOrderStatus.copyWith(
               isLoading: false,
               data: result.data,
               errorMessage: '',
@@ -127,23 +103,19 @@ Stream<ShowOrderStatusUpdated> get orderDetailsUiEventStream =>
           ),
         );
 
-       if (!_orderDetailsUiEvents.isClosed) {
-  _orderDetailsUiEvents.add(const ShowOrderStatusUpdated());
-}
+        emitEvent(const ShowOrderStatusUpdated());
 
       case Error<UpdateOrderStatusEntity>():
         emit(
           state.copyWith(
-            updateOrderStatus:
-                state.updateOrderStatus.copyWith(
+            updateOrderStatus: state.updateOrderStatus.copyWith(
               isLoading: false,
+              errorMessage: result.failure.toString(),
             ),
           ),
         );
 
-        emitEvent(
-          ShowFailureMessage(result.failure),
-        );
+        _reportFailure(result.failure);
     }
   }
 
@@ -154,29 +126,22 @@ Stream<ShowOrderStatusUpdated> get orderDetailsUiEventStream =>
   ) async {
     emit(
       state.copyWith(
-        reportDriverLocation:
-            state.reportDriverLocation.copyWith(
+        reportDriverLocation: state.reportDriverLocation.copyWith(
           isLoading: true,
           errorMessage: '',
         ),
       ),
     );
 
-    final result =
-        await _reportDriverLocationUseCase.execute(
-      ReportDriverLocationParams(
-        lat: lat,
-        lng: lng,
-        recordedAt: recordedAt,
-      ),
+    final result = await _reportDriverLocationUseCase.execute(
+      ReportDriverLocationParams(lat: lat, lng: lng, recordedAt: recordedAt),
     );
 
     switch (result) {
       case Success<ReportDriverLocationEntity>():
         emit(
           state.copyWith(
-            reportDriverLocation:
-                state.reportDriverLocation.copyWith(
+            reportDriverLocation: state.reportDriverLocation.copyWith(
               isLoading: false,
               data: result.data,
               errorMessage: '',
@@ -187,22 +152,18 @@ Stream<ShowOrderStatusUpdated> get orderDetailsUiEventStream =>
       case Error<ReportDriverLocationEntity>():
         emit(
           state.copyWith(
-            reportDriverLocation:
-                state.reportDriverLocation.copyWith(
+            reportDriverLocation: state.reportDriverLocation.copyWith(
               isLoading: false,
+              errorMessage: result.failure.toString(),
             ),
           ),
         );
 
-        emitEvent(
-          ShowFailureMessage(result.failure),
-        );
+        _reportFailure(result.failure);
     }
   }
-  @override
-Future<void> close() async {
-  await _orderDetailsUiEvents.close();
-  return super.close();
-}
-}
 
+  void _reportFailure(AppFailure failure) {
+    emitEvent(ShowOrderDetailsFailure(failure));
+  }
+}

@@ -171,5 +171,7 @@
   "failureUnknown": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
   "call": "اتصال",
   "whatsApp": "واتساب",
-  "unknown": "غير معروف"
+  "unknown": "غير معروف",
+  "invalidOrderId": "رقم الطلب غير صالح",
+  "orderStatusUpdatedSuccessfully": "تم تحديث حالة الطلب بنجاح"
 }

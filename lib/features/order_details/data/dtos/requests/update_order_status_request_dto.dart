@@ -7,9 +7,7 @@ class UpdateOrderStatusRequestDto {
   @JsonKey(name: 'newStatus')
   final String newStatus;
 
-  UpdateOrderStatusRequestDto({
-    required this.newStatus,
-  });
+  UpdateOrderStatusRequestDto({required this.newStatus});
 
   factory UpdateOrderStatusRequestDto.fromJson(Map<String, dynamic> json) =>
       _$UpdateOrderStatusRequestDtoFromJson(json);

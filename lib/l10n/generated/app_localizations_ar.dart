@@ -480,4 +480,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get whatsApp => 'واتساب';
+
+  @override
+  String get invalidOrderId => 'رقم الطلب غير صالح';
+
+  @override
+  String get orderStatusUpdatedSuccessfully => 'تم تحديث حالة الطلب بنجاح';
 }

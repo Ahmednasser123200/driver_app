@@ -1,7 +1,6 @@
-import 'dart:async';
-
 import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
+import 'package:driver_app/config/localization/app_failure_message_mapper.dart';
 import 'package:driver_app/core/shared/widgets/base_ui_event_listener.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
 import 'package:driver_app/core/shared/widgets/order_item_card.dart';
@@ -20,8 +19,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 
-import '../manager/cubit/order_details_ui_event.dart';
-
 class OrderDetailsView extends StatefulWidget {
   final String orderId;
 
@@ -32,9 +29,6 @@ class OrderDetailsView extends StatefulWidget {
 }
 
 class _OrderDetailsViewState extends State<OrderDetailsView> {
-    StreamSubscription<ShowOrderStatusUpdated>? _uiEventSubscription;
-
-  
   @override
   void initState() {
     super.initState();
@@ -43,68 +37,96 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
       GetDriverOrderDetailsEvent(orderId: widget.orderId),
     );
   }
-  @override
-void didChangeDependencies() {
-  super.didChangeDependencies();
 
-  _uiEventSubscription ??= context
-      .read<OrderDetailsCubit>()
-      .orderDetailsUiEventStream
-      .listen((event) {
-    if (!mounted) return;
-
-    final l10n = AppLocalizations.of(context)!;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.orderStatusUpdatedSuccessfully),
-        backgroundColor: Colors.green,
-      ),
-    );
-  });
-}
-
-@override
-void dispose() {
-  _uiEventSubscription?.cancel();
-  super.dispose();
-}
+  String _normalizedStatus(String? status) {
+    return status?.replaceAll(RegExp(r'[\s_-]+'), '').toLowerCase() ?? '';
+  }
 
   int _statusStep(String? status) {
-    switch (status?.toLowerCase()) {
+    switch (_normalizedStatus(status)) {
       case 'pending':
         return 1;
       case 'accepted':
       case 'assigned':
         return 2;
-      case 'on_the_way':
+      case 'outfordelivery':
       case 'ontheway':
-      case 'in_progress':
+      case 'inprogress':
         return 3;
-      case 'picked_up':
+      case 'pickedup':
+      case 'picked':
       case 'arrived':
         return 4;
       case 'delivered':
       case 'completed':
+      case 'awaitingdeliveryconfirmation':
         return 5;
       default:
         return 1;
     }
   }
 
+  String? _nextOrderStatus(String? status) {
+    switch (_normalizedStatus(status)) {
+      case 'pending':
+        return 'Accepted';
+
+      case 'accepted':
+      case 'assigned':
+        return 'OnTheWay';
+
+      case 'outfordelivery':
+      case 'ontheway':
+      case 'inprogress':
+        return 'Arrived';
+
+      case 'pickedup':
+      case 'picked':
+      case 'arrived':
+        return 'Delivered';
+
+      default:
+        return null;
+    }
+  }
+
+  String _nextStatusLabel(String? status, AppLocalizations l10n) {
+    switch (_normalizedStatus(status)) {
+      case 'pending':
+        return l10n.accepted;
+
+      case 'accepted':
+      case 'assigned':
+        return l10n.outForDelivery;
+
+      case 'outfordelivery':
+      case 'ontheway':
+      case 'inprogress':
+        return l10n.arrived;
+
+      case 'pickedup':
+      case 'picked':
+      case 'arrived':
+        return l10n.delivered;
+
+      default:
+        return l10n.startDeliver;
+    }
+  }
+
   String _localizedStatus(String? status, AppLocalizations l10n) {
-    switch (status?.toLowerCase()) {
+    switch (_normalizedStatus(status)) {
       case 'pending':
         return l10n.pending;
       case 'accepted':
       case 'assigned':
         return l10n.accepted;
-      case 'picked_up':
+      case 'pickedup':
       case 'picked':
         return l10n.picked;
-      case 'on_the_way':
+      case 'outfordelivery':
       case 'ontheway':
-      case 'in_progress':
+      case 'inprogress':
         return l10n.outForDelivery;
       case 'arrived':
         return l10n.arrived;
@@ -118,7 +140,6 @@ void dispose() {
         return status ?? l10n.accepted;
     }
   }
-  
 
   String _currencyLabel(String? currency) {
     final value = currency ?? '\$';
@@ -133,8 +154,31 @@ void dispose() {
     return BaseUiEventListener<
       OrderDetailsCubit,
       OrderDetailsState,
-      BaseUiEvent
-    >(child: _buildOrderDetails(context));
+      OrderDetailsUiEvent
+    >(
+      onCustomEvent: (context, event) {
+        final l10n = AppLocalizations.of(context)!;
+
+        switch (event) {
+          case ShowOrderStatusUpdated():
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(l10n.orderStatusUpdatedSuccessfully),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+          case ShowOrderDetailsFailure():
+            final message = mapAppFailureToMessage(event.failure, l10n);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(message), backgroundColor: Colors.red),
+            );
+        }
+      },
+
+      child: _buildOrderDetails(context),
+    );
   }
 
   Widget _buildOrderDetails(BuildContext context) {
@@ -161,6 +205,11 @@ void dispose() {
         }
 
         if (!orderDetailsState.isLoading && data == null) {
+          final failure = orderDetailsState.failure;
+
+          final message = failure != null
+              ? mapAppFailureToMessage(failure, l10n)
+              : l10n.failureUnknown;
           return Scaffold(
             appBar: AppBar(title: Text(l10n.orderDetails)),
             body: Center(
@@ -171,7 +220,7 @@ void dispose() {
                   children: [
                     Icon(Icons.error_outline, size: 48.sp),
                     SizedBox(height: 16.h),
-                    Text(l10n.failureUnknown, textAlign: TextAlign.center),
+                    Text(message, textAlign: TextAlign.center),
                     SizedBox(height: 16.h),
                     CustomButton(
                       label: l10n.continueButton,
@@ -196,21 +245,30 @@ void dispose() {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  StepProgressIndicator(
-                    totalSteps: 5,
-                    currentStep: _statusStep(data?.status),
-                    selectedColor: Colors.green,
-                    unselectedColor: Colors.grey,
-                    size: 4,
-                    roundedEdges: const Radius.circular(2),
-                  ),
-                  SizedBox(height: 12.h),
-                  OrderStatusHeader(
-                    status: _localizedStatus(data?.status, l10n),
-                    orderId: data?.orderNumber ?? '#${widget.orderId}',
-                    date: timeline.isNotEmpty
-                        ? timeline.last.timestamp
-                        : l10n.orderDate,
+                  BlocSelector<OrderDetailsCubit, OrderDetailsState, String?>(
+                    selector: (state) => state.orderDetails.data?.status,
+                    builder: (context, status) {
+                      return Column(
+                        children: [
+                          StepProgressIndicator(
+                            totalSteps: 5,
+                            currentStep: _statusStep(status),
+                            selectedColor: Colors.green,
+                            unselectedColor: Colors.grey,
+                            size: 4,
+                            roundedEdges: const Radius.circular(2),
+                          ),
+                          SizedBox(height: 12.h),
+                          OrderStatusHeader(
+                            status: _localizedStatus(status, l10n),
+                            orderId: data?.orderNumber ?? '#${widget.orderId}',
+                            date: timeline.isNotEmpty
+                                ? timeline.last.timestamp
+                                : l10n.orderDate,
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   SizedBox(height: 10.h),
                   Text(
@@ -263,9 +321,9 @@ void dispose() {
                     ),
                   ),
                   if (itemList.isEmpty)
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.only(bottom: 8.0),
-                      child: const OrderItemCard(
+                      child: OrderItemCard(
                         productName: 'Unknown',
                         price: 'Unknown',
                         quantity: 0,
@@ -304,13 +362,17 @@ void dispose() {
                   selector: (state) => state.updateOrderStatus,
                   builder: (context, updateState) {
                     return CustomButton(
-                      label: l10n.startDeliver,
+                      label: _nextStatusLabel(data?.status, l10n),
                       isLoading: updateState.isLoading,
                       onPressed: () {
+                        final nextStatus = _nextOrderStatus(data?.status);
+
+                        if (nextStatus == null) return;
+
                         context.read<OrderDetailsCubit>().doEvent(
                           UpdateOrderStatusEvent(
                             orderId: widget.orderId,
-                            newStatus: 'OnTheWay',
+                            newStatus: nextStatus,
                           ),
                         );
                       },
