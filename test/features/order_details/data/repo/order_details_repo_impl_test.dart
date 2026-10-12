@@ -5,6 +5,7 @@ import 'package:driver_app/features/order_details/data/dtos/requests/report_driv
 import 'package:driver_app/features/order_details/data/dtos/requests/update_order_status_request_dto.dart';
 import 'package:driver_app/features/order_details/data/repo/order_details_repo_impl.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
+import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
 import 'package:driver_app/features/order_details/domain/params/report_driver_location_params.dart';
@@ -45,7 +46,7 @@ void main() {
       final details = (result as Success<DriverOrderDetailsEntity>).data;
       expect(details.orderId, kOrderId);
       expect(details.orderNumber, 'ORD-12345');
-      expect(details.status, 'PickedUp');
+      expect(details.status, OrderStatus.pickedUp);
       expect(details.totalPrice, 3000.0);
       expect(details.currency, 'EGP');
       expect(details.paymentMethod, 'COD');

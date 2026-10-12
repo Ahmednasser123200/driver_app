@@ -8,6 +8,7 @@ import 'package:driver_app/features/order_details/data/dtos/responses/update_ord
 import 'package:driver_app/features/order_details/data/dtos/responses/user_address_dto.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/order_item.dart';
+import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
 import 'package:driver_app/features/order_details/domain/entities/pickup_address.dart';
 import 'package:driver_app/features/order_details/domain/entities/recipient_info.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
@@ -57,10 +58,41 @@ TimelineEntity buildTimelineEntity({
   String timestamp = '2026-09-19T17:00:00Z',
 }) => TimelineEntity(status: status, timestamp: timestamp);
 
+OrderStatus _resolveOrderStatus(dynamic value) {
+  if (value is OrderStatus) return value;
+
+  final normalized = value.toString()
+      .replaceAll(RegExp(r'[\s_-]+'), '')
+      .toLowerCase();
+
+  switch (normalized) {
+    case 'pending':
+      return OrderStatus.pending;
+    case 'accepted':
+      return OrderStatus.accepted;
+    case 'assigned':
+      return OrderStatus.assigned;
+    case 'ontheway':
+      return OrderStatus.onTheWay;
+    case 'outfordelivery':
+      return OrderStatus.outForDelivery;
+    case 'inprogress':
+      return OrderStatus.inProgress;
+    case 'arrived':
+      return OrderStatus.arrived;
+    case 'pickedup':
+      return OrderStatus.pickedUp;
+    case 'picked':
+      return OrderStatus.picked;
+    default:
+      return OrderStatus.pending;
+  }
+}
+
 DriverOrderDetailsEntity buildDriverOrderDetailsEntity({
   String orderId = kOrderId,
   String orderNumber = 'ORD-12345',
-  String status = 'PickedUp',
+  dynamic status = OrderStatus.pickedUp,
   double totalPrice = 3000.0,
   String currency = 'EGP',
   String paymentMethod = 'COD',
@@ -73,7 +105,7 @@ DriverOrderDetailsEntity buildDriverOrderDetailsEntity({
 }) => DriverOrderDetailsEntity(
   orderId: orderId,
   orderNumber: orderNumber,
-  status: status,
+  status: _resolveOrderStatus(status),
   totalPrice: totalPrice,
   currency: currency,
   paymentMethod: paymentMethod,
@@ -135,7 +167,7 @@ TimelineDto buildTimelineDto({
 DriverOrderDetailsDto buildDriverOrderDetailsDto({
   String orderId = kOrderId,
   String orderNumber = 'ORD-12345',
-  String status = 'PickedUp',
+  dynamic status = OrderStatus.pickedUp,
   double totalPrice = 3000.0,
   String currency = 'EGP',
   String paymentMethod = 'COD',
@@ -148,7 +180,7 @@ DriverOrderDetailsDto buildDriverOrderDetailsDto({
 }) => DriverOrderDetailsDto(
   orderId: orderId,
   orderNumber: orderNumber,
-  status: status,
+  status: _resolveOrderStatus(status),
   totalPrice: totalPrice,
   currency: currency,
   paymentMethod: paymentMethod,

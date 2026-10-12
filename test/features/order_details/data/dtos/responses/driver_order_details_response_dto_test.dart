@@ -1,4 +1,5 @@
 import 'package:driver_app/features/order_details/data/dtos/responses/driver_order_details_response_dto.dart';
+import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../../helpers/fixtures.dart';
@@ -10,7 +11,7 @@ void main() {
 
       expect(dto.orderId, kOrderId);
       expect(dto.orderNumber, 'ORD-12345');
-      expect(dto.status, 'PickedUp');
+      expect(dto.status, OrderStatus.pickedUp);
       expect(dto.totalPrice, 3000.0);
       expect(dto.currency, 'EGP');
       expect(dto.paymentMethod, 'COD');
@@ -106,7 +107,7 @@ void main() {
 
       expect(json['orderId'], kOrderId);
       expect(json['orderNumber'], 'ORD-12345');
-      expect(json['status'], 'PickedUp');
+      expect(json['status'], 'picked_up');
       expect(json['totalPrice'], 3000.0);
       expect(json['currency'], 'EGP');
       expect(json['paymentMethod'], 'COD');
@@ -156,7 +157,7 @@ void main() {
 
       expect(entity.orderId, kOrderId);
       expect(entity.orderNumber, 'ORD-12345');
-      expect(entity.status, 'PickedUp');
+      expect(entity.status, OrderStatus.pickedUp);
       expect(entity.totalPrice, 3000.0);
       expect(entity.currency, 'EGP');
       expect(entity.paymentMethod, 'COD');

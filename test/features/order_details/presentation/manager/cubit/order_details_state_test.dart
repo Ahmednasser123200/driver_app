@@ -133,15 +133,13 @@ void main() {
       );
     });
 
-    test('structurally identical but distinct entities are not equal', () {
+    test('structurally identical entities are equal', () {
       expect(
         OrderDetailsState(
           orderDetails: BaseState(data: buildDriverOrderDetailsEntity()),
         ),
-        isNot(
-          OrderDetailsState(
-            orderDetails: BaseState(data: buildDriverOrderDetailsEntity()),
-          ),
+        OrderDetailsState(
+          orderDetails: BaseState(data: buildDriverOrderDetailsEntity()),
         ),
       );
     });
