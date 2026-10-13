@@ -32,7 +32,7 @@ class DriverApp extends StatelessWidget {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('en'),
-          initialRoute: Routes.orderDetails,
+          initialRoute: Routes.pickupLocation,
           onGenerateRoute: AppRoutes.onGenerateRoute,
         );
       },
