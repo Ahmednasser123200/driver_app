@@ -56,5 +56,33 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Test Route'), findsOneWidget);
     });
+
+    testWidgets('handles NavigateTo with isReplacement true using pushReplacementNamed', (
+      tester,
+    ) async {
+      final GlobalKey<NavigatorState> navigatorKey =
+          GlobalKey<NavigatorState>();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          navigatorKey: navigatorKey,
+          routes: {
+            '/replacement': (context) =>
+                const Scaffold(body: Text('Replacement Route')),
+          },
+          home: Scaffold(
+            body: BaseUiEventListener<TestCubit, int, BaseUiEvent>(
+              cubit: cubit,
+              child: const Text('Home'),
+            ),
+          ),
+        ),
+      );
+
+      cubit.emitEvent(const NavigateTo('/replacement', isReplacement: true));
+      await tester.pumpAndSettle();
+      expect(find.text('Replacement Route'), findsOneWidget);
+      expect(find.text('Home'), findsNothing);
+    });
   });
 }

@@ -65,7 +65,7 @@ class LoginCubit extends BaseCubit<LoginState, BaseUiEvent> {
             AppStrings.statusPending.toLowerCase()) {
           emitEvent(const ShowErrorMessage(message: AppStrings.loginFailed));
         } else {
-          emitEvent(const NavigateTo(Routes.home));
+          emitEvent(const NavigateTo(Routes.home, isReplacement: true));
         }
 
       case Error<LoginEntity>(:final failure):

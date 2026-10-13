@@ -23,7 +23,13 @@ class ShowErrorMessage extends BaseUiEvent {
 class NavigateTo extends BaseUiEvent {
   final String routeName;
   final Object? arguments;
-  const NavigateTo(this.routeName, {this.arguments});
+  final bool isReplacement;
+
+  const NavigateTo(
+    this.routeName, {
+    this.arguments,
+    this.isReplacement = false,
+  });
 }
 
 class PopRoute extends BaseUiEvent {

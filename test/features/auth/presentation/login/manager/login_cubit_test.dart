@@ -193,6 +193,7 @@ void main() {
       expect(events[0], isA<ShowSuccessMessage>());
       expect(events[1], isA<NavigateTo>());
       expect((events[1] as NavigateTo).routeName, equals(Routes.home));
+      expect((events[1] as NavigateTo).isReplacement, isTrue);
 
       await subscription.cancel();
       await loginCubit.close();

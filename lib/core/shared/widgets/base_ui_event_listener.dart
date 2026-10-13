@@ -75,9 +75,15 @@ class _BaseUiEventListenerState<
           );
         }
       case NavigateTo():
-        Navigator.of(
-          context,
-        ).pushNamed(event.routeName, arguments: event.arguments);
+        if (event.isReplacement) {
+          Navigator.of(
+            context,
+          ).pushReplacementNamed(event.routeName, arguments: event.arguments);
+        } else {
+          Navigator.of(
+            context,
+          ).pushNamed(event.routeName, arguments: event.arguments);
+        }
       case PopRoute():
         Navigator.of(context).pop(event.result);
 
