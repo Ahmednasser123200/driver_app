@@ -1,6 +1,5 @@
 import 'package:driver_app/config/base/base_cubit.dart';
 import 'package:driver_app/config/base/base_response.dart';
-import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
