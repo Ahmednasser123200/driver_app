@@ -19,3 +19,5 @@ class TogglePasswordVisibility extends LoginIntent {}
 
 class LoginSubmitted extends LoginIntent {}
 
+class LoadRememberedCredentials extends LoginIntent {}
+

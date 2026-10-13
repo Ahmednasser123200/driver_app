@@ -63,6 +63,7 @@ class TokenStorageServiceImpl implements TokenStorageService {
   Future<void> clear() async {
     _inMemoryAccessToken = null;
     _inMemoryRefreshToken = null;
-    await _storage.deleteAll();
+    await _storage.delete(key: StorageKeys.kUserToken);
+    await _storage.delete(key: StorageKeys.kRefreshToken);
   }
 }

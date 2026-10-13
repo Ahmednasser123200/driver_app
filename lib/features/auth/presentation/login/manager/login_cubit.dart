@@ -4,6 +4,7 @@ import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/routing/routes.dart';
 import 'package:driver_app/features/auth/domain/entities/login_entity/login_credentials.dart';
 import 'package:driver_app/features/auth/domain/entities/login_entity/login_entity.dart';
+import 'package:driver_app/features/auth/domain/use_case/get_remembered_email_use_case.dart';
 import 'package:driver_app/features/auth/domain/use_case/login_use_case.dart';
 import 'package:injectable/injectable.dart';
 
@@ -15,8 +16,12 @@ import 'login_state.dart';
 @injectable
 class LoginCubit extends BaseCubit<LoginState, BaseUiEvent> {
   final LoginUseCase _loginUseCase;
+  final GetRememberedEmailUseCase _getRememberedEmailUseCase;
 
-  LoginCubit(this._loginUseCase) : super(const LoginState());
+  LoginCubit(
+    this._loginUseCase,
+    this._getRememberedEmailUseCase,
+  ) : super(const LoginState());
 
   Future<void> handle(LoginIntent intent) async {
     switch (intent) {
@@ -30,6 +35,15 @@ class LoginCubit extends BaseCubit<LoginState, BaseUiEvent> {
         emit(state.copyWith(obscurePassword: !state.obscurePassword));
       case LoginSubmitted():
         await _login();
+      case LoadRememberedCredentials():
+        await _loadRememberedCredentials();
+    }
+  }
+
+  Future<void> _loadRememberedCredentials() async {
+    final email = await _getRememberedEmailUseCase();
+    if (email != null && email.isNotEmpty) {
+      emit(state.copyWith(email: email, rememberMe: true));
     }
   }
 

@@ -5,18 +5,31 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'config/di/di.dart';
 import 'config/routing/app_routes.dart';
 import 'config/routing/routes.dart';
+import 'core/services/token_storage_service.dart';
 import 'core/themes/app_themes/app_theme.dart';
 import 'l10n/generated/app_localizations.dart';
 
 Future<void> main() async {
-  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   configureDependencies();
-  runApp(const DriverApp());
+
+  final tokenStorage = getIt<TokenStorageService>();
+  final token = await tokenStorage.getAccessToken();
+  final initialRoute = (token != null && token.isNotEmpty)
+      ? Routes.home
+      : Routes.login;
+
+  runApp(DriverApp(initialRoute: initialRoute));
 }
 
 class DriverApp extends StatelessWidget {
-  const DriverApp({super.key});
+  final String initialRoute;
+
+  const DriverApp({
+    super.key,
+    this.initialRoute = Routes.login,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +45,7 @@ class DriverApp extends StatelessWidget {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('en'),
-          initialRoute: Routes.initial,
+          initialRoute: initialRoute,
           onGenerateRoute: AppRoutes.onGenerateRoute,
         );
       },

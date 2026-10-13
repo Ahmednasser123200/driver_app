@@ -35,6 +35,7 @@ void main() {
     registerFallbackValue(RememberMeChanged(false));
     registerFallbackValue(TogglePasswordVisibility());
     registerFallbackValue(LoginSubmitted());
+    registerFallbackValue(LoadRememberedCredentials());
   });
 
   setUp(() async {
@@ -130,6 +131,23 @@ void main() {
       await tester.pumpAndSettle();
 
       verify(() => mockLoginCubit.handle(any(that: isA<LoginSubmitted>()))).called(1);
+    });
+
+    testWidgets('dispatches LoadRememberedCredentials on mount and renders remembered email and checkbox', (tester) async {
+      when(() => mockLoginCubit.state).thenReturn(
+        const LoginState(
+          email: 'saved@driver.com',
+          rememberMe: true,
+        ),
+      );
+
+      await tester.pumpWidget(createTestableWidget(const LoginView()));
+      await tester.pumpAndSettle();
+
+      verify(() => mockLoginCubit.handle(any(that: isA<LoadRememberedCredentials>()))).called(1);
+      expect(find.text('saved@driver.com'), findsOneWidget);
+      final checkbox = tester.widget<Checkbox>(find.byType(Checkbox));
+      expect(checkbox.value, isTrue);
     });
   });
 }

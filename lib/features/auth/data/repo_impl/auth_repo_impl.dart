@@ -67,6 +67,12 @@ class AuthRepoImpl implements AuthRepo {
           persist: rememberMe,
         );
 
+        if (rememberMe) {
+          await _secureStorage.saveRememberedEmail(credentials.email);
+        } else {
+          await _secureStorage.deleteRememberedEmail();
+        }
+
         return Success(entity);
       }
 

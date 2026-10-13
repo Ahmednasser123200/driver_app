@@ -6,6 +6,7 @@ import 'package:driver_app/config/routing/routes.dart';
 import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/features/auth/domain/entities/login_entity/login_credentials.dart';
 import 'package:driver_app/features/auth/domain/entities/login_entity/login_entity.dart';
+import 'package:driver_app/features/auth/domain/use_case/get_remembered_email_use_case.dart';
 import 'package:driver_app/features/auth/domain/use_case/login_use_case.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_cubit.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_intent.dart';
@@ -15,8 +16,12 @@ import 'package:mocktail/mocktail.dart';
 
 class MockLoginUseCase extends Mock implements LoginUseCase {}
 
+class MockGetRememberedEmailUseCase extends Mock
+    implements GetRememberedEmailUseCase {}
+
 void main() {
   late MockLoginUseCase mockLoginUseCase;
+  late MockGetRememberedEmailUseCase mockGetRememberedEmailUseCase;
 
   setUpAll(() {
     registerFallbackValue(
@@ -26,9 +31,12 @@ void main() {
 
   setUp(() {
     mockLoginUseCase = MockLoginUseCase();
+    mockGetRememberedEmailUseCase = MockGetRememberedEmailUseCase();
+    when(() => mockGetRememberedEmailUseCase()).thenAnswer((_) async => null);
   });
 
-  LoginCubit createCubit() => LoginCubit(mockLoginUseCase);
+  LoginCubit createCubit() =>
+      LoginCubit(mockLoginUseCase, mockGetRememberedEmailUseCase);
 
   group('LoginCubit Initial State', () {
     test('initial state has default values', () {
@@ -214,5 +222,30 @@ void main() {
       await subscription.cancel();
       await loginCubit.close();
     });
+  });
+
+  group('LoginCubit LoadRememberedCredentials', () {
+    blocTest<LoginCubit, LoginState>(
+      'emits email and rememberMe=true when remembered email exists',
+      setUp: () {
+        when(() => mockGetRememberedEmailUseCase())
+            .thenAnswer((_) async => 'driver@example.com');
+      },
+      build: createCubit,
+      act: (cubit) => cubit.handle(LoadRememberedCredentials()),
+      expect: () => [
+        const LoginState(email: 'driver@example.com', rememberMe: true),
+      ],
+    );
+
+    blocTest<LoginCubit, LoginState>(
+      'does not emit state when remembered email is null or empty',
+      setUp: () {
+        when(() => mockGetRememberedEmailUseCase()).thenAnswer((_) async => null);
+      },
+      build: createCubit,
+      act: (cubit) => cubit.handle(LoadRememberedCredentials()),
+      expect: () => [],
+    );
   });
 }

@@ -43,9 +43,10 @@ class _LoginViewContentState extends State<_LoginViewContent> {
   @override
   void initState() {
     super.initState();
-    _emailController = TextEditingController();
+    final cubit = context.read<LoginCubit>();
+    _emailController = TextEditingController(text: cubit.state.email);
     _passwordController = TextEditingController();
-
+    cubit.handle(LoadRememberedCredentials());
   }
 
   @override
@@ -79,13 +80,21 @@ class _LoginViewContentState extends State<_LoginViewContent> {
       ),
       body: SafeArea(
         child: BaseUiEventListener<LoginCubit, LoginState, BaseUiEvent>(
-
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: 24.h,
-            ),
-            child: Form(
+          child: BlocListener<LoginCubit, LoginState>(
+            listenWhen: (previous, current) =>
+                previous.email != current.email &&
+                _emailController.text != current.email,
+            listener: (context, state) {
+              if (state.email.isNotEmpty && _emailController.text.isEmpty) {
+                _emailController.text = state.email;
+              }
+            },
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 24.h,
+              ),
+              child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -206,6 +215,7 @@ class _LoginViewContentState extends State<_LoginViewContent> {
                 ],
               ),
             ),
+          ),
           ),
         ),
       ),
