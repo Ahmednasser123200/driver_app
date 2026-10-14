@@ -15,7 +15,7 @@ class AuthInterceptors extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     options.headers['Authorization'] =
-        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMWExMTE5YS01MTRmLTdlMzAtOGViMi0zOGM0ODJjNzkzNTciLCJlbWFpbCI6InNheWVkMkBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJEcml2ZXIiLCJleHAiOjE3OTE1MDgzNDgsImlzcyI6IkZsb3dlcnNBdXRoIiwiYXVkIjoiRmxvd2Vyc0FwcCJ9.pkMpdIh2rG83NK2pzImUMaQfIQ4vn-cBENLLw80z_I8';
+        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMWExM2EzMS1lZjJiLTdlNmUtODgzMS1jYjE5ODBmNmM4NWQiLCJlbWFpbCI6InNheWVkMkBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJEcml2ZXIiLCJleHAiOjE3OTE5OTI4MjEsImlzcyI6IkZsb3dlcnNBdXRoIiwiYXVkIjoiRmxvd2Vyc0FwcCJ9.WcN1TFtzd5DuzuKznQCCCzAMOp_oLyABcTJ5zZuWYjA';
     // final token = await _storage.read(key: StorageKeys.kUserToken);
     // if (token != null && token.isNotEmpty) {
     //   options.headers['Authorization'] = 'Bearer $token';

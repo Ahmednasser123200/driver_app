@@ -34,7 +34,7 @@ class InformationCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(radius: 24, backgroundImage: NetworkImage(image)),
+          CircleAvatar(radius: 24, backgroundImage: AssetImage(image)),
 
           const SizedBox(width: 12),
 
@@ -43,9 +43,7 @@ class InformationCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: theme.textTheme.titleMedium),
-
                 const SizedBox(height: 6),
-
                 Row(
                   children: [
                     Icon(

@@ -30,6 +30,10 @@ mixin HandleEventUi {
         ).pushNamed(event.routeName, arguments: event.arguments);
       case PopRoute():
         Navigator.of(context).pop(event.result);
+      case NavigateRepalceTo():
+        Navigator.of(
+          context,
+        ).pushReplacementNamed(event.routeName, arguments: event.arguments);
     }
   }
 }

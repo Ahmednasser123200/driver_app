@@ -60,10 +60,9 @@ class _BaseUiEventListenerState<
   }
 
   void _handleEvent(BuildContext context, E event) {
-    widget.onCustomEvent?.call(context, event);
-
     final local = AppLocalizations.of(context)!;
 
+    widget.onCustomEvent?.call(context, event);
     switch (event) {
       case ShowSuccessMessage():
         ScaffoldMessenger.of(context).showSnackBar(
@@ -72,7 +71,6 @@ class _BaseUiEventListenerState<
             backgroundColor: Colors.green,
           ),
         );
-
       case ShowFailureMessage():
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -80,13 +78,16 @@ class _BaseUiEventListenerState<
             backgroundColor: Colors.red,
           ),
         );
-
       case NavigateTo():
         Navigator.of(
           context,
         ).pushNamed(event.routeName, arguments: event.arguments);
       case PopRoute():
         Navigator.of(context).pop(event.result);
+      case NavigateRepalceTo():
+        Navigator.of(
+          context,
+        ).pushReplacementNamed(event.routeName, arguments: event.arguments);
     }
   }
 

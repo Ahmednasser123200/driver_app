@@ -19,20 +19,22 @@ class AcceptOrderButton extends StatelessWidget {
     final cubit = context.read<HomeCubit>();
     return BlocBuilder<HomeCubit, HomeState>(
       buildWhen: (previous, current) {
-        return previous.acceptOrderId.contains(orderId) !=
-            current.acceptOrderId.contains(orderId);
+        return previous.acceptOrderId != current.acceptOrderId;
       },
       builder: (context, state) {
-        final isLoading = state.acceptOrderId.contains(orderId);
+        final hasRunningAccept = state.acceptOrderId.isNotEmpty;
+        final isLoading = state.acceptOrderId == orderId;
         return SizedBox(
           width: 140,
           height: 46,
           child: ElevatedButton(
-            onPressed: isLoading
+            
+            onPressed: hasRunningAccept
                 ? null
                 : () {
                     cubit.doEvent(AcceptOrderEvent(orderId));
                   },
+               
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.pink,
               foregroundColor: Colors.white,

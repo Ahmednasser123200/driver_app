@@ -1,10 +1,10 @@
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 
-enum AppMessage { orderAccepted }
+enum AppSuccessEnum { orderAccepted }
 
-String handleSuccessText(AppLocalizations local, AppMessage message) {
+String handleSuccessText(AppLocalizations local, AppSuccessEnum message) {
   switch (message) {
-    case AppMessage.orderAccepted:
+    case AppSuccessEnum.orderAccepted:
       return local.accepted;
   }
 }

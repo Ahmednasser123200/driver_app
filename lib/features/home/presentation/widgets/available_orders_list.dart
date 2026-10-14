@@ -1,4 +1,5 @@
 import 'package:driver_app/config/localization/app_failure_message_mapper.dart';
+import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/features/home/presentation/manager/cubit/home_cubit.dart';
 import 'package:driver_app/features/home/presentation/manager/cubit/home_event.dart';
 import 'package:driver_app/features/home/presentation/manager/cubit/home_state.dart';
@@ -9,13 +10,18 @@ import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AvailableOrdersList extends StatelessWidget {
+class AvailableOrdersList extends StatefulWidget {
   const AvailableOrdersList({super.key});
 
   @override
+  State<AvailableOrdersList> createState() => _AvailableOrdersListState();
+}
+
+class _AvailableOrdersListState extends State<AvailableOrdersList> {
+  final GlobalKey<RefreshIndicatorState> refreshKey =
+      GlobalKey<RefreshIndicatorState>();
+  @override
   Widget build(BuildContext context) {
-    final GlobalKey<RefreshIndicatorState> refreshKey =
-        GlobalKey<RefreshIndicatorState>();
     final local = AppLocalizations.of(context)!;
     return BlocBuilder<HomeCubit, HomeState>(
       buildWhen: (previous, current) {
@@ -37,11 +43,11 @@ class AvailableOrdersList extends StatelessWidget {
         }
         final orderData = orderState.data?.items ?? [];
         if (orderData.isEmpty) {
-          return const Center(child: Text('No orders available'));
+          return const Center(child: Text(AppStrings.noOrders));
         }
 
         return RefreshWidget(
-          refreshKey: refreshKey,
+          refreshKey:refreshKey,
           onRefresh: () =>
               context.read<HomeCubit>().doEvent(GetAvailableOrdersEvent()),
           child: NotificationListener<ScrollNotification>(

@@ -4,17 +4,17 @@ import 'package:equatable/equatable.dart';
 
 class HomeState extends Equatable {
   final BaseState<AvailableOrders> getAvailableOrdersState;
-  final Set<String> acceptOrderId;
+  final String acceptOrderId;
   final bool isLoadingMore;
   const HomeState({
     this.getAvailableOrdersState = const BaseState(),
-    this.acceptOrderId = const {},
+    this.acceptOrderId = '',
     this.isLoadingMore = false,
   });
 
   HomeState copyWith({
     BaseState<AvailableOrders>? getAvailableOrdersState,
-    Set<String>? acceptOrderId,
+    String? acceptOrderId,
     bool? isLoadingMore,
   }) {
     return HomeState(

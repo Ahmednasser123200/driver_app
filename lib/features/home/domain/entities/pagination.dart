@@ -1,4 +1,6 @@
-class Pagination {
+import 'package:equatable/equatable.dart';
+
+class Pagination extends Equatable {
   final int page;
   final int pageSize;
   final int totalCount;
@@ -14,4 +16,14 @@ class Pagination {
     required this.hasNextPage,
     required this.hasPreviousPage,
   });
+
+  @override
+  List<Object?> get props => [
+    page,
+    pageSize,
+    totalCount,
+    totalPages,
+    hasNextPage,
+    hasPreviousPage,
+  ];
 }

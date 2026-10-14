@@ -59,18 +59,14 @@ class HomeCubit extends BaseCubit<HomeState, BaseUiEvent> {
   }
 
   Future<void> _acceptOrder(String orderId) async {
-    emit(state.copyWith(acceptOrderId: {...state.acceptOrderId, orderId}));
+    emit(state.copyWith(acceptOrderId: orderId));
     var result = await _acceptOrderUseCase.call(orderId);
     if (isClosed) return;
-    emit(
-      state.copyWith(acceptOrderId: {...state.acceptOrderId}..remove(orderId)),
-    );
+    emit(state.copyWith(acceptOrderId: ''));
     switch (result) {
       case Success<void>():
-        emitEvent(ShowSuccessMessage(AppMessage.orderAccepted));
-        emitEvent(
-          NavigateTo(Routes.orderDetails, arguments: {'orderId': orderId}),
-        );
+        emitEvent(ShowSuccessMessage(AppSuccessEnum.orderAccepted));
+        emitEvent(NavigateRepalceTo(Routes.orderDetails, arguments: orderId));
       case Error<void>():
         emitEvent(ShowFailureMessage(result.failure));
     }
@@ -86,10 +82,15 @@ class HomeCubit extends BaseCubit<HomeState, BaseUiEvent> {
       page: current.pagination.page + 1,
     );
     if (isClosed) return;
+    final latest = state.getAvailableOrdersState.data;
+    if (latest == null) {
+      emit(state.copyWith(isLoadingMore: false));
+      return;
+    }
     switch (result) {
       case Success<AvailableOrders>():
         var merged = AvailableOrders(
-          items: [...current.items, ...result.data.items],
+          items: [...latest.items, ...result.data.items],
           pagination: result.data.pagination,
         );
         emit(

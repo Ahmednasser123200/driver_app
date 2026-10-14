@@ -6,7 +6,7 @@ sealed class BaseUiEvent {
 }
 
 final class ShowSuccessMessage extends BaseUiEvent {
-  final AppMessage message;
+  final AppSuccessEnum message;
   const ShowSuccessMessage(this.message);
 }
 
@@ -19,6 +19,11 @@ class NavigateTo extends BaseUiEvent {
   final String routeName;
   final Object? arguments;
   const NavigateTo(this.routeName, {this.arguments});
+}
+class NavigateRepalceTo extends BaseUiEvent {
+  final String routeName;
+  final Object? arguments;  
+  const NavigateRepalceTo(this.routeName, {this.arguments});
 }
 
 class PopRoute extends BaseUiEvent {

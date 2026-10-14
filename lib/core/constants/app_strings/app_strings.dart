@@ -202,4 +202,8 @@ abstract final class AppStrings {
   static const String graduation = 'Graduation';
   static const String birthday = 'Birthday';
   static const String wedding = 'Wedding';
+  static const String page = 'page';
+  static const String pageSize = 'pageSize';
+  static const String orderrId = 'orderId';
+  static const String noOrders = 'No orders available';
 }

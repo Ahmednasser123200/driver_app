@@ -166,7 +166,7 @@ void main() {
 
       expect(
         events.whereType<ShowSuccessMessage>().single.message,
-        AppMessage.orderAccepted,
+        AppSuccessEnum.orderAccepted,
       );
       final navigation = events.whereType<NavigateTo>().single;
       expect(navigation.routeName, Routes.orderDetails);

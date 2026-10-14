@@ -1,6 +1,9 @@
+import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/di/di.dart';
+import 'package:driver_app/core/shared/widgets/base_ui_event_listener.dart';
 import 'package:driver_app/features/home/presentation/manager/cubit/home_cubit.dart';
 import 'package:driver_app/features/home/presentation/manager/cubit/home_event.dart';
+import 'package:driver_app/features/home/presentation/manager/cubit/home_state.dart';
 import 'package:driver_app/features/home/presentation/view/home_driver_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,7 +55,9 @@ abstract final class AppRoutes {
           builder: (_) => BlocProvider<HomeCubit>(
             create: (context) =>
                 getIt.get<HomeCubit>()..doEvent(GetAvailableOrdersEvent()),
-            child: const HomeDriverView(),
+            child: BaseUiEventListener<HomeCubit, HomeState, BaseUiEvent>(
+              child: HomeDriverView(),
+            ),
           ),
         );
       case Routes.orders:

@@ -8,6 +8,5 @@ class Recipient extends Equatable {
   const Recipient({required this.name, required this.city, required this.area});
 
   @override
-  // TODO: implement props
   List<Object?> get props => [name, city, area];
 }

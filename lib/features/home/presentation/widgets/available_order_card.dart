@@ -1,3 +1,4 @@
+import 'package:driver_app/core/constants/app_images/app_images.dart';
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:driver_app/features/home/domain/entities/available_order.dart';
 import 'package:driver_app/features/home/presentation/widgets/accept_order_button.dart';
@@ -48,7 +49,7 @@ class AvailableOrderCard extends StatelessWidget {
             const SizedBox(height: 8),
             InformationCard(
               theme: theme,
-              image: 'https://picsum.photos/100',
+              image: AppImages.storeImage,
               title: order.store.name,
               address: order.store.address,
             ),
@@ -65,7 +66,7 @@ class AvailableOrderCard extends StatelessWidget {
 
             InformationCard(
               theme: theme,
-              image: 'https://picsum.photos/101',
+              image: AppImages.personImage,
               title: order.recipient.name,
               address: '${order.recipient.city} , ${order.recipient.area}',
             ),
