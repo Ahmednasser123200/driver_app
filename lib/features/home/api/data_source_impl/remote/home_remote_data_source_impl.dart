@@ -20,6 +20,4 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   Future<BaseResponse<void>> acceptOrder(String orderId) async {
     return excecuteApiCall(() => apiClient.acceptOrder(orderId));
   }
-
-
 }

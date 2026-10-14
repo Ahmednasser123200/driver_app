@@ -28,13 +28,12 @@ class AcceptOrderButton extends StatelessWidget {
           width: 140,
           height: 46,
           child: ElevatedButton(
-            
             onPressed: hasRunningAccept
                 ? null
                 : () {
                     cubit.doEvent(AcceptOrderEvent(orderId));
                   },
-               
+
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.pink,
               foregroundColor: Colors.white,

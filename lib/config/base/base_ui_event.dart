@@ -20,9 +20,10 @@ class NavigateTo extends BaseUiEvent {
   final Object? arguments;
   const NavigateTo(this.routeName, {this.arguments});
 }
+
 class NavigateRepalceTo extends BaseUiEvent {
   final String routeName;
-  final Object? arguments;  
+  final Object? arguments;
   const NavigateRepalceTo(this.routeName, {this.arguments});
 }
 

@@ -47,7 +47,7 @@ class _AvailableOrdersListState extends State<AvailableOrdersList> {
         }
 
         return RefreshWidget(
-          refreshKey:refreshKey,
+          refreshKey: refreshKey,
           onRefresh: () =>
               context.read<HomeCubit>().doEvent(GetAvailableOrdersEvent()),
           child: NotificationListener<ScrollNotification>(
