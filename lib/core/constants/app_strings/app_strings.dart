@@ -161,7 +161,8 @@ static const String unknown = 'Unknown';
   static const String deliveryTime = 'Delivery time';
   static const String estimatedArrival = 'Estimated arrival';
   static const String itIsGift = 'It is a gift';
-  static const String orderPlacedSuccessfully = 'Your order placed successfully!';
+  static const String orderPlacedSuccessfully =
+      'Your order placed successfully!';
   static const String orderDeliveredSuccessfully =
       'Thank you!! The order delivered successfully';
   static const String thankYou = 'Thank you';
@@ -203,4 +204,8 @@ static const String unknown = 'Unknown';
   static const String graduation = 'Graduation';
   static const String birthday = 'Birthday';
   static const String wedding = 'Wedding';
+  static const String page = 'page';
+  static const String pageSize = 'pageSize';
+  static const String orderrId = 'orderId';
+  static const String noOrders = 'No orders available';
 }

@@ -1,5 +1,5 @@
 abstract final class Routes {
-  static const String initial = '/';
+  static const String initial = '/initial';
   static const String onboarding = '/onboarding';
   static const String login = '/login';
   static const String forgetPassword = '/forget-password';
@@ -7,7 +7,7 @@ abstract final class Routes {
   static const String resetPassword = '/reset-password';
   static const String apply = '/apply';
   static const String successApply = '/success-apply';
-  static const String home = '/home';
+  static const String home = '/';
   static const String orders = '/orders';
   static const String orderDetails = '/order-details';
   static const String tracking = '/tracking';
