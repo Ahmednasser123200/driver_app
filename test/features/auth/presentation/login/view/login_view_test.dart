@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
+import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/di/di.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_cubit.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_intent.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_state.dart';
+import 'package:driver_app/features/auth/presentation/login/manager/login_ui_event.dart';
 import 'package:driver_app/features/auth/presentation/login/view/login_view.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -148,6 +152,23 @@ void main() {
       expect(find.text('saved@driver.com'), findsOneWidget);
       final checkbox = tester.widget<Checkbox>(find.byType(Checkbox));
       expect(checkbox.value, isTrue);
+    });
+
+    testWidgets('autofills email field when AutofillRememberedEmailEvent is received from uiEventStream', (tester) async {
+      final uiEventController = StreamController<BaseUiEvent>.broadcast();
+      when(() => mockLoginCubit.uiEventStream).thenAnswer((_) => uiEventController.stream);
+
+      await tester.pumpWidget(createTestableWidget(const LoginView()));
+      await tester.pumpAndSettle();
+
+      expect(find.text('autofilled@driver.com'), findsNothing);
+
+      uiEventController.add(const AutofillRememberedEmailEvent('autofilled@driver.com'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('autofilled@driver.com'), findsOneWidget);
+
+      await uiEventController.close();
     });
   });
 }

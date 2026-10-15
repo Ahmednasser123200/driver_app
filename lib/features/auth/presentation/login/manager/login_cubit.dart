@@ -12,6 +12,7 @@ import '../../../../../core/constants/app_strings/app_strings.dart';
 
 import 'login_intent.dart';
 import 'login_state.dart';
+import 'login_ui_event.dart';
 
 @injectable
 class LoginCubit extends BaseCubit<LoginState, BaseUiEvent> {
@@ -44,6 +45,7 @@ class LoginCubit extends BaseCubit<LoginState, BaseUiEvent> {
     final email = await _getRememberedEmailUseCase();
     if (email != null && email.isNotEmpty) {
       emit(state.copyWith(email: email, rememberMe: true));
+      emitEvent(AutofillRememberedEmailEvent(email));
     }
   }
 

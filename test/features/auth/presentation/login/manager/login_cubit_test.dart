@@ -11,6 +11,7 @@ import 'package:driver_app/features/auth/domain/use_case/login_use_case.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_cubit.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_intent.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_state.dart';
+import 'package:driver_app/features/auth/presentation/login/manager/login_ui_event.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -248,5 +249,27 @@ void main() {
       act: (cubit) => cubit.handle(LoadRememberedCredentials()),
       expect: () => [],
     );
+
+    test('emits AutofillRememberedEmailEvent on uiEventStream when remembered email exists', () async {
+      when(() => mockGetRememberedEmailUseCase())
+          .thenAnswer((_) async => 'driver@example.com');
+
+      final loginCubit = createCubit();
+      final events = <BaseUiEvent>[];
+      final subscription = loginCubit.uiEventStream.listen(events.add);
+
+      await loginCubit.handle(LoadRememberedCredentials());
+      await Future.delayed(Duration.zero);
+
+      expect(events.length, equals(1));
+      expect(events[0], isA<AutofillRememberedEmailEvent>());
+      expect(
+        (events[0] as AutofillRememberedEmailEvent).email,
+        equals('driver@example.com'),
+      );
+
+      await subscription.cancel();
+      await loginCubit.close();
+    });
   });
 }

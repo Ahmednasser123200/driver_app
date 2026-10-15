@@ -10,6 +10,7 @@ import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_cubit.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_intent.dart';
 import 'package:driver_app/features/auth/presentation/login/manager/login_state.dart';
+import 'package:driver_app/features/auth/presentation/login/manager/login_ui_event.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,6 +57,17 @@ class _LoginViewContentState extends State<_LoginViewContent> {
     super.dispose();
   }
 
+  void _onCustomEvent(BuildContext context, BaseUiEvent event) {
+    switch (event) {
+      case AutofillRememberedEmailEvent(:final email):
+        if (email.isNotEmpty && _emailController.text.isEmpty) {
+          _emailController.text = email;
+        }
+      default:
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,16 +92,8 @@ class _LoginViewContentState extends State<_LoginViewContent> {
       ),
       body: SafeArea(
         child: BaseUiEventListener<LoginCubit, LoginState, BaseUiEvent>(
-          child: BlocListener<LoginCubit, LoginState>(
-            listenWhen: (previous, current) =>
-                previous.email != current.email &&
-                _emailController.text != current.email,
-            listener: (context, state) {
-              if (state.email.isNotEmpty && _emailController.text.isEmpty) {
-                _emailController.text = state.email;
-              }
-            },
-            child: SingleChildScrollView(
+          onCustomEvent: _onCustomEvent,
+          child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(
                 horizontal: 16.w,
                 vertical: 24.h,
@@ -215,7 +219,6 @@ class _LoginViewContentState extends State<_LoginViewContent> {
                 ],
               ),
             ),
-          ),
           ),
         ),
       ),
