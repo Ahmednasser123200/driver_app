@@ -7,6 +7,9 @@ abstract interface class TokenStorageService {
   Future<String?> getAccessToken();
   Future<void> saveRefreshToken(String token, {bool persist = true});
   Future<String?> getRefreshToken();
+  Future<void> saveRememberedEmail(String email);
+  Future<String?> getRememberedEmail();
+  Future<void> deleteRememberedEmail();
   Future<void> clear();
 }
 
@@ -57,6 +60,21 @@ class TokenStorageServiceImpl implements TokenStorageService {
     final token = await _storage.read(key: StorageKeys.kRefreshToken);
     _inMemoryRefreshToken = token;
     return token;
+  }
+
+  @override
+  Future<void> saveRememberedEmail(String email) async {
+    await _storage.write(key: StorageKeys.kRememberedEmail, value: email);
+  }
+
+  @override
+  Future<String?> getRememberedEmail() async {
+    return _storage.read(key: StorageKeys.kRememberedEmail);
+  }
+
+  @override
+  Future<void> deleteRememberedEmail() async {
+    await _storage.delete(key: StorageKeys.kRememberedEmail);
   }
 
   @override

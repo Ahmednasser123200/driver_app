@@ -12,7 +12,6 @@ import 'package:driver_app/features/auth/domain/repo/auth_repo.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/services/token_storage_service.dart';
-import '../../api/service/secure_storage.dart';
 import '../../domain/entities/apply_entity/applications_entity.dart';
 import '../../domain/entities/forget_entity/forget_password_entity.dart';
 import '../../domain/entities/forget_entity/reset_passsword_entity.dart';
@@ -28,11 +27,9 @@ import '../model/response/apply_response/vehicle_type_dto.dart';
 @Injectable(as: AuthRepo)
 class AuthRepoImpl implements AuthRepo {
   final AuthRemoteDataSource _remoteDataSource;
-  final SecureStorageService _secureStorage;
   final TokenStorageService _tokenStorage;
 
-  AuthRepoImpl(this._remoteDataSource, this._tokenStorage, this._secureStorage);
-
+  AuthRepoImpl(this._remoteDataSource, this._tokenStorage);
 
   @override
   Future<BaseResponse<LoginEntity>> login(
@@ -68,9 +65,9 @@ class AuthRepoImpl implements AuthRepo {
         );
 
         if (rememberMe) {
-          await _secureStorage.saveRememberedEmail(credentials.email);
+          await _tokenStorage.saveRememberedEmail(credentials.email);
         } else {
-          await _secureStorage.deleteRememberedEmail();
+          await _tokenStorage.deleteRememberedEmail();
         }
 
         return Success(entity);
@@ -86,8 +83,8 @@ class AuthRepoImpl implements AuthRepo {
 
   @override
   Future<BaseResponse<ForgetPasswordEntity>> forgetPassword(
-      String email,
-      ) async {
+    String email,
+  ) async {
     final response = await _remoteDataSource.forgotPassword(
       ForgotPasswordRequestDto(email: email),
     );
@@ -116,12 +113,11 @@ class AuthRepoImpl implements AuthRepo {
     };
   }
 
-
   @override
   Future<BaseResponse<VerifyOtpEntity>> verifyOtp(
-      String email,
-      String otp,
-      ) async {
+    String email,
+    String otp,
+  ) async {
     final response = await _remoteDataSource.verifyOtp(
       verifyOtpRequest: VerifyOtpRequest(email: email, otp: otp),
     );
@@ -136,14 +132,12 @@ class AuthRepoImpl implements AuthRepo {
 
   @override
   Future<void> saveRememberedEmail(String email) =>
-      _secureStorage.saveRememberedEmail(email);
+      _tokenStorage.saveRememberedEmail(email);
   @override
-  Future<void> deleteRememberedEmail() =>
-      _secureStorage.deleteRememberedEmail();
+  Future<void> deleteRememberedEmail() => _tokenStorage.deleteRememberedEmail();
 
   @override
-  Future<String?> loadRememberedEmail() => _secureStorage.getRememberedEmail();
-
+  Future<String?> loadRememberedEmail() => _tokenStorage.getRememberedEmail();
 
   @override
   Future<BaseResponse<void>> addApplication(

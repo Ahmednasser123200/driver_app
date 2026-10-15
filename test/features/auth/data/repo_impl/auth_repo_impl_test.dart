@@ -1,5 +1,4 @@
 import 'package:driver_app/core/services/token_storage_service.dart';
-import 'package:driver_app/features/auth/api/service/secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:driver_app/config/base/base_response.dart';
@@ -21,8 +20,6 @@ class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
 
 class MockTokenStorageService extends Mock implements TokenStorageService {}
 
-class MockSecureStorageService extends Mock implements SecureStorageService {}
-
 class FakeApplicationRequestDto extends Fake implements ApplicationRequestDto {}
 
 class FakeLoginRequest extends Fake implements LoginRequest {}
@@ -35,18 +32,12 @@ void main() {
 
   late MockAuthRemoteDataSource mockRemoteDataSource;
   late MockTokenStorageService mockTokenStorageService;
-  late MockSecureStorageService mockSecureStorageService;
   late AuthRepoImpl repoImpl;
 
   setUp(() {
     mockRemoteDataSource = MockAuthRemoteDataSource();
     mockTokenStorageService = MockTokenStorageService();
-    mockSecureStorageService = MockSecureStorageService();
-    repoImpl = AuthRepoImpl(
-      mockRemoteDataSource,
-      mockTokenStorageService,
-      mockSecureStorageService,
-    );
+    repoImpl = AuthRepoImpl(mockRemoteDataSource, mockTokenStorageService);
   });
 
   group('AuthRepoImpl - addApplication', () {
@@ -117,42 +108,126 @@ void main() {
       ),
     );
 
-    test('persists tokens and saves remembered email when rememberMe is true', () async {
-      when(() => mockRemoteDataSource.login(any()))
-          .thenAnswer((_) async => loginResponse);
-      when(() => mockTokenStorageService.saveAccessToken(any(), persist: any(named: 'persist')))
-          .thenAnswer((_) async {});
-      when(() => mockTokenStorageService.saveRefreshToken(any(), persist: any(named: 'persist')))
-          .thenAnswer((_) async {});
-      when(() => mockSecureStorageService.saveRememberedEmail(any()))
-          .thenAnswer((_) async {});
+    test(
+      'persists tokens and saves remembered email when rememberMe is true',
+      () async {
+        when(
+          () => mockRemoteDataSource.login(any()),
+        ).thenAnswer((_) async => loginResponse);
+        when(
+          () => mockTokenStorageService.saveAccessToken(
+            any(),
+            persist: any(named: 'persist'),
+          ),
+        ).thenAnswer((_) async {});
+        when(
+          () => mockTokenStorageService.saveRefreshToken(
+            any(),
+            persist: any(named: 'persist'),
+          ),
+        ).thenAnswer((_) async {});
+        when(
+          () => mockTokenStorageService.saveRememberedEmail(any()),
+        ).thenAnswer((_) async {});
 
-      final result = await repoImpl.login(credentials, rememberMe: true);
+        final result = await repoImpl.login(credentials, rememberMe: true);
 
-      expect(result, isA<Success<LoginEntity>>());
-      verify(() => mockTokenStorageService.saveAccessToken('mock_access_token', persist: true)).called(1);
-      verify(() => mockTokenStorageService.saveRefreshToken('mock_refresh_token', persist: true)).called(1);
-      verify(() => mockSecureStorageService.saveRememberedEmail('driver@flowery.com')).called(1);
-      verifyNever(() => mockSecureStorageService.deleteRememberedEmail());
+        expect(result, isA<Success<LoginEntity>>());
+        verify(
+          () => mockTokenStorageService.saveAccessToken(
+            'mock_access_token',
+            persist: true,
+          ),
+        ).called(1);
+        verify(
+          () => mockTokenStorageService.saveRefreshToken(
+            'mock_refresh_token',
+            persist: true,
+          ),
+        ).called(1);
+        verify(
+          () =>
+              mockTokenStorageService.saveRememberedEmail('driver@flowery.com'),
+        ).called(1);
+        verifyNever(() => mockTokenStorageService.deleteRememberedEmail());
+      },
+    );
+
+    test(
+      'does not persist tokens and deletes remembered email when rememberMe is false',
+      () async {
+        when(
+          () => mockRemoteDataSource.login(any()),
+        ).thenAnswer((_) async => loginResponse);
+        when(
+          () => mockTokenStorageService.saveAccessToken(
+            any(),
+            persist: any(named: 'persist'),
+          ),
+        ).thenAnswer((_) async {});
+        when(
+          () => mockTokenStorageService.saveRefreshToken(
+            any(),
+            persist: any(named: 'persist'),
+          ),
+        ).thenAnswer((_) async {});
+        when(
+          () => mockTokenStorageService.deleteRememberedEmail(),
+        ).thenAnswer((_) async {});
+
+        final result = await repoImpl.login(credentials, rememberMe: false);
+
+        expect(result, isA<Success<LoginEntity>>());
+        verify(
+          () => mockTokenStorageService.saveAccessToken(
+            'mock_access_token',
+            persist: false,
+          ),
+        ).called(1);
+        verify(
+          () => mockTokenStorageService.saveRefreshToken(
+            'mock_refresh_token',
+            persist: false,
+          ),
+        ).called(1);
+        verify(() => mockTokenStorageService.deleteRememberedEmail()).called(1);
+        verifyNever(() => mockTokenStorageService.saveRememberedEmail(any()));
+      },
+    );
+  });
+
+  group('AuthRepoImpl - remembered email operations', () {
+    test('saveRememberedEmail delegates to TokenStorageService', () async {
+      when(
+        () => mockTokenStorageService.saveRememberedEmail(any()),
+      ).thenAnswer((_) async {});
+
+      await repoImpl.saveRememberedEmail('driver@flowery.com');
+
+      verify(
+        () => mockTokenStorageService.saveRememberedEmail('driver@flowery.com'),
+      ).called(1);
     });
 
-    test('does not persist tokens and deletes remembered email when rememberMe is false', () async {
-      when(() => mockRemoteDataSource.login(any()))
-          .thenAnswer((_) async => loginResponse);
-      when(() => mockTokenStorageService.saveAccessToken(any(), persist: any(named: 'persist')))
-          .thenAnswer((_) async {});
-      when(() => mockTokenStorageService.saveRefreshToken(any(), persist: any(named: 'persist')))
-          .thenAnswer((_) async {});
-      when(() => mockSecureStorageService.deleteRememberedEmail())
-          .thenAnswer((_) async {});
+    test('deleteRememberedEmail delegates to TokenStorageService', () async {
+      when(
+        () => mockTokenStorageService.deleteRememberedEmail(),
+      ).thenAnswer((_) async {});
 
-      final result = await repoImpl.login(credentials, rememberMe: false);
+      await repoImpl.deleteRememberedEmail();
 
-      expect(result, isA<Success<LoginEntity>>());
-      verify(() => mockTokenStorageService.saveAccessToken('mock_access_token', persist: false)).called(1);
-      verify(() => mockTokenStorageService.saveRefreshToken('mock_refresh_token', persist: false)).called(1);
-      verify(() => mockSecureStorageService.deleteRememberedEmail()).called(1);
-      verifyNever(() => mockSecureStorageService.saveRememberedEmail(any()));
+      verify(() => mockTokenStorageService.deleteRememberedEmail()).called(1);
+    });
+
+    test('loadRememberedEmail delegates to TokenStorageService', () async {
+      when(
+        () => mockTokenStorageService.getRememberedEmail(),
+      ).thenAnswer((_) async => 'driver@flowery.com');
+
+      final result = await repoImpl.loadRememberedEmail();
+
+      expect(result, 'driver@flowery.com');
+      verify(() => mockTokenStorageService.getRememberedEmail()).called(1);
     });
   });
 }
