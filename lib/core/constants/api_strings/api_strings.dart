@@ -146,8 +146,7 @@ abstract class ApiStrings {
 
   static const String availableOrders = '/order/drivers/available-orders';
 
-  static String acceptOrder(String orderId) =>
-      '/order/drivers/me/orders/$orderId/accept';
+  static const String acceptOrder = "/order/drivers/me/orders/{orderId}/accept";
 
   static const String activeOrder = '/order/drivers/me/active-order';
 

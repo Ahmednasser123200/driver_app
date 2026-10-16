@@ -18,7 +18,6 @@ class BaseState<T> extends Equatable {
     return BaseState<T>(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
-      failure: clearFailure ? null : failure ?? this.failure,
       data: identical(data, _clearValue) ? this.data : data as T?,
     );
   }
@@ -27,7 +26,6 @@ class BaseState<T> extends Equatable {
   List<Object?> get props => [
         isLoading,
         errorMessage,
-        failure,
         data,
       ];
 }

@@ -102,13 +102,13 @@ void main() {
       expect(events, hasLength(1));
       expect(
         events.single,
-        isA<ShowOrderDetailsFailure>().having(
+        isA<ShowFailureMessage>().having(
           (e) => e.failure,
           'failure',
           isA<NotFoundFailure>(),
         ),
       );
-      expect(cubit.state.orderDetails.failure, isA<NotFoundFailure>());
+      expect(cubit.state.orderDetails.errorMessage, isA<NotFoundFailure>());
       expect(cubit.state.orderDetails.isLoading, isFalse);
     });
 
@@ -159,7 +159,7 @@ void main() {
       );
 
       expect(events, hasLength(1));
-      expect(events.single, isA<ShowOrderStatusUpdated>());
+      expect(events.single, isA<ShowSuccessMessage>());
     });
 
     test('emits ShowOrderDetailsFailure on error', () async {
@@ -178,13 +178,13 @@ void main() {
       expect(events, hasLength(1));
       expect(
         events.single,
-        isA<ShowOrderDetailsFailure>().having(
+        isA<ShowFailureMessage>().having(
           (e) => e.failure,
           'failure',
           isA<ConflictFailure>(),
         ),
       );
-      expect(cubit.state.updateOrderStatus.failure, isA<ConflictFailure>());
+      expect(cubit.state.updateOrderStatus.errorMessage, isA<ConflictFailure>());
     });
 
     test('passes orderId and newStatus to the use case', () async {

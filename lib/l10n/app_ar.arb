@@ -79,6 +79,7 @@
   "orderNumber": "# 123456",
   "pending": "قيد الانتظار",
   "accepted": "مقبول",
+  "orderUpdated": "تم تحديث الأوردر,
   "picked": "تم الاستلام",
   "outForDelivery": "في الطريق للتوصيل",
   "arrived": "وصل",

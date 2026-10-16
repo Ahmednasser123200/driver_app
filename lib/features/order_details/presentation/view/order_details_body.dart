@@ -48,7 +48,7 @@ class OrderDetailsBody extends StatelessWidget {
         if (data == null) {
           return OrderDetailsError(
             orderId: orderId,
-            failure: state.failure,
+            failure: state.errorMessage,
           );
         }
 
@@ -144,7 +144,7 @@ class OrderDetailsContent extends StatelessWidget {
           SizedBox(height: 13.h),
           PaymentMethodCard(
             title: l10n.paymentMethod,
-            method: data.paymentMethod ?? l10n.cashOnDelivery,
+            method: data.paymentMethod ,
           ),
           SizedBox(height: 13.h),
         ],
@@ -230,9 +230,7 @@ class OrderAddressesSection extends StatelessWidget {
         SizedBox(height: 10.h),
         UserAddressCard(
           address: data.userAddress.addressLine,
-          userName: data.userAddress.recipientName ??
-              data.recipientInfo.recipientName ??
-              l10n.customerName,
+          userName: data.userAddress.recipientName ,
         ),
       ],
     );

@@ -1,4 +1,5 @@
 import 'package:driver_app/config/base/base_state.dart';
+import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -7,7 +8,7 @@ void main() {
       const state = BaseState<String>();
 
       expect(state.isLoading, isFalse);
-      expect(state.errorMessage, '');
+      expect(state.errorMessage, isNull);
       expect(state.data, isNull);
     });
   });
@@ -16,7 +17,7 @@ void main() {
     test('returns an equal state when no argument is provided', () {
       const state = BaseState<String>(
         isLoading: true,
-        errorMessage: 'boom',
+        errorMessage: ServerFailure(),
         data: 'payload',
       );
 
@@ -26,21 +27,24 @@ void main() {
     });
 
     test('updates only isLoading', () {
-      const state = BaseState<String>(errorMessage: 'boom', data: 'payload');
+      const state = BaseState<String>(
+        errorMessage: ServerFailure(),
+        data: 'payload',
+      );
 
       final result = state.copyWith(isLoading: true);
 
       expect(result.isLoading, isTrue);
-      expect(result.errorMessage, 'boom');
+      expect(result.errorMessage, const ServerFailure());
       expect(result.data, 'payload');
     });
 
     test('updates only errorMessage', () {
       const state = BaseState<String>(isLoading: true, data: 'payload');
 
-      final result = state.copyWith(errorMessage: 'new error');
+      final result = state.copyWith(errorMessage: const TimeoutFailure());
 
-      expect(result.errorMessage, 'new error');
+      expect(result.errorMessage, const TimeoutFailure());
       expect(result.isLoading, isTrue);
       expect(result.data, 'payload');
     });
@@ -80,18 +84,30 @@ void main() {
 
   group('BaseState equality', () {
     test('states with identical values are equal', () {
-      const a = BaseState<String>(isLoading: true, errorMessage: 'e', data: 'd');
-      const b = BaseState<String>(isLoading: true, errorMessage: 'e', data: 'd');
+      const a = BaseState<String>(
+        isLoading: true,
+        errorMessage: ServerFailure(),
+        data: 'd',
+      );
+      const b = BaseState<String>(
+        isLoading: true,
+        errorMessage: ServerFailure(),
+        data: 'd',
+      );
 
       expect(a, b);
       expect(a.hashCode, b.hashCode);
     });
 
     test('states differing in any prop are not equal', () {
-      const base = BaseState<String>(isLoading: true, errorMessage: 'e', data: 'd');
+      const base = BaseState<String>(
+        isLoading: true,
+        errorMessage: ServerFailure(),
+        data: 'd',
+      );
 
       expect(base, isNot(base.copyWith(isLoading: false)));
-      expect(base, isNot(base.copyWith(errorMessage: 'other')));
+      expect(base, isNot(base.copyWith(errorMessage: const TimeoutFailure())));
       expect(base, isNot(base.copyWith(data: 'other')));
     });
   });

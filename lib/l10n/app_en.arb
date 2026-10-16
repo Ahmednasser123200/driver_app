@@ -79,6 +79,7 @@
   "orderNumber": "# 123456",
   "pending": "Pending",
   "accepted": "Accepted",
+  "orderUpdated": "Order Updated"
   "picked": "Picked",
   "outForDelivery": "Out for delivery",
   "arrived": "Arrived",

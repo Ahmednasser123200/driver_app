@@ -1,6 +1,8 @@
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/config/localization/handle_success_text.dart';
 
+
+
 sealed class BaseUiEvent {
   const BaseUiEvent();
 }
@@ -34,8 +36,3 @@ class PopRoute extends BaseUiEvent {
   const PopRoute([this.result]);
 }
 
-class ShowFailureMessage extends BaseUiEvent {
-  final AppFailure failure;
-
-  const ShowFailureMessage(this.failure);
-}

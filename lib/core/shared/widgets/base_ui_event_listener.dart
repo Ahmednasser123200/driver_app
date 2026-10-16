@@ -15,11 +15,13 @@ class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
     super.key,
     this.cubit,
     this.onCustomEvent,
+    this.onEvent,
     required this.child,
   });
 
   final C? cubit;
   final void Function(BuildContext context, E event)? onCustomEvent;
+  final void Function(BuildContext context, E event)? onEvent;
   final Widget child;
 
   @override
@@ -88,11 +90,13 @@ class _BaseUiEventListenerState<
         Navigator.of(
           context,
         ).pushReplacementNamed(event.routeName, arguments: event.arguments);
-
-      
+        widget.onCustomEvent?.call(context, event);
+        widget.onEvent?.call(context, event);
+        return;
       default:
         widget.onCustomEvent?.call(context, event);
-
+        widget.onEvent?.call(context, event);
+        return;
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/localization/app_failure_message_mapper.dart';
+import 'package:driver_app/config/localization/handle_success_text.dart';
 import 'package:driver_app/core/shared/widgets/base_ui_event_listener.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
@@ -41,36 +42,34 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
     return BaseUiEventListener<
       OrderDetailsCubit,
       OrderDetailsState,
-      OrderDetailsUiEvent
+      BaseUiEvent
     >(
-      onCustomEvent: _handleUiEvent,
+      onEvent: (context, event) {
+        final l10n = AppLocalizations.of(context)!;
+        switch (event) {
+          case ShowSuccessMessage():
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(handleSuccessText(l10n, event.message)),
+                backgroundColor: Colors.green,
+              ),
+            );
+          case ShowFailureMessage():
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(mapAppFailureToMessage(event.failure, l10n)),
+                backgroundColor: Colors.red,
+              ),
+            );
+          default:
+        }
+      },
       child: Scaffold(
         appBar: AppBar(title: Text(AppLocalizations.of(context)!.orderDetails)),
         body: OrderDetailsBody(orderId: widget.orderId),
         bottomNavigationBar: OrderStatusAction(orderId: widget.orderId),
       ),
     );
-  }
-
-  void _handleUiEvent(BuildContext context, OrderDetailsUiEvent event) {
-    final l10n = AppLocalizations.of(context)!;
-
-    switch (event) {
-      case ShowOrderStatusUpdated():
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.orderStatusUpdatedSuccessfully),
-            backgroundColor: Colors.green,
-          ),
-        );
-
-      case ShowOrderDetailsFailure():
-        final message = mapAppFailureToMessage(event.failure, l10n);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message), backgroundColor: Colors.red),
-        );
-    }
   }
 }
 

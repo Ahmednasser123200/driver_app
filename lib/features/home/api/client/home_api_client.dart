@@ -21,6 +21,7 @@ abstract class HomeApiClient {
   });
 
   @POST(ApiStrings.acceptOrder)
+
   Future<void> acceptOrder(
 
     @Path(AppStrings.orderrId) String orderId,

@@ -5,6 +5,9 @@ import 'package:driver_app/features/home/presentation/manager/cubit/home_cubit.d
 import 'package:driver_app/features/home/presentation/manager/cubit/home_event.dart';
 import 'package:driver_app/features/home/presentation/manager/cubit/home_state.dart';
 import 'package:driver_app/features/home/presentation/view/home_driver_view.dart';
+import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
+import 'package:driver_app/features/order_details/presentation/view/order_details_view.dart';
+import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -1,5 +1,7 @@
 import 'package:driver_app/config/base/base_cubit.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
+import 'package:driver_app/config/errors/app_failure.dart';
+import 'package:driver_app/config/localization/handle_success_text.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _TestState {
@@ -40,10 +42,10 @@ void main() {
       final received = <BaseUiEvent>[];
 
       final subscription = cubit.uiEventStream.listen(received.add);
-      cubit.emitEvent(const ShowSuccessMessage('saved'));
+      cubit.emitEvent(const ShowSuccessMessage(AppSuccessEnum.orderAccepted));
       await Future<void>.delayed(Duration.zero);
 
-      expect(received, [const ShowSuccessMessage('saved')]);
+      expect(received, [const ShowSuccessMessage(AppSuccessEnum.orderAccepted)]);
 
       await subscription.cancel();
       await cubit.close();
@@ -57,7 +59,7 @@ void main() {
       final firstSub = cubit.uiEventStream.listen(first.add);
       final secondSub = cubit.uiEventStream.listen(second.add);
 
-      cubit.emitEvent(const ShowErrorMessage('failed'));
+      cubit.emitEvent(const ShowFailureMessage(ServerFailure()));
       await Future<void>.delayed(Duration.zero);
 
       expect(first, hasLength(1));
@@ -74,8 +76,8 @@ void main() {
 
       final subscription = cubit.uiEventStream.listen(received.add);
 
-      cubit.emitEvent(const ShowSuccessMessage('ok'));
-      cubit.emitEvent(const ShowErrorMessage('bad'));
+      cubit.emitEvent(const ShowSuccessMessage(AppSuccessEnum.orderAccepted));
+      cubit.emitEvent(const ShowFailureMessage(ServerFailure()));
       cubit.emitEvent(const NavigateTo('/home', arguments: 42));
       cubit.emitEvent(const PopRoute('result'));
       await Future<void>.delayed(Duration.zero);
@@ -96,7 +98,7 @@ void main() {
     test('does not replay previously emitted events to new listeners', () async {
       final cubit = _TestCubit();
 
-      cubit.emitEvent(const ShowSuccessMessage('before'));
+      cubit.emitEvent(const ShowSuccessMessage(AppSuccessEnum.orderAccepted));
       await Future<void>.delayed(Duration.zero);
 
       final received = <BaseUiEvent>[];
@@ -117,7 +119,7 @@ void main() {
       await cubit.close();
 
       expect(
-        () => cubit.emitEvent(const ShowSuccessMessage('after close')),
+        () => cubit.emitEvent(const ShowSuccessMessage(AppSuccessEnum.orderAccepted)),
         returnsNormally,
       );
     });
