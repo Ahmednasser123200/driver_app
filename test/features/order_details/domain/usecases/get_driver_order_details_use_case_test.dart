@@ -33,39 +33,40 @@ void main() {
   group('success path', () {
     test('returns the entity produced by the repository', () async {
       final entity = buildDriverOrderDetailsEntity();
-      when(() => repository.getOrderDetails(any()))
-          .thenAnswer((_) async => Success(entity));
+      when(
+        () => repository.getOrderDetails(any()),
+      ).thenAnswer((_) async => Success(entity));
 
       final result = await useCase.execute(kOrderId);
 
       expect(result, isA<Success<DriverOrderDetailsEntity>>());
-      expect(
-        (result as Success<DriverOrderDetailsEntity>).data,
-        same(entity),
-      );
+      expect((result as Success<DriverOrderDetailsEntity>).data, same(entity));
     });
 
     test('forwards the orderId to the repository unchanged', () async {
-      when(() => repository.getOrderDetails(any())).thenAnswer(
-        (_) async => Success(buildDriverOrderDetailsEntity()),
-      );
+      when(
+        () => repository.getOrderDetails(any()),
+      ).thenAnswer((_) async => Success(buildDriverOrderDetailsEntity()));
 
       await useCase.execute(kOrderId);
 
       verify(() => repository.getOrderDetails(kOrderId)).called(1);
     });
 
-    test('calls getOrderDetails exactly once and no other repo method', () async {
-      when(() => repository.getOrderDetails(any())).thenAnswer(
-        (_) async => Success(buildDriverOrderDetailsEntity()),
-      );
+    test(
+      'calls getOrderDetails exactly once and no other repo method',
+      () async {
+        when(
+          () => repository.getOrderDetails(any()),
+        ).thenAnswer((_) async => Success(buildDriverOrderDetailsEntity()));
 
-      await useCase.execute(kOrderId);
+        await useCase.execute(kOrderId);
 
-      verify(() => repository.getOrderDetails(any())).called(1);
-      verifyNever(() => repository.updateOrderStatus(any()));
-      verifyNever(() => repository.reportDriverLocation(any()));
-    });
+        verify(() => repository.getOrderDetails(any())).called(1);
+        verifyNever(() => repository.updateOrderStatus(any()));
+        verifyNever(() => repository.reportDriverLocation(any()));
+      },
+    );
   });
 
   group('failure path', () {
@@ -90,9 +91,9 @@ void main() {
     });
 
     test('does not swallow a thrown exception', () async {
-      when(() => repository.getOrderDetails(any())).thenThrow(
-        StateError('repo exploded'),
-      );
+      when(
+        () => repository.getOrderDetails(any()),
+      ).thenThrow(StateError('repo exploded'));
 
       await expectLater(
         () => useCase.execute(kOrderId),

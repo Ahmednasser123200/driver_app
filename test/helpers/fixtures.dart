@@ -1,4 +1,5 @@
 import 'package:driver_app/features/order_details/data/dtos/responses/driver_order_details_response_dto.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/order_item_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/pickup_address_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/recipient_info_dto.dart';
@@ -61,7 +62,8 @@ TimelineEntity buildTimelineEntity({
 OrderStatus _resolveOrderStatus(dynamic value) {
   if (value is OrderStatus) return value;
 
-  final normalized = value.toString()
+  final normalized = value
+      .toString()
       .replaceAll(RegExp(r'[\s_-]+'), '')
       .toLowerCase();
 
@@ -193,10 +195,7 @@ DriverOrderDetailsDto buildDriverOrderDetailsDto({
       timeline ??
       [
         buildTimelineDto(),
-        buildTimelineDto(
-          status: 'PickedUp',
-          timestamp: '2026-09-19T17:30:00Z',
-        ),
+        buildTimelineDto(status: 'PickedUp', timestamp: '2026-09-19T17:30:00Z'),
       ],
 );
 
@@ -230,3 +229,25 @@ Map<String, dynamic> driverOrderDetailsJson() {
 
   return json;
 }
+
+Position buildPositionFixture({
+  double latitude = 30.0444,
+  double longitude = 31.2357,
+  DateTime? timestamp,
+  double accuracy = 5.0,
+  double altitude = 0.0,
+  double heading = 0.0,
+  double speed = 0.0,
+  double speedAccuracy = 0.0,
+}) => Position(
+  latitude: latitude,
+  longitude: longitude,
+  timestamp: timestamp ?? DateTime(2026, 9, 19, 18, 0, 0),
+  accuracy: accuracy,
+  altitude: altitude,
+  altitudeAccuracy: 0.0,
+  heading: heading,
+  headingAccuracy: 0.0,
+  speed: speed,
+  speedAccuracy: speedAccuracy,
+);

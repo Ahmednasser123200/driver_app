@@ -83,23 +83,20 @@ void main() {
     test('emits the exact camelCase keys expected by the backend', () {
       final json = buildDriverOrderDetailsDto().toJson();
 
-      expect(
-        json.keys.toSet(),
-        {
-          'orderId',
-          'orderNumber',
-          'status',
-          'totalPrice',
-          'currency',
-          'paymentMethod',
-          'notes',
-          'pickupAddress',
-          'userAddress',
-          'recipientInfo',
-          'items',
-          'timeline',
-        },
-      );
+      expect(json.keys.toSet(), {
+        'orderId',
+        'orderNumber',
+        'status',
+        'totalPrice',
+        'currency',
+        'paymentMethod',
+        'notes',
+        'pickupAddress',
+        'userAddress',
+        'recipientInfo',
+        'items',
+        'timeline',
+      });
     });
 
     test('emits the scalar field values unchanged', () {
@@ -186,7 +183,10 @@ void main() {
       final entity = buildDriverOrderDetailsDto().toDomain();
 
       expect(entity.items, hasLength(1));
-      expect(entity.items.first.productId, '3fa85f64-5717-4562-b3fc-2c963f66afa6');
+      expect(
+        entity.items.first.productId,
+        '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      );
       expect(entity.items.first.productName, 'Red Roses Bouquet');
       expect(entity.items.first.quantity, 2);
       expect(entity.items.first.unitPrice, 1500.0);
@@ -211,7 +211,9 @@ void main() {
     });
 
     test('keeps a non-null notes value untouched', () {
-      final entity = buildDriverOrderDetailsDto(notes: 'Leave at door').toDomain();
+      final entity = buildDriverOrderDetailsDto(
+        notes: 'Leave at door',
+      ).toDomain();
 
       expect(entity.notes, 'Leave at door');
     });

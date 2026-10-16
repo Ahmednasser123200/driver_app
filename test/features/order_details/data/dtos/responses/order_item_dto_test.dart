@@ -49,16 +49,22 @@ void main() {
 
   group('toJson', () {
     test('emits the expected keys', () {
-      expect(
-        buildOrderItemDto().toJson().keys.toSet(),
-        {'productId', 'productName', 'quantity', 'unitPrice', 'imageUrl'},
-      );
+      expect(buildOrderItemDto().toJson().keys.toSet(), {
+        'productId',
+        'productName',
+        'quantity',
+        'unitPrice',
+        'imageUrl',
+      });
     });
 
     test('round-trips through fromJson', () {
       final original = buildOrderItemDto();
 
-      expect(OrderItemDto.fromJson(original.toJson()).toJson(), original.toJson());
+      expect(
+        OrderItemDto.fromJson(original.toJson()).toJson(),
+        original.toJson(),
+      );
     });
   });
 
