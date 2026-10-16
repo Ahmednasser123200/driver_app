@@ -64,8 +64,10 @@ void main() {
         orderDetails: const BaseState(isLoading: true),
       );
 
-      expect(identical(updated.updateOrderStatus, state.updateOrderStatus),
-          isTrue);
+      expect(
+        identical(updated.updateOrderStatus, state.updateOrderStatus),
+        isTrue,
+      );
     });
 
     test('cannot clear a slice with null', () {
@@ -101,15 +103,11 @@ void main() {
 
     test('states differing in any slice are not equal', () {
       expect(
-        const OrderDetailsState(
-          orderDetails: BaseState(isLoading: true),
-        ),
+        const OrderDetailsState(orderDetails: BaseState(isLoading: true)),
         isNot(const OrderDetailsState()),
       );
       expect(
-        const OrderDetailsState(
-          updateOrderStatus: BaseState(isLoading: true),
-        ),
+        const OrderDetailsState(updateOrderStatus: BaseState(isLoading: true)),
         isNot(const OrderDetailsState()),
       );
       expect(
@@ -124,12 +122,8 @@ void main() {
       final entity = buildDriverOrderDetailsEntity();
 
       expect(
-        OrderDetailsState(
-          orderDetails: BaseState(data: entity),
-        ),
-        OrderDetailsState(
-          orderDetails: BaseState(data: entity),
-        ),
+        OrderDetailsState(orderDetails: BaseState(data: entity)),
+        OrderDetailsState(orderDetails: BaseState(data: entity)),
       );
     });
 

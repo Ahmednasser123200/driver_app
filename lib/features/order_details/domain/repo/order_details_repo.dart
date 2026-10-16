@@ -3,10 +3,13 @@ import 'package:driver_app/features/order_details/domain/entities/driver_order_d
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
 import 'package:driver_app/features/order_details/domain/params/report_driver_location_params.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../params/update_order_status_params.dart';
 
 abstract interface class OrderDetailsRepo {
+  Stream<Position> get driverLocationStream;
+
   Future<BaseResponse<DriverOrderDetailsEntity>> getOrderDetails(
     String orderId,
   );

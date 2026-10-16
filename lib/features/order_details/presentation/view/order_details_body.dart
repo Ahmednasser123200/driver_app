@@ -1,4 +1,3 @@
-
 import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/localization/app_failure_message_mapper.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
@@ -23,10 +22,7 @@ import 'package:step_progress_indicator/step_progress_indicator.dart';
 class OrderDetailsBody extends StatelessWidget {
   final String orderId;
 
-  const OrderDetailsBody({
-    super.key,
-    required this.orderId,
-  });
+  const OrderDetailsBody({super.key, required this.orderId});
 
   @override
   Widget build(BuildContext context) {
@@ -40,22 +36,14 @@ class OrderDetailsBody extends StatelessWidget {
         final data = state.data;
 
         if (state.isLoading && data == null) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (data == null) {
-          return OrderDetailsError(
-            orderId: orderId,
-            failure: state.failure,
-          );
+          return OrderDetailsError(orderId: orderId, failure: state.failure);
         }
 
-        return OrderDetailsContent(
-          orderId: orderId,
-          data: data,
-        );
+        return OrderDetailsContent(orderId: orderId, data: data);
       },
     );
   }
@@ -87,10 +75,7 @@ class OrderDetailsError extends StatelessWidget {
           children: [
             Icon(Icons.error_outline, size: 48.sp),
             SizedBox(height: 16.h),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-            ),
+            Text(message, textAlign: TextAlign.center),
             SizedBox(height: 16.h),
             CustomButton(
               label: l10n.retry,
@@ -144,7 +129,9 @@ class OrderDetailsContent extends StatelessWidget {
           SizedBox(height: 13.h),
           PaymentMethodCard(
             title: l10n.paymentMethod,
-            method: data.paymentMethod ?? l10n.cashOnDelivery,
+            method: data.paymentMethod.isNotEmpty
+                ? data.paymentMethod
+                : l10n.cashOnDelivery,
           ),
           SizedBox(height: 13.h),
         ],
@@ -183,9 +170,49 @@ class OrderStatusSection extends StatelessWidget {
         OrderStatusHeader(
           status: status.getLocalizedStatus(l10n),
           orderId: orderId,
-          date: timeline.isNotEmpty
-              ? timeline.last.timestamp
-              : l10n.orderDate,
+          date: timeline.isNotEmpty ? timeline.last.timestamp : l10n.orderDate,
+        ),
+        BlocSelector<OrderDetailsCubit, OrderDetailsState, bool>(
+          selector: (state) => state.isLocationReportingActive,
+          builder: (context, isTrackingActive) {
+            if (!isTrackingActive) return const SizedBox.shrink();
+
+            return Padding(
+              padding: EdgeInsets.only(top: 8.h),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(
+                    color: Colors.green.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8.w,
+                      height: 8.w,
+                      decoration: const BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    SizedBox(width: 6.w),
+                    Text(
+                      'Live GPS Tracking Active',
+                      style: TextStyle(
+                        color: Colors.green[800],
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -195,10 +222,7 @@ class OrderStatusSection extends StatelessWidget {
 class OrderAddressesSection extends StatelessWidget {
   final DriverOrderDetailsEntity data;
 
-  const OrderAddressesSection({
-    super.key,
-    required this.data,
-  });
+  const OrderAddressesSection({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -209,10 +233,7 @@ class OrderAddressesSection extends StatelessWidget {
       children: [
         Text(
           l10n.pickupAddress,
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 10.h),
         UserAddressCard(
@@ -222,17 +243,16 @@ class OrderAddressesSection extends StatelessWidget {
         SizedBox(height: 16.h),
         Text(
           l10n.userAddress,
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 10.h),
         UserAddressCard(
           address: data.userAddress.addressLine,
-          userName: data.userAddress.recipientName ??
-              data.recipientInfo.recipientName ??
-              l10n.customerName,
+          userName: data.userAddress.recipientName.isNotEmpty
+              ? data.userAddress.recipientName
+              : (data.recipientInfo.recipientName.isNotEmpty
+                    ? data.recipientInfo.recipientName
+                    : l10n.customerName),
         ),
       ],
     );
@@ -242,10 +262,7 @@ class OrderAddressesSection extends StatelessWidget {
 class OrderItemsSection extends StatelessWidget {
   final DriverOrderDetailsEntity data;
 
-  const OrderItemsSection({
-    super.key,
-    required this.data,
-  });
+  const OrderItemsSection({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -256,10 +273,7 @@ class OrderItemsSection extends StatelessWidget {
       children: [
         Text(
           l10n.orderDetails,
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 13.h),
         ...data.items.map(

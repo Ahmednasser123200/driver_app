@@ -13,3 +13,7 @@ class ShowOrderDetailsFailure extends OrderDetailsUiEvent {
 
   const ShowOrderDetailsFailure(this.failure);
 }
+
+class ShowLocationPermissionDenied extends OrderDetailsUiEvent {
+  const ShowLocationPermissionDenied();
+}

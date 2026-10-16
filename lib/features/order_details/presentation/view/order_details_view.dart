@@ -70,6 +70,16 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(message), backgroundColor: Colors.red),
         );
+
+      case ShowLocationPermissionDenied():
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Location permission is required for live delivery tracking.',
+            ),
+            backgroundColor: Colors.orange,
+          ),
+        );
     }
   }
 }

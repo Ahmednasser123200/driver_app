@@ -8,22 +8,27 @@ class OrderDetailsState extends Equatable {
   final BaseState<DriverOrderDetailsEntity> orderDetails;
   final BaseState<UpdateOrderStatusEntity> updateOrderStatus;
   final BaseState<ReportDriverLocationEntity> reportDriverLocation;
+  final bool isLocationReportingActive;
 
   const OrderDetailsState({
     this.orderDetails = const BaseState(),
     this.updateOrderStatus = const BaseState(),
     this.reportDriverLocation = const BaseState(),
+    this.isLocationReportingActive = false,
   });
 
   OrderDetailsState copyWith({
     BaseState<DriverOrderDetailsEntity>? orderDetails,
     BaseState<UpdateOrderStatusEntity>? updateOrderStatus,
     BaseState<ReportDriverLocationEntity>? reportDriverLocation,
+    bool? isLocationReportingActive,
   }) {
     return OrderDetailsState(
       orderDetails: orderDetails ?? this.orderDetails,
       updateOrderStatus: updateOrderStatus ?? this.updateOrderStatus,
       reportDriverLocation: reportDriverLocation ?? this.reportDriverLocation,
+      isLocationReportingActive:
+          isLocationReportingActive ?? this.isLocationReportingActive,
     );
   }
 
@@ -32,5 +37,6 @@ class OrderDetailsState extends Equatable {
     orderDetails,
     updateOrderStatus,
     reportDriverLocation,
+    isLocationReportingActive,
   ];
 }

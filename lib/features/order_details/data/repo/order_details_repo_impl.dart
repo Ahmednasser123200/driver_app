@@ -1,4 +1,5 @@
 import 'package:driver_app/config/base/base_response.dart';
+import 'package:driver_app/core/services/location/location_service.dart';
 import 'package:driver_app/features/order_details/data/datasources/order_details_remote_data_source.dart';
 import 'package:driver_app/features/order_details/data/dtos/requests/report_driver_location_request_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/requests/update_order_status_request_dto.dart';
@@ -6,6 +7,7 @@ import 'package:driver_app/features/order_details/domain/entities/driver_order_d
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
 import 'package:driver_app/features/order_details/domain/params/report_driver_location_params.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../domain/params/update_order_status_params.dart';
@@ -13,9 +15,13 @@ import '../../domain/repo/order_details_repo.dart';
 
 @Injectable(as: OrderDetailsRepo)
 class OrderDetailsRepoImpl implements OrderDetailsRepo {
-  OrderDetailsRepoImpl(this._remoteDataSource);
+  OrderDetailsRepoImpl(this._remoteDataSource, this._locationService);
 
   final OrderDetailsRemoteDataSource _remoteDataSource;
+  final LocationService _locationService;
+
+  @override
+  Stream<Position> get driverLocationStream => _locationService.locationStream;
 
   @override
   Future<BaseResponse<DriverOrderDetailsEntity>> getOrderDetails(
