@@ -6,7 +6,7 @@ class DriverAnimation extends StatelessWidget {
     super.key,
     this.width,
     this.height,
-    this.fit = BoxFit.contain,
+    this.fit = BoxFit.cover,
   });
   final double? width;
   final double? height;

@@ -1,4 +1,3 @@
-
 import 'package:driver_app/config/routing/routes.dart';
 import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
@@ -8,14 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return 
-    Scaffold(
+    return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
@@ -27,9 +24,7 @@ class OnboardingScreen extends StatelessWidget {
               SizedBox(
                 height: 400.h,
                 width: double.infinity,
-                child: const DriverAnimation(
-                  fit: BoxFit.contain,
-                ),
+                child: const DriverAnimation(fit: BoxFit.cover),
               ),
               SizedBox(height: 24.h),
               Text(
@@ -88,5 +83,6 @@ class OnboardingScreen extends StatelessWidget {
           ),
         ),
       ),
-    );}
+    );
+  }
 }
