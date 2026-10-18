@@ -1,7 +1,7 @@
 abstract final class AppStrings {
   static const String appName = 'Flowery rider';
   static const String appVersion = 'v 6.3.0 - (446)';
-  static const String welcomeToApp = 'Welcome to Flowery rider app';
+  static const String welcomeToApp = 'Welcome to \n Flowery rider app';
   static const String welcome = 'Welcome!!';
   static const String supportingText = 'Supporting text';
   static const String language = 'Language';
