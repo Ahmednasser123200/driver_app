@@ -1,4 +1,4 @@
-import 'package:driver_app/features/onboarding/screen/onboaring_view.dart';
+import 'package:driver_app/features/onboarding/screen/onboarding_view.dart';
 import 'package:flutter/material.dart';
 
 import 'routes.dart';
@@ -10,7 +10,7 @@ abstract final class AppRoutes {
       case Routes.onboarding:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => OnboardingScreen(),
+          builder: (_) => const OnboardingScreen(),
         );
       case Routes.login:
         return MaterialPageRoute(

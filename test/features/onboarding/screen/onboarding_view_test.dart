@@ -1,6 +1,7 @@
 import 'package:driver_app/config/routing/routes.dart';
 import 'package:driver_app/core/constants/app_strings/app_strings.dart';
-import 'package:driver_app/features/onboarding/screen/onboaring_view.dart';
+import 'package:driver_app/core/shared/widgets/custom_button.dart';
+import 'package:driver_app/features/onboarding/screen/onboarding_view.dart';
 import 'package:driver_app/features/onboarding/screen/widget/animation_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -49,11 +50,11 @@ void main() {
       await pumpScreen(tester);
 
       expect(
-        find.widgetWithText(ElevatedButton, AppStrings.login),
+        find.widgetWithText(CustomButton, AppStrings.login),
         findsOneWidget,
       );
       expect(
-        find.widgetWithText(TextButton, AppStrings.applyNow),
+        find.widgetWithText(OutlinedButton, AppStrings.applyNow),
         findsOneWidget,
       );
 
@@ -73,7 +74,7 @@ void main() {
       );
       await tester.pump();
 
-      await tester.tap(find.widgetWithText(ElevatedButton, AppStrings.login));
+      await tester.tap(find.widgetWithText(CustomButton, AppStrings.login));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
 
@@ -83,7 +84,7 @@ void main() {
       await disposeScreen(tester);
     });
 
-    testWidgets('tapping apply now does not navigate', (tester) async {
+    testWidgets('tapping apply now navigates to the apply route', (tester) async {
       setPhoneSurface(tester);
       await tester.pumpWidget(
         MaterialApp(
@@ -96,12 +97,12 @@ void main() {
       );
       await tester.pump();
 
-      await tester.tap(find.widgetWithText(TextButton, AppStrings.applyNow));
+      await tester.tap(find.widgetWithText(OutlinedButton, AppStrings.applyNow));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
 
-      expect(find.byType(OnboardingScreen), findsOneWidget);
-      expect(find.byType(_ApplyStubScreen), findsNothing);
+      expect(find.byType(_ApplyStubScreen), findsOneWidget);
+      expect(find.byType(OnboardingScreen), findsNothing);
 
       await disposeScreen(tester);
     });
