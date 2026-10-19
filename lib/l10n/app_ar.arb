@@ -138,6 +138,8 @@
   "orderDeliveredSuccessTitle": "شكراً لك!!",
   "orderDeliveredSuccessDescription": "تم توصيل الطلب بنجاح",
   "done": "تم",
+  "unitPriceLabel": "سعر الوحدة",
+  "lineSubtotalLabel": "الإجمالي الفرعي",
 
   "emailRequired": "البريد الإلكتروني مطلوب",
   "emailInvalid": "البريد الإلكتروني غير صالح",

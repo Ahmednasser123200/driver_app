@@ -6,6 +6,9 @@ part 'pickup_address_dto.g.dart';
 
 /// Mirrors the `pickup` object of the driver order response:
 /// `{"storeName": "...", "location": {"lat": 0, "lng": 0}, "address": "..."}`.
+///
+/// `phone` is not sent by the backend today; it is parsed when present so the
+/// store's call/WhatsApp actions start working as soon as it is added.
 @JsonSerializable()
 class PickupAddressDto {
   @JsonKey(name: 'storeName')
@@ -17,7 +20,15 @@ class PickupAddressDto {
   @JsonKey(name: 'location')
   final LocationDto? location;
 
-  PickupAddressDto({this.storeName, this.addressLine, this.location});
+  @JsonKey(name: 'phone')
+  final String? phone;
+
+  PickupAddressDto({
+    this.storeName,
+    this.addressLine,
+    this.location,
+    this.phone,
+  });
 
   factory PickupAddressDto.fromJson(Map<String, dynamic> json) =>
       _$PickupAddressDtoFromJson(json);
@@ -29,5 +40,6 @@ class PickupAddressDto {
     addressLine: addressLine ?? '',
     latitude: location?.lat ?? 0,
     longitude: location?.lng ?? 0,
+    phone: phone ?? '',
   );
 }

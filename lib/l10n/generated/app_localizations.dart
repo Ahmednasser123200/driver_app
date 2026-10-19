@@ -836,6 +836,18 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get done;
 
+  /// No description provided for @unitPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit price'**
+  String get unitPriceLabel;
+
+  /// No description provided for @lineSubtotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get lineSubtotalLabel;
+
   /// No description provided for @emailRequired.
   ///
   /// In en, this message translates to:

@@ -1,5 +1,6 @@
 import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
+import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
@@ -9,20 +10,27 @@ class OrderItemCard extends StatelessWidget {
     required this.productName,
     required this.price,
     required this.quantity,
+    this.subTotal = '',
     this.productImage,
   });
 
   final String productName;
   final String price;
+
+  /// Formatted `unit price × quantity`, or empty when the backend did not send
+  /// a unit price (the row is then omitted instead of showing a made up value).
+  final String subTotal;
   final int quantity;
   final ImageProvider? productImage;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final displayProductName = productName.trim().isEmpty
         ? AppStrings.unknown
         : productName;
     final displayPrice = price.trim().isEmpty ? 'Unknown' : price;
+    final displaySubTotal = subTotal.trim();
     final displayQuantity = quantity <= 0 ? 0 : quantity;
 
     return Container(
@@ -63,6 +71,8 @@ class OrderItemCard extends StatelessWidget {
               children: [
                 Text(
                   displayProductName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 14.sp, color: AppColors.grey[800]),
                 ),
                 SizedBox(height: 4.h),
@@ -73,6 +83,18 @@ class OrderItemCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                if (displaySubTotal.isNotEmpty) ...[
+                  SizedBox(height: 2.h),
+                  Text(
+                    '${l10n.lineSubtotalLabel}: $displaySubTotal',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      color: AppColors.grey[600],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

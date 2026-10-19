@@ -1,6 +1,8 @@
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
+import 'package:driver_app/config/routing/routes.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
+import 'package:driver_app/core/shared/widgets/user_address_card.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/driver_order_details_response_dto.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_status_update.dart';
@@ -58,7 +60,11 @@ void main() {
     );
   });
 
-  tearDown(() => cubit.close());
+  tearDown(() {
+    if (!cubit.isClosed) return cubit.close();
+  });
+
+  const deliverySuccessStub = 'Delivery succeeded';
 
   Future<void> pumpView(
     WidgetTester tester, {
@@ -79,6 +85,14 @@ void main() {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
+          onGenerateRoute: (settings) {
+            if (settings.name == Routes.deliverySuccess) {
+              return MaterialPageRoute<void>(
+                builder: (_) => const Scaffold(body: Text(deliverySuccessStub)),
+              );
+            }
+            return null;
+          },
           home: BlocProvider<OrderDetailsCubit>.value(
             value: cubit,
             child: OrderDetailsView(orderId: orderId),
@@ -101,24 +115,36 @@ void main() {
     );
   }
 
-  // Both address cards render call/whatsApp buttons; only the recipient card
-  // wires them up, so target the enabled one.
-  final enabledCallButton = find.byWidgetPredicate(
-    (widget) =>
-        widget is IconButton &&
-        widget.onPressed != null &&
-        widget.icon is Icon &&
-        (widget.icon as Icon).icon == Icons.call,
+  // Both address cards render call/whatsApp buttons: the pickup card reaches
+  // the store and the user-address card reaches the recipient, so taps are
+  // scoped to the card they belong to.
+  final storeCard = find.byType(UserAddressCard).first;
+  final recipientCard = find.byType(UserAddressCard).last;
+
+  Finder callButtonIn(Finder card) => find.descendant(
+    of: card,
+    matching: find.byWidgetPredicate(
+      (widget) =>
+          widget is IconButton &&
+          widget.icon is Icon &&
+          (widget.icon as Icon).icon == Icons.call,
+    ),
   );
-  final enabledWhatsAppButton = find.byWidgetPredicate(
-    (widget) =>
-        widget is IconButton &&
-        widget.onPressed != null &&
-        widget.icon is FaIcon &&
-        // FaIcon.icon unwraps to the inner IconData; the public constant is a
-        // FaIconData wrapper, so compare against its .data.
-        (widget.icon as FaIcon).icon == FontAwesomeIcons.whatsapp.data,
+  Finder whatsAppButtonIn(Finder card) => find.descendant(
+    of: card,
+    matching: find.byWidgetPredicate(
+      (widget) =>
+          widget is IconButton &&
+          widget.icon is FaIcon &&
+          // FaIcon.icon unwraps to the inner IconData; the public constant is a
+          // FaIconData wrapper, so compare against its .data.
+          (widget.icon as FaIcon).icon == FontAwesomeIcons.whatsapp.data,
+    ),
   );
+
+  final storeCallButton = callButtonIn(storeCard);
+  final recipientCallButton = callButtonIn(recipientCard);
+  final recipientWhatsAppButton = whatsAppButtonIn(recipientCard);
 
   testWidgets('requests order details when the view is built', (tester) async {
     mockSuccess();
@@ -221,7 +247,7 @@ void main() {
     expect(find.text('Out for delivery'), findsOneWidget);
   });
 
-  testWidgets('hides the action button once the order is terminal', (
+  testWidgets('shows the delivery success screen once the order is Delivered', (
     tester,
   ) async {
     mockSuccess(buildDriverOrderDetailsEntity(status: OrderStatus.delivered));
@@ -229,7 +255,7 @@ void main() {
     await pumpView(tester);
     await tester.pumpAndSettle();
 
-    expect(find.text('Delivered'), findsOneWidget);
+    expect(find.text(deliverySuccessStub), findsOneWidget);
     expect(find.byType(CustomButton), findsNothing);
   });
 
@@ -243,6 +269,10 @@ void main() {
 
     expect(find.text('Arrived'), findsOneWidget);
     expect(find.byType(CustomButton), findsNothing);
+
+    // The confirmation watcher is still polling, so stop it before the test
+    // framework checks for pending timers.
+    await cubit.close();
   });
 
   testWidgets('sends the driver status of the current step when tapped', (
@@ -296,6 +326,10 @@ void main() {
     expect(loads, 2);
     expect(find.text('Arrived'), findsOneWidget);
     expect(find.byType(CustomButton), findsNothing);
+
+    // Arriving at the customer starts the confirmation watcher; stop it before
+    // the test framework checks for pending timers.
+    await cubit.close();
   });
 
   testWidgets(
@@ -386,7 +420,7 @@ void main() {
     await pumpView(tester);
     await tester.pumpAndSettle();
 
-    await tester.tap(enabledCallButton);
+    await tester.tap(recipientCallButton);
     await tester.pumpAndSettle();
 
     verify(() => contactLauncher.call('+201012345678')).called(1);
@@ -403,7 +437,7 @@ void main() {
     await pumpView(tester);
     await tester.pumpAndSettle();
 
-    await tester.tap(enabledWhatsAppButton);
+    await tester.tap(recipientWhatsAppButton);
     await tester.pumpAndSettle();
 
     verify(() => contactLauncher.whatsApp('+201012345678')).called(1);
@@ -420,9 +454,65 @@ void main() {
     await pumpView(tester);
     await tester.pumpAndSettle();
 
-    await tester.tap(enabledCallButton);
+    await tester.tap(recipientCallButton);
     await tester.pumpAndSettle();
 
     expect(find.text('This contact number is not valid.'), findsOneWidget);
+  });
+
+  testWidgets('tapping the store call icon opens the pickup store number', (
+    tester,
+  ) async {
+    mockSuccess(
+      buildDriverOrderDetailsEntity(
+        pickupAddress: buildPickupAddressEntity(phone: '+201234567890'),
+      ),
+    );
+    when(
+      () => contactLauncher.call(any()),
+    ).thenAnswer((_) async => ContactLaunchOutcome.launched);
+
+    await pumpView(tester);
+    await tester.pumpAndSettle();
+
+    await tester.tap(storeCallButton);
+    await tester.pumpAndSettle();
+
+    verify(() => contactLauncher.call('+201234567890')).called(1);
+  });
+
+  testWidgets('tapping the store whatsapp icon opens the shop chat', (
+    tester,
+  ) async {
+    mockSuccess(
+      buildDriverOrderDetailsEntity(
+        pickupAddress: buildPickupAddressEntity(phone: '+201234567890'),
+      ),
+    );
+    when(
+      () => contactLauncher.whatsApp(any()),
+    ).thenAnswer((_) async => ContactLaunchOutcome.launched);
+
+    await pumpView(tester);
+    await tester.pumpAndSettle();
+
+    await tester.tap(whatsAppButtonIn(storeCard));
+    await tester.pumpAndSettle();
+
+    verify(() => contactLauncher.whatsApp('+201234567890')).called(1);
+  });
+
+  testWidgets('shows the line subtotal for every priced item', (tester) async {
+    mockSuccess(
+      buildDriverOrderDetailsEntity(
+        items: [buildOrderItemEntity(unitPrice: 1500, quantity: 2)],
+      ),
+    );
+
+    await pumpView(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Subtotal: EGP 3000.00'), findsOneWidget);
+    expect(find.text('EGP 1500.00'), findsOneWidget);
   });
 }

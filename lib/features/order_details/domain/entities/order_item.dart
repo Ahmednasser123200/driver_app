@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 
 class OrderItemEntity extends Equatable {
@@ -19,8 +18,11 @@ class OrderItemEntity extends Equatable {
     required this.imageUrl,
   });
 
-  /// `unitPrice * quantity` when the unit price is known, otherwise null.
-  double? get lineTotal => unitPrice == null ? null : unitPrice! * quantity;
+  /// `unitPrice * quantity` when both are known, otherwise null. A zero
+  /// quantity is treated as "not received" so the UI never shows a fabricated
+  /// `0.00` subtotal.
+  double? get lineTotal =>
+      unitPrice == null || quantity <= 0 ? null : unitPrice! * quantity;
 
   OrderItemEntity copyWith({double? unitPrice, String? productName}) =>
       OrderItemEntity(
@@ -33,10 +35,10 @@ class OrderItemEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        productId,
-        productName,
-        quantity,
-        unitPrice,
-        imageUrl,
-      ];
+    productId,
+    productName,
+    quantity,
+    unitPrice,
+    imageUrl,
+  ];
 }

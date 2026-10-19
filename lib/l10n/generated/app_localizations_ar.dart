@@ -383,6 +383,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get done => 'تم';
 
   @override
+  String get unitPriceLabel => 'سعر الوحدة';
+
+  @override
+  String get lineSubtotalLabel => 'الإجمالي الفرعي';
+
+  @override
   String get emailRequired => 'البريد الإلكتروني مطلوب';
 
   @override

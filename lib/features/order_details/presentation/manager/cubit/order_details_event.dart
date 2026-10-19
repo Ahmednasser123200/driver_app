@@ -24,3 +24,11 @@ class CallRecipientEvent extends OrderDetailsEvent {
 class WhatsAppRecipientEvent extends OrderDetailsEvent {
   const WhatsAppRecipientEvent();
 }
+
+class CallStoreEvent extends OrderDetailsEvent {
+  const CallStoreEvent();
+}
+
+class WhatsAppStoreEvent extends OrderDetailsEvent {
+  const WhatsAppStoreEvent();
+}

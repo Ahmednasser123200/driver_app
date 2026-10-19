@@ -1,4 +1,3 @@
-
 import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/localization/app_failure_message_mapper.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
@@ -23,10 +22,7 @@ import 'package:step_progress_indicator/step_progress_indicator.dart';
 class OrderDetailsBody extends StatelessWidget {
   final String orderId;
 
-  const OrderDetailsBody({
-    super.key,
-    required this.orderId,
-  });
+  const OrderDetailsBody({super.key, required this.orderId});
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +36,7 @@ class OrderDetailsBody extends StatelessWidget {
         final data = state.data;
 
         if (state.isLoading && data == null) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (data == null) {
@@ -52,10 +46,7 @@ class OrderDetailsBody extends StatelessWidget {
           );
         }
 
-        return OrderDetailsContent(
-          orderId: orderId,
-          data: data,
-        );
+        return OrderDetailsContent(orderId: orderId, data: data);
       },
     );
   }
@@ -87,10 +78,7 @@ class OrderDetailsError extends StatelessWidget {
           children: [
             Icon(Icons.error_outline, size: 48.sp),
             SizedBox(height: 16.h),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-            ),
+            Text(message, textAlign: TextAlign.center),
             SizedBox(height: 16.h),
             CustomButton(
               label: l10n.retry,
@@ -144,7 +132,7 @@ class OrderDetailsContent extends StatelessWidget {
           SizedBox(height: 13.h),
           PaymentMethodCard(
             title: l10n.paymentMethod,
-            method: data.paymentMethod ,
+            method: data.paymentMethod,
           ),
           SizedBox(height: 13.h),
         ],
@@ -183,9 +171,7 @@ class OrderStatusSection extends StatelessWidget {
         OrderStatusHeader(
           status: status.getLocalizedStatus(l10n),
           orderId: orderId,
-          date: timeline.isNotEmpty
-              ? timeline.last.timestamp
-              : l10n.orderDate,
+          date: timeline.isNotEmpty ? timeline.last.timestamp : l10n.orderDate,
         ),
       ],
     );
@@ -195,10 +181,7 @@ class OrderStatusSection extends StatelessWidget {
 class OrderAddressesSection extends StatelessWidget {
   final DriverOrderDetailsEntity data;
 
-  const OrderAddressesSection({
-    super.key,
-    required this.data,
-  });
+  const OrderAddressesSection({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -209,34 +192,33 @@ class OrderAddressesSection extends StatelessWidget {
       children: [
         Text(
           l10n.pickupAddress,
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 10.h),
         UserAddressCard(
           address: data.pickupAddress.addressLine,
           userName: data.pickupAddress.storeName,
+          onCallPressed: () =>
+              context.read<OrderDetailsCubit>().doEvent(const CallStoreEvent()),
+          onWhatsAppPressed: () => context.read<OrderDetailsCubit>().doEvent(
+            const WhatsAppStoreEvent(),
+          ),
         ),
         SizedBox(height: 16.h),
         Text(
           l10n.userAddress,
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 10.h),
         UserAddressCard(
           address: data.userAddress.addressLine,
-          userName: data.userAddress.recipientName ,
-          onCallPressed: () => context
-              .read<OrderDetailsCubit>()
-              .doEvent(const CallRecipientEvent()),
-          onWhatsAppPressed: () => context
-              .read<OrderDetailsCubit>()
-              .doEvent(const WhatsAppRecipientEvent()),
+          userName: data.userAddress.recipientName,
+          onCallPressed: () => context.read<OrderDetailsCubit>().doEvent(
+            const CallRecipientEvent(),
+          ),
+          onWhatsAppPressed: () => context.read<OrderDetailsCubit>().doEvent(
+            const WhatsAppRecipientEvent(),
+          ),
         ),
       ],
     );
@@ -246,30 +228,23 @@ class OrderAddressesSection extends StatelessWidget {
 class OrderItemsSection extends StatelessWidget {
   final DriverOrderDetailsEntity data;
 
-  const OrderItemsSection({
-    super.key,
-    required this.data,
-  });
+  const OrderItemsSection({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     // Falls back to the localized currency code so an order without an explicit
     // currency is not rendered with a stray "$".
-    final currencyLabel = (data.currency.trim().isNotEmpty
-            ? data.currency
-            : l10n.currency)
-        .currencyLabel;
+    final currencyLabel =
+        (data.currency.trim().isNotEmpty ? data.currency : l10n.currency)
+            .currencyLabel;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           l10n.orderDetails,
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 13.h),
         ...data.items.map(
@@ -283,6 +258,9 @@ class OrderItemsSection extends StatelessWidget {
               price: item.unitPrice == null
                   ? ''
                   : '$currencyLabel${item.unitPrice!.toStringAsFixed(2)}',
+              subTotal: item.lineTotal == null
+                  ? ''
+                  : '$currencyLabel${item.lineTotal!.toStringAsFixed(2)}',
             ),
           ),
         ),

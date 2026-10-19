@@ -60,6 +60,7 @@ dependencies:
   font_awesome_flutter: ^11.0.0
   step_progress_indicator: ^1.0.2
   url_launcher: ^6.3.3
+  lottie: ^3.6.1
 
 dev_dependencies:
   flutter_test:

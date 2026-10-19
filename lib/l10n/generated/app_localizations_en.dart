@@ -383,6 +383,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get done => 'Done';
 
   @override
+  String get unitPriceLabel => 'Unit price';
+
+  @override
+  String get lineSubtotalLabel => 'Subtotal';
+
+  @override
   String get emailRequired => 'Email is required';
 
   @override

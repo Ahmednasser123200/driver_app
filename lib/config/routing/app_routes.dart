@@ -6,6 +6,7 @@ import 'package:driver_app/features/home/presentation/manager/cubit/home_event.d
 import 'package:driver_app/features/home/presentation/manager/cubit/home_state.dart';
 import 'package:driver_app/features/home/presentation/view/home_driver_view.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
+import 'package:driver_app/features/order_details/presentation/view/delivery_success_view.dart';
 import 'package:driver_app/features/order_details/presentation/view/order_details_view.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -112,7 +113,7 @@ abstract final class AppRoutes {
       case Routes.deliverySuccess:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const _StubScreen('Delivery Success'),
+          builder: (_) => const DeliverySuccessView(),
         );
       default:
         return MaterialPageRoute(

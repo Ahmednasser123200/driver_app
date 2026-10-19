@@ -105,14 +105,18 @@
 //   }
 // }
 
+import 'dart:async';
+
 import 'package:driver_app/config/base/base_cubit.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/config/localization/handle_success_text.dart';
+import 'package:driver_app/config/routing/routes.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_status_update.dart';
+import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
 import 'package:driver_app/features/order_details/domain/params/update_order_status_params.dart';
 import 'package:driver_app/features/order_details/domain/services/contact_launcher.dart';
@@ -128,6 +132,7 @@ class OrderDetailsCubit extends BaseCubit<OrderDetailsState, BaseUiEvent> {
     required GetDriverOrderDetailsUseCase getDriverOrderDetailsUseCase,
     required UpdateOrderStatusUseCase updateOrderStatusUseCase,
     required ContactLauncher contactLauncher,
+    this.pollInterval = const Duration(seconds: 5),
   }) : _getDriverOrderDetailsUseCase = getDriverOrderDetailsUseCase,
        _updateOrderStatusUseCase = updateOrderStatusUseCase,
        _contactLauncher = contactLauncher,
@@ -136,6 +141,14 @@ class OrderDetailsCubit extends BaseCubit<OrderDetailsState, BaseUiEvent> {
   final GetDriverOrderDetailsUseCase _getDriverOrderDetailsUseCase;
   final UpdateOrderStatusUseCase _updateOrderStatusUseCase;
   final ContactLauncher _contactLauncher;
+
+  /// How often the order is re-read while it waits for the customer to
+  /// confirm the delivery. Overridable so tests do not depend on real seconds.
+  final Duration pollInterval;
+
+  Timer? _deliveryPollTimer;
+  String _polledOrderId = '';
+  bool _deliverySuccessNavigated = false;
 
   Future<void> doEvent(OrderDetailsEvent event) async {
     switch (event) {
@@ -150,15 +163,24 @@ class OrderDetailsCubit extends BaseCubit<OrderDetailsState, BaseUiEvent> {
 
       case WhatsAppRecipientEvent():
         await _contactRecipient(whatsApp: true);
+
+      case CallStoreEvent():
+        await _contactStore();
+
+      case WhatsAppStoreEvent():
+        await _contactStore(whatsApp: true);
     }
   }
 
   /// Loads the order details. [showLoading] is disabled when refreshing after
   /// a successful status update so the screen keeps rendering the current order
-  /// instead of flashing a spinner.
+  /// instead of flashing a spinner. [reportFailure] is disabled for the silent
+  /// re-reads that watch for the customer's confirmation, so a network blip
+  /// does not spam the driver with snackbars.
   Future<void> _getOrderDetails(
     String orderId, {
     bool showLoading = true,
+    bool reportFailure = true,
   }) async {
     if (orderId.trim().isEmpty) {
       const failure = BadRequestFailure();
@@ -184,8 +206,11 @@ class OrderDetailsCubit extends BaseCubit<OrderDetailsState, BaseUiEvent> {
             orderDetails: BaseState(isLoading: false, data: result.data),
           ),
         );
+        _syncDeliveryOutcome(orderId);
 
       case Error<DriverOrderDetailsEntity>():
+        if (!reportFailure) return;
+
         emit(
           state.copyWith(
             orderDetails: BaseState(
@@ -239,11 +264,77 @@ class OrderDetailsCubit extends BaseCubit<OrderDetailsState, BaseUiEvent> {
     }
   }
 
+  /// Reacts to the status the backend stored. `Delivered` is the customer's
+  /// confirmation of receipt — it is never sent by the driver, so it can only
+  /// appear on a fresh read of the order.
+  void _syncDeliveryOutcome(String orderId) {
+    final status = state.orderDetails.data?.status;
+
+    if (status == OrderStatus.delivered) {
+      _stopDeliveryPolling();
+      if (_deliverySuccessNavigated) return;
+      _deliverySuccessNavigated = true;
+      emitEvent(const NavigateRepalceTo(Routes.deliverySuccess));
+      return;
+    }
+
+    // While the order sits at `AwaitingDeliveryConfirmation` the only thing
+    // that can move it forward is the customer, so re-read it periodically
+    // until the backend reports `Delivered` (or the order leaves that state).
+    if (status == OrderStatus.arrived) {
+      _startDeliveryPolling(orderId);
+      return;
+    }
+
+    _stopDeliveryPolling();
+  }
+
+  void _startDeliveryPolling(String orderId) {
+    if (_deliveryPollTimer != null && _polledOrderId == orderId) return;
+
+    _stopDeliveryPolling();
+    _polledOrderId = orderId;
+    _deliveryPollTimer = Timer.periodic(pollInterval, (_) {
+      if (isClosed) {
+        _stopDeliveryPolling();
+        return;
+      }
+      unawaited(
+        _getOrderDetails(
+          _polledOrderId,
+          showLoading: false,
+          reportFailure: false,
+        ),
+      );
+    });
+  }
+
+  void _stopDeliveryPolling() {
+    _deliveryPollTimer?.cancel();
+    _deliveryPollTimer = null;
+    _polledOrderId = '';
+  }
+
+  @override
+  Future<void> close() {
+    _stopDeliveryPolling();
+    return super.close();
+  }
+
   /// Opens the dialer / WhatsApp for the order's recipient. The number is
   /// resolved from the loaded order, so the widget layer never touches it.
-  Future<void> _contactRecipient({bool whatsApp = false}) async {
-    final phone = _recipientPhone();
+  Future<void> _contactRecipient({bool whatsApp = false}) =>
+      _contactPhone(_recipientPhone(), whatsApp: whatsApp);
 
+  /// Opens the dialer / WhatsApp for the store the driver picks the order up
+  /// from. The number comes from the order's pickup data only (never the
+  /// recipient's); an empty number is reported as invalid instead of dialled.
+  Future<void> _contactStore({bool whatsApp = false}) => _contactPhone(
+    state.orderDetails.data?.pickupAddress.phone ?? '',
+    whatsApp: whatsApp,
+  );
+
+  Future<void> _contactPhone(String phone, {required bool whatsApp}) async {
     if (whatsApp) {
       final outcome = await _contactLauncher.whatsApp(phone);
       if (isClosed) return;

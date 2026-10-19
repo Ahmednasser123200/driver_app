@@ -100,12 +100,14 @@ Map<String, dynamic> driverOrderDetailsJson() => <String, dynamic>{
   ],
 };
 
-PickupAddressEntity buildPickupAddressEntity() => PickupAddressEntity(
-  storeName: 'Flowery store',
-  addressLine: '20th st, Sheikh Zayed, Giza',
-  latitude: 30.0511,
-  longitude: 31.3656,
-);
+PickupAddressEntity buildPickupAddressEntity({String phone = ''}) =>
+    PickupAddressEntity(
+      storeName: 'Flowery store',
+      addressLine: '20th st, Sheikh Zayed, Giza',
+      latitude: 30.0511,
+      longitude: 31.3656,
+      phone: phone,
+    );
 
 UserAddressEntity buildUserAddressEntity() => UserAddressEntity(
   recipientName: 'Nour Mohamed',
@@ -224,10 +226,12 @@ PickupAddressDto buildPickupAddressDto({
   String? storeName = 'Flowery store',
   String? addressLine = '20th st, Sheikh Zayed, Giza',
   LocationDto? location,
+  String? phone,
 }) => PickupAddressDto(
   storeName: storeName,
   addressLine: addressLine,
   location: location ?? buildLocationDto(),
+  phone: phone,
 );
 
 UserAddressDto buildUserAddressDto({

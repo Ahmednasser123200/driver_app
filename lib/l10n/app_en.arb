@@ -139,6 +139,8 @@
   "orderDeliveredSuccessTitle": "Thank you!!",
   "orderDeliveredSuccessDescription": "The order delivered successfully",
   "done": "Done",
+  "unitPriceLabel": "Unit price",
+  "lineSubtotalLabel": "Subtotal",
 
   "emailRequired": "Email is required",
   "emailInvalid": "This Email is not valid",

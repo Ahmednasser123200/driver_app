@@ -64,6 +64,22 @@ void main() {
         '',
       );
     });
+
+    test('parses the store phone when the backend starts sending it', () {
+      final dto = PickupAddressDto.fromJson(
+        json()..['phone'] = '+201234567890',
+      );
+
+      expect(dto.phone, '+201234567890');
+      expect(dto.toDomain().phone, '+201234567890');
+    });
+
+    test('leaves the store phone empty when it is absent', () {
+      final dto = PickupAddressDto.fromJson(json());
+
+      expect(dto.phone, isNull);
+      expect(dto.toDomain().phone, '');
+    });
   });
 
   group('toJson', () {
@@ -72,32 +88,36 @@ void main() {
         'storeName',
         'address',
         'location',
+        'phone',
       });
     });
 
     test('round-trips through fromJson', () {
-      final original = buildPickupAddressDto();
+      final original = buildPickupAddressDto(phone: '+201234567890');
 
       final reparsed = PickupAddressDto.fromJson(<String, dynamic>{
         'storeName': original.storeName,
         'address': original.addressLine,
         'location': original.location?.toJson(),
+        'phone': original.phone,
       });
 
       expect(reparsed.storeName, original.storeName);
       expect(reparsed.addressLine, original.addressLine);
       expect(reparsed.location?.toJson(), original.location?.toJson());
+      expect(reparsed.phone, original.phone);
     });
   });
 
   group('toDomain', () {
     test('maps every field onto the entity', () {
-      final entity = buildPickupAddressDto().toDomain();
+      final entity = buildPickupAddressDto(phone: '+201234567890').toDomain();
 
       expect(entity.storeName, 'Flowery store');
       expect(entity.addressLine, '20th st, Sheikh Zayed, Giza');
       expect(entity.latitude, 30.0511);
       expect(entity.longitude, 31.3656);
+      expect(entity.phone, '+201234567890');
     });
 
     test('falls back to empty values when the payload is incomplete', () {
@@ -110,6 +130,7 @@ void main() {
       expect(entity.addressLine, '');
       expect(entity.latitude, 0);
       expect(entity.longitude, 0);
+      expect(entity.phone, '');
     });
   });
 }

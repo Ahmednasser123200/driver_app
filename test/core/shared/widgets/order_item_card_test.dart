@@ -71,6 +71,35 @@ void main() {
     expect(find.byType(Image), findsNothing);
   });
 
+  testWidgets('renders the line subtotal under the unit price', (tester) async {
+    useDesignSurface(tester);
+    await tester.pumpWidget(
+      wrapWidget(
+        const OrderItemCard(
+          productName: 'Red Roses Bouquet',
+          price: 'EGP 1500.00',
+          quantity: 2,
+          subTotal: 'EGP 3000.00',
+        ),
+      ),
+    );
+
+    expect(find.text('Subtotal: EGP 3000.00'), findsOneWidget);
+  });
+
+  testWidgets('omits the subtotal line when no unit price is known', (
+    tester,
+  ) async {
+    useDesignSurface(tester);
+    await tester.pumpWidget(
+      wrapWidget(
+        const OrderItemCard(productName: 'Orange', price: '', quantity: 2),
+      ),
+    );
+
+    expect(find.textContaining('Subtotal'), findsNothing);
+  });
+
   testWidgets('renders the image inside a clipped oval when provided', (
     tester,
   ) async {

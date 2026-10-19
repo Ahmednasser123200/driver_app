@@ -13,6 +13,7 @@ PickupAddressDto _$PickupAddressDtoFromJson(Map<String, dynamic> json) =>
       location: json['location'] == null
           ? null
           : LocationDto.fromJson(json['location'] as Map<String, dynamic>),
+      phone: json['phone'] as String?,
     );
 
 Map<String, dynamic> _$PickupAddressDtoToJson(PickupAddressDto instance) =>
@@ -20,4 +21,5 @@ Map<String, dynamic> _$PickupAddressDtoToJson(PickupAddressDto instance) =>
       'storeName': instance.storeName,
       'address': instance.addressLine,
       'location': instance.location,
+      'phone': instance.phone,
     };

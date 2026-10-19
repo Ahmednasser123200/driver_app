@@ -1,7 +1,8 @@
-﻿import 'package:bloc_test/bloc_test.dart';
+import 'package:bloc_test/bloc_test.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
+import 'package:driver_app/config/routing/routes.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_status_update.dart';
 import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
@@ -358,12 +359,12 @@ void main() {
     const recipientPhone = '+201012345678';
 
     test('calls the loaded order recipient', () async {
-      when(() => getOrderDetails.execute(any())).thenAnswer(
-        (_) async => Success(buildDriverOrderDetailsEntity()),
-      );
-      when(() => contactLauncher.call(any())).thenAnswer(
-        (_) async => ContactLaunchOutcome.launched,
-      );
+      when(
+        () => getOrderDetails.execute(any()),
+      ).thenAnswer((_) async => Success(buildDriverOrderDetailsEntity()));
+      when(
+        () => contactLauncher.call(any()),
+      ).thenAnswer((_) async => ContactLaunchOutcome.launched);
 
       await cubit.doEvent(GetDriverOrderDetailsEvent(orderId: kOrderId));
       await cubit.doEvent(const CallRecipientEvent());
@@ -373,12 +374,12 @@ void main() {
     });
 
     test('whatsapp uses the same loaded number', () async {
-      when(() => getOrderDetails.execute(any())).thenAnswer(
-        (_) async => Success(buildDriverOrderDetailsEntity()),
-      );
-      when(() => contactLauncher.whatsApp(any())).thenAnswer(
-        (_) async => ContactLaunchOutcome.launched,
-      );
+      when(
+        () => getOrderDetails.execute(any()),
+      ).thenAnswer((_) async => Success(buildDriverOrderDetailsEntity()));
+      when(
+        () => contactLauncher.whatsApp(any()),
+      ).thenAnswer((_) async => ContactLaunchOutcome.launched);
 
       await cubit.doEvent(GetDriverOrderDetailsEvent(orderId: kOrderId));
       await cubit.doEvent(const WhatsAppRecipientEvent());
@@ -405,9 +406,9 @@ void main() {
           ),
         ),
       );
-      when(() => contactLauncher.call(any())).thenAnswer(
-        (_) async => ContactLaunchOutcome.launched,
-      );
+      when(
+        () => contactLauncher.call(any()),
+      ).thenAnswer((_) async => ContactLaunchOutcome.launched);
 
       await cubit.doEvent(GetDriverOrderDetailsEvent(orderId: kOrderId));
       await cubit.doEvent(const CallRecipientEvent());
@@ -415,35 +416,38 @@ void main() {
       verify(() => contactLauncher.call('+201098765432')).called(1);
     });
 
-    test('emits InvalidPhoneFailure when the number cannot be resolved', () async {
-      when(() => contactLauncher.call(any())).thenAnswer(
-        (_) async => ContactLaunchOutcome.invalidNumber,
-      );
+    test(
+      'emits InvalidPhoneFailure when the number cannot be resolved',
+      () async {
+        when(
+          () => contactLauncher.call(any()),
+        ).thenAnswer((_) async => ContactLaunchOutcome.invalidNumber);
 
-      final events = await collectEvents(
-        () => cubit.doEvent(const CallRecipientEvent()),
-      );
+        final events = await collectEvents(
+          () => cubit.doEvent(const CallRecipientEvent()),
+        );
 
-      expect(
-        events.single,
-        isA<ShowFailureMessage>().having(
-          (e) => e.failure,
-          'failure',
-          isA<InvalidPhoneFailure>(),
-        ),
-      );
-    });
+        expect(
+          events.single,
+          isA<ShowFailureMessage>().having(
+            (e) => e.failure,
+            'failure',
+            isA<InvalidPhoneFailure>(),
+          ),
+        );
+      },
+    );
 
     test('reports the launcher outcome failures', () async {
-      when(() => getOrderDetails.execute(any())).thenAnswer(
-        (_) async => Success(buildDriverOrderDetailsEntity()),
-      );
+      when(
+        () => getOrderDetails.execute(any()),
+      ).thenAnswer((_) async => Success(buildDriverOrderDetailsEntity()));
 
       await cubit.doEvent(GetDriverOrderDetailsEvent(orderId: kOrderId));
 
-      when(() => contactLauncher.whatsApp(any())).thenAnswer(
-        (_) async => ContactLaunchOutcome.whatsAppUnavailable,
-      );
+      when(
+        () => contactLauncher.whatsApp(any()),
+      ).thenAnswer((_) async => ContactLaunchOutcome.whatsAppUnavailable);
       var events = await collectEvents(
         () => cubit.doEvent(const WhatsAppRecipientEvent()),
       );
@@ -456,9 +460,9 @@ void main() {
         ),
       );
 
-      when(() => contactLauncher.call(any())).thenAnswer(
-        (_) async => ContactLaunchOutcome.failed,
-      );
+      when(
+        () => contactLauncher.call(any()),
+      ).thenAnswer((_) async => ContactLaunchOutcome.failed);
       events = await collectEvents(
         () => cubit.doEvent(const CallRecipientEvent()),
       );
@@ -470,6 +474,238 @@ void main() {
           isA<ContactLaunchFailure>(),
         ),
       );
+    });
+  });
+
+  group('store contact', () {
+    const storePhone = '+201234567890';
+
+    Matcher failedWith<T extends AppFailure>() => isA<ShowFailureMessage>()
+        .having((event) => event.failure, 'failure', isA<T>());
+
+    test('calls the pickup store number, not the recipient one', () async {
+      when(() => getOrderDetails.execute(any())).thenAnswer(
+        (_) async => Success(
+          buildDriverOrderDetailsEntity(
+            pickupAddress: buildPickupAddressEntity(phone: storePhone),
+          ),
+        ),
+      );
+      when(
+        () => contactLauncher.call(any()),
+      ).thenAnswer((_) async => ContactLaunchOutcome.launched);
+
+      await cubit.doEvent(GetDriverOrderDetailsEvent(orderId: kOrderId));
+      await cubit.doEvent(const CallStoreEvent());
+
+      verify(() => contactLauncher.call(storePhone)).called(1);
+      verifyNever(() => contactLauncher.call('+201012345678'));
+    });
+
+    test('whatsapp opens the pickup store number', () async {
+      when(() => getOrderDetails.execute(any())).thenAnswer(
+        (_) async => Success(
+          buildDriverOrderDetailsEntity(
+            pickupAddress: buildPickupAddressEntity(phone: storePhone),
+          ),
+        ),
+      );
+      when(
+        () => contactLauncher.whatsApp(any()),
+      ).thenAnswer((_) async => ContactLaunchOutcome.launched);
+
+      await cubit.doEvent(GetDriverOrderDetailsEvent(orderId: kOrderId));
+      await cubit.doEvent(const WhatsAppStoreEvent());
+
+      verify(() => contactLauncher.whatsApp(storePhone)).called(1);
+      verifyNever(() => contactLauncher.whatsApp('+201012345678'));
+    });
+
+    test('reports an invalid number when the store has no phone', () async {
+      when(
+        () => getOrderDetails.execute(any()),
+      ).thenAnswer((_) async => Success(buildDriverOrderDetailsEntity()));
+      when(
+        () => contactLauncher.call(any()),
+      ).thenAnswer((_) async => ContactLaunchOutcome.invalidNumber);
+
+      await cubit.doEvent(GetDriverOrderDetailsEvent(orderId: kOrderId));
+      final events = await collectEvents(
+        () => cubit.doEvent(const CallStoreEvent()),
+      );
+
+      verify(() => contactLauncher.call('')).called(1);
+      expect(events.single, failedWith<InvalidPhoneFailure>());
+    });
+
+    test('does nothing beyond reporting when no order is loaded', () async {
+      when(
+        () => contactLauncher.call(any()),
+      ).thenAnswer((_) async => ContactLaunchOutcome.invalidNumber);
+
+      final events = await collectEvents(
+        () => cubit.doEvent(const CallStoreEvent()),
+      );
+
+      verify(() => contactLauncher.call('')).called(1);
+      expect(events.single, failedWith<InvalidPhoneFailure>());
+    });
+  });
+
+  group('delivery confirmation', () {
+    OrderDetailsCubit buildPollingCubit() => OrderDetailsCubit(
+      getDriverOrderDetailsUseCase: getOrderDetails,
+      updateOrderStatusUseCase: updateOrderStatus,
+      contactLauncher: contactLauncher,
+      pollInterval: const Duration(milliseconds: 10),
+    );
+
+    Matcher navigateToSuccess() => isA<NavigateRepalceTo>().having(
+      (event) => event.routeName,
+      'routeName',
+      Routes.deliverySuccess,
+    );
+
+    void mockStatus(OrderStatus status) {
+      when(() => getOrderDetails.execute(any())).thenAnswer(
+        (_) async => Success(buildDriverOrderDetailsEntity(status: status)),
+      );
+    }
+
+    test('navigates to the success screen once the backend reports '
+        'Delivered', () async {
+      mockStatus(OrderStatus.delivered);
+
+      final events = await collectEvents(
+        () => cubit.doEvent(GetDriverOrderDetailsEvent(orderId: kOrderId)),
+      );
+
+      expect(events.whereType<NavigateRepalceTo>(), [navigateToSuccess()]);
+    });
+
+    test(
+      'does not navigate while the customer has not confirmed yet',
+      () async {
+        mockStatus(OrderStatus.arrived);
+
+        final events = await collectEvents(
+          () => cubit.doEvent(GetDriverOrderDetailsEvent(orderId: kOrderId)),
+        );
+
+        expect(events.whereType<NavigateRepalceTo>(), isEmpty);
+        expect(cubit.state.orderDetails.data?.status, OrderStatus.arrived);
+      },
+    );
+
+    test('does not navigate when the order cannot be loaded', () async {
+      when(() => getOrderDetails.execute(any())).thenAnswer(
+        (_) async => Error<DriverOrderDetailsEntity>(const NotFoundFailure()),
+      );
+
+      final events = await collectEvents(
+        () => cubit.doEvent(GetDriverOrderDetailsEvent(orderId: kOrderId)),
+      );
+
+      expect(events.whereType<NavigateRepalceTo>(), isEmpty);
+      expect(events.whereType<ShowFailureMessage>(), hasLength(1));
+    });
+
+    test('does not navigate when the driver moves the order to awaiting '
+        'confirmation', () async {
+      when(
+        () => updateOrderStatus.execute(any()),
+      ).thenAnswer((_) async => Success(buildUpdateOrderStatusEntity()));
+      mockStatus(OrderStatus.arrived);
+
+      final events = await collectEvents(
+        () => cubit.doEvent(
+          UpdateOrderStatusEvent(
+            orderId: kOrderId,
+            newStatus: DriverStatusUpdate.awaitingDeliveryConfirmation,
+          ),
+        ),
+      );
+
+      expect(events.whereType<NavigateRepalceTo>(), isEmpty);
+    });
+
+    test(
+      're-reads the order and navigates once the customer confirms',
+      () async {
+        final pollingCubit = buildPollingCubit();
+        addTearDown(pollingCubit.close);
+
+        var reads = 0;
+        when(() => getOrderDetails.execute(any())).thenAnswer((_) async {
+          reads++;
+          return Success(
+            buildDriverOrderDetailsEntity(
+              status: reads == 1 ? OrderStatus.arrived : OrderStatus.delivered,
+            ),
+          );
+        });
+
+        final events = <BaseUiEvent>[];
+        pollingCubit.uiEventStream.listen(events.add);
+
+        await pollingCubit.doEvent(
+          GetDriverOrderDetailsEvent(orderId: kOrderId),
+        );
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+
+        expect(reads, greaterThan(1));
+        expect(events.whereType<NavigateRepalceTo>(), hasLength(1));
+      },
+    );
+
+    test(
+      'stops re-reading the order once the success screen is shown',
+      () async {
+        final pollingCubit = buildPollingCubit();
+        addTearDown(pollingCubit.close);
+
+        var reads = 0;
+        when(() => getOrderDetails.execute(any())).thenAnswer((_) async {
+          reads++;
+          return Success(
+            buildDriverOrderDetailsEntity(
+              status: reads == 1 ? OrderStatus.arrived : OrderStatus.delivered,
+            ),
+          );
+        });
+
+        await pollingCubit.doEvent(
+          GetDriverOrderDetailsEvent(orderId: kOrderId),
+        );
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        final settledReads = reads;
+
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+
+        expect(reads, settledReads);
+      },
+    );
+
+    test('keeps the last order and stays silent when a background refresh '
+        'fails', () async {
+      final pollingCubit = buildPollingCubit();
+      addTearDown(pollingCubit.close);
+
+      mockStatus(OrderStatus.arrived);
+      final events = <BaseUiEvent>[];
+      pollingCubit.uiEventStream.listen(events.add);
+
+      await pollingCubit.doEvent(GetDriverOrderDetailsEvent(orderId: kOrderId));
+      when(() => getOrderDetails.execute(any())).thenAnswer(
+        (_) async => Error<DriverOrderDetailsEntity>(const NotFoundFailure()),
+      );
+
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+
+      expect(events.whereType<ShowFailureMessage>(), isEmpty);
+      expect(events.whereType<NavigateRepalceTo>(), isEmpty);
+      expect(pollingCubit.state.orderDetails.data?.status, OrderStatus.arrived);
+      expect(pollingCubit.state.orderDetails.isLoading, isFalse);
     });
   });
 }
