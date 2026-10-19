@@ -9,26 +9,35 @@ class OrdersList extends StatelessWidget {
     super.key,
     required this.orders,
     required this.isLoadingMore,
+    required this.loadMoreFailed,
     required this.onLoadMore,
   });
 
   final List<OrderHistoryEntity> orders;
   final bool isLoadingMore;
+
+  final bool loadMoreFailed;
   final VoidCallback onLoadMore;
 
   static const double _loadMoreThreshold = 200;
+
+  bool _shouldLoadMore(ScrollNotification notification) {
+    final metrics = notification.metrics;
+    final nearEnd =
+        metrics.pixels >= metrics.maxScrollExtent - _loadMoreThreshold;
+    if (!nearEnd) return false;
+    return !loadMoreFailed || notification is ScrollEndNotification;
+  }
 
   @override
   Widget build(BuildContext context) {
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
-        final metrics = notification.metrics;
-        if (metrics.pixels >= metrics.maxScrollExtent - _loadMoreThreshold) {
-          onLoadMore();
-        }
+        if (_shouldLoadMore(notification)) onLoadMore();
         return false;
       },
       child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
         itemCount: orders.length + (isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index == orders.length) return const _LoadMoreIndicator();

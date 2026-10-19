@@ -1,7 +1,7 @@
-import 'package:driver_app/config/base/base_response.dart';
-import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../config/base/base_response.dart';
+import '../../../../config/errors/app_failure.dart';
 import '../../domain/entities/order_history_entities.dart';
 import '../../domain/entities/pagination_entities.dart';
 import '../../domain/repo/order_history_repo.dart';

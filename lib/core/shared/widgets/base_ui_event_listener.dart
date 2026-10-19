@@ -5,6 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../config/base/base_cubit.dart';
 import '../../../config/base/base_ui_event.dart';
+import '../../../config/localization/app_failure_message_mapper.dart';
+import '../../../l10n/generated/app_localizations.dart';
+import '../../themes/app_colors/app_colors.dart';
 
 class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
     extends StatefulWidget {
@@ -36,8 +39,8 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
 
   @override
   void didUpdateWidget(
-    covariant BaseUiEventListener<C, S, E> oldWidget,
-  ) {
+      covariant BaseUiEventListener<C, S, E> oldWidget,
+      ) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.cubit != widget.cubit) {
       _unsubscribe();
@@ -62,14 +65,26 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(event.message),
-            backgroundColor: Colors.green,
+            backgroundColor: AppColors.success,
           ),
         );
       case ShowErrorMessage():
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(event.message),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
+          ),
+        );
+      case ShowFailure():
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              mapAppFailureToMessage(
+                event.failure,
+                AppLocalizations.of(context)!,
+              ),
+            ),
+            backgroundColor: AppColors.error,
           ),
         );
       case NavigateTo():

@@ -1,7 +1,10 @@
-import 'package:driver_app/config/base/base_state.dart';
-import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
-import 'package:driver_app/features/order_history/domain/entities/pagination_entities.dart';
+
 import 'package:equatable/equatable.dart';
+
+import '../../../../config/base/base_state.dart';
+import '../../../../config/errors/app_failure.dart';
+import '../../domain/entities/order_history_entities.dart';
+import '../../domain/entities/pagination_entities.dart';
 
 class OrdersDataState extends Equatable {
   final List<OrderHistoryEntity> orders;
@@ -42,9 +45,12 @@ class OrdersState extends Equatable {
   final BaseState<OrdersDataState> ordersListState;
   final OrderStatus? statusFilter;
 
+  final AppFailure? failure;
+
   const OrdersState({
     this.ordersListState = const BaseState(),
     this.statusFilter,
+    this.failure,
   });
 
   List<OrderHistoryEntity> get visibleOrders {
@@ -54,17 +60,25 @@ class OrdersState extends Equatable {
     return orders.where((order) => order.status == filter).toList();
   }
 
-  OrdersState copyWith({BaseState<OrdersDataState>? ordersListState}) {
+  OrdersState copyWith({
+    BaseState<OrdersDataState>? ordersListState,
+    AppFailure? failure,
+  }) {
     return OrdersState(
       ordersListState: ordersListState ?? this.ordersListState,
       statusFilter: statusFilter,
+      failure: failure,
     );
   }
 
   OrdersState withFilter(OrderStatus? filter) {
-    return OrdersState(ordersListState: ordersListState, statusFilter: filter);
+    return OrdersState(
+      ordersListState: ordersListState,
+      statusFilter: filter,
+      failure: failure,
+    );
   }
 
   @override
-  List<Object?> get props => [ordersListState, statusFilter];
+  List<Object?> get props => [ordersListState, statusFilter, failure];
 }

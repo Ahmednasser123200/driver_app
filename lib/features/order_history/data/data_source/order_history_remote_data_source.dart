@@ -1,5 +1,4 @@
-import 'package:driver_app/config/base/base_response.dart';
-
+import '../../../../config/base/base_response.dart';
 import '../model/order_details_response_dto.dart';
 import '../model/order_history_list_response_dto.dart';
 import '../model/order_history_request_dto.dart';

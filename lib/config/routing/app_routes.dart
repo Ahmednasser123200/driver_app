@@ -79,7 +79,12 @@ abstract final class AppRoutes {
       case Routes.profile:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const _StubScreen('Profile'),
+          builder: (_) => const AppBottomNavigationBar(
+            homeScreen: _StubScreen('Home'),
+            ordersScreen: OrdersView(),
+            profileScreen: _StubScreen('Profile'),
+            initialIndex: 2,
+          ),
         );
       case Routes.editProfile:
         return MaterialPageRoute(

@@ -1,5 +1,4 @@
-import 'package:driver_app/config/base/base_response.dart';
-
+import '../../../../config/base/base_response.dart';
 import '../entities/order_history_entities.dart';
 import '../entities/pagination_entities.dart';
 

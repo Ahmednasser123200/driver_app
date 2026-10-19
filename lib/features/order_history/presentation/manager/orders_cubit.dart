@@ -1,21 +1,24 @@
-import 'package:driver_app/config/base/base_cubit.dart';
-import 'package:driver_app/config/base/base_response.dart';
-import 'package:driver_app/config/base/base_state.dart';
-import 'package:driver_app/config/base/base_ui_event.dart';
-import 'package:driver_app/config/errors/app_failure.dart';
-import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
-import 'package:driver_app/features/order_history/domain/entities/pagination_entities.dart';
-import 'package:driver_app/features/order_history/domain/use_case/get_orders_use_case..dart';
+
+
 import 'package:injectable/injectable.dart';
 
+import '../../../../config/base/base_cubit.dart';
+import '../../../../config/base/base_response.dart';
+import '../../../../config/base/base_state.dart';
+import '../../../../config/base/base_ui_event.dart';
+import '../../../../config/errors/app_failure.dart';
+import '../../domain/entities/order_history_entities.dart';
+import '../../domain/entities/pagination_entities.dart';
+import '../../domain/use_case/get_orders_use_case..dart';
 import 'orders_event.dart';
 import 'orders_state.dart';
 
 @injectable
 class OrdersCubit extends BaseCubit<OrdersState, BaseUiEvent> {
   static const int _pageSize = 10;
-
   final GetOrdersUseCase _getOrdersUseCase;
+
+  int _requestId = 0;
 
   OrdersCubit(this._getOrdersUseCase) : super(const OrdersState());
 
@@ -51,6 +54,7 @@ class OrdersCubit extends BaseCubit<OrdersState, BaseUiEvent> {
   }
 
   Future<void> _loadPage(int page, {bool refresh = false}) async {
+    final requestId = ++_requestId;
     final previous = state.ordersListState.data;
     final kept = _keptOrders(refresh);
     _emitLoading(previous);
@@ -58,7 +62,7 @@ class OrdersCubit extends BaseCubit<OrdersState, BaseUiEvent> {
       page: page,
       pageSize: _pageSize,
     );
-    if (isClosed) return;
+    if (isClosed || requestId != _requestId) return;
     switch (result) {
       case Success<PaginatedEntity<OrderHistoryEntity>>(:final data):
         _emitLoaded(kept, data);
@@ -102,17 +106,13 @@ class OrdersCubit extends BaseCubit<OrdersState, BaseUiEvent> {
   }
 
   void _emitError(OrdersDataState? data, AppFailure failure) {
-    final message = failure.toString();
     emit(
       state.copyWith(
-        ordersListState: BaseState(
-          isLoading: false,
-          errorMessage: message,
-          data: data,
-        ),
+        ordersListState: BaseState(isLoading: false, data: data),
+        failure: failure,
       ),
     );
-    emitEvent(ShowErrorMessage(message));
+    emitEvent(ShowFailure(failure));
   }
 
   int _count(List<OrderHistoryEntity> orders, OrderStatus status) {

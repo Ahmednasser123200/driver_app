@@ -1,9 +1,11 @@
+
+
 import 'package:dio/dio.dart';
-import 'package:driver_app/config/base/base_response.dart';
-import 'package:driver_app/config/dio/dio_failure_mapper.dart';
-import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../config/base/base_response.dart';
+import '../../../../config/dio/dio_failure_mapper.dart';
+import '../../../../config/errors/app_failure.dart';
 import '../../data/data_source/order_history_remote_data_source.dart';
 import '../../data/model/catalog_api_response_dto.dart';
 import '../../data/model/order_api_response_dto.dart';

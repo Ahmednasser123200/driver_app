@@ -22,7 +22,10 @@ class OrdersView extends StatelessWidget {
       child: BaseUiEventListener<OrdersCubit, OrdersState, BaseUiEvent>(
         child: const Scaffold(
           backgroundColor: AppColors.surface,
-          appBar: OrderHistoryAppBar(title: AppStrings.myOrders),
+          appBar: OrderHistoryAppBar(
+            title: AppStrings.myOrders,
+            showBack: false,
+          ),
           body: OrdersBody(),
         ),
       ),

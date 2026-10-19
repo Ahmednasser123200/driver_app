@@ -1,11 +1,13 @@
-import 'package:driver_app/config/base/base_cubit.dart';
-import 'package:driver_app/config/base/base_response.dart';
-import 'package:driver_app/config/base/base_state.dart';
-import 'package:driver_app/config/base/base_ui_event.dart';
-import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
-import 'package:driver_app/features/order_history/domain/use_case/get_order_details_use_case.dart';
+
 import 'package:injectable/injectable.dart';
 
+import '../../../../config/base/base_cubit.dart';
+import '../../../../config/base/base_response.dart';
+import '../../../../config/base/base_state.dart';
+import '../../../../config/base/base_ui_event.dart';
+import '../../../../config/errors/app_failure.dart';
+import '../../domain/entities/order_history_entities.dart';
+import '../../domain/use_case/get_order_details_use_case.dart';
 import 'order_details_event.dart';
 import 'order_details_state.dart';
 
@@ -24,37 +26,39 @@ class OrderDetailsCubit extends BaseCubit<OrderDetailsState, BaseUiEvent> {
   }
 
   Future<void> _getOrderDetails(String orderId) async {
+    _emitLoading();
+    final result = await _getOrderDetailsUseCase.execute(orderId: orderId);
+    if (isClosed) return;
+    switch (result) {
+      case Success<OrderHistoryDetailsEntity>(:final data):
+        _emitLoaded(data);
+      case Error<OrderHistoryDetailsEntity>(:final failure):
+        _emitFailure(failure);
+    }
+  }
+
+  void _emitLoading() {
     emit(
-      state.copyWith(
-        orderDetails: const BaseState(isLoading: true),
+      OrderDetailsState(
+        orderDetails: BaseState(
+          isLoading: true,
+          data: state.orderDetails.data,
+        ),
       ),
     );
+  }
 
-    final result = await _getOrderDetailsUseCase.execute(orderId: orderId);
+  void _emitLoaded(OrderHistoryDetailsEntity details) {
+    emit(OrderDetailsState(orderDetails: BaseState(data: details)));
+  }
 
-    if (isClosed) return;
-
-    switch (result) {
-      case Success<OrderHistoryDetailsEntity>():
-        emit(
-          state.copyWith(
-            orderDetails: BaseState(
-              isLoading: false,
-              data: result.data,
-            ),
-          ),
-        );
-
-      case Error<OrderHistoryDetailsEntity>():
-        emit(
-          state.copyWith(
-            orderDetails: BaseState(
-              isLoading: false,
-              errorMessage: result.failure.toString(),
-            ),
-          ),
-        );
-        emitEvent(ShowErrorMessage(result.failure.toString()));
-    }
+  void _emitFailure(AppFailure failure) {
+    emit(
+      OrderDetailsState(
+        orderDetails: BaseState(data: state.orderDetails.data),
+        failure: failure,
+      ),
+    );
+    emitEvent(ShowFailure(failure));
   }
 }
