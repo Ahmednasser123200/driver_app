@@ -1,5 +1,6 @@
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
+import 'package:driver_app/features/home/data/dtos/active_order_id_dto.dart';
 import 'package:driver_app/features/home/data/dtos/available_orders_response_dto.dart';
 import 'package:driver_app/features/home/data/repo/home_repo_impl.dart';
 import 'package:driver_app/features/home/domain/entities/available_orders.dart';
@@ -49,6 +50,32 @@ void main() {
 
       expect(result, isA<Error<AvailableOrders>>());
       expect((result as Error<AvailableOrders>).failure, isA<TimeoutFailure>());
+    });
+  });
+
+  group('getActiveOrderId', () {
+    test('returns the active order ID from the data source', () async {
+      when(() => dataSource.getActiveOrderId()).thenAnswer(
+        (_) async =>
+            const Success<ActiveOrderIdDto>(ActiveOrderIdDto('active-order-9')),
+      );
+
+      final result = await repo.getActiveOrderId();
+
+      expect(result, isA<Success<String>>());
+      expect((result as Success<String>).data, 'active-order-9');
+      verify(() => dataSource.getActiveOrderId()).called(1);
+    });
+
+    test('propagates active-order request failures', () async {
+      when(() => dataSource.getActiveOrderId()).thenAnswer(
+        (_) async => const Error<ActiveOrderIdDto>(NotFoundFailure()),
+      );
+
+      final result = await repo.getActiveOrderId();
+
+      expect(result, isA<Error<String>>());
+      expect((result as Error<String>).failure, isA<NotFoundFailure>());
     });
   });
 

@@ -1,5 +1,6 @@
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/features/home/data/datasources/home_remote_data_source.dart';
+import 'package:driver_app/features/home/data/dtos/active_order_id_dto.dart';
 import 'package:driver_app/features/home/data/dtos/available_orders_response_dto.dart';
 import 'package:driver_app/features/home/domain/entities/available_orders.dart';
 import 'package:driver_app/features/home/domain/repo/home_repo.dart';
@@ -10,6 +11,16 @@ class HomeRepoImpl implements HomeRepo {
   final HomeRemoteDataSource homeRemoteDataSource;
 
   HomeRepoImpl(this.homeRemoteDataSource);
+
+  @override
+  Future<BaseResponse<String>> getActiveOrderId() async {
+    final response = await homeRemoteDataSource.getActiveOrderId();
+    return switch (response) {
+      Success<ActiveOrderIdDto>(:final data) => Success<String>(data.orderId),
+      Error<ActiveOrderIdDto>(:final failure) => Error<String>(failure),
+    };
+  }
+
   @override
   Future<BaseResponse<void>> acceptOrder(String orderId) async {
     return _execureRepCall<void, void>(

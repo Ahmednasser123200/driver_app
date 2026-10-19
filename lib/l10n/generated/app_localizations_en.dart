@@ -220,6 +220,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accepted => 'Accepted';
 
   @override
+  String get orderUpdated => 'Order Updated';
+
+  @override
   String get picked => 'Picked';
 
   @override
@@ -266,6 +269,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accept => 'Accept';
+
+  @override
+  String get viewActiveOrder => 'View Active Order';
 
   @override
   String get yourLocation => 'Your location';
@@ -495,4 +501,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get retry => 'Retry';
+
+  @override
+  String get currency => 'EGP';
+
+  @override
+  String get failureInvalidPhone => 'This contact number is not valid.';
+
+  @override
+  String get failureContactLaunch =>
+      'Couldn\'t open the app. Please try again.';
+
+  @override
+  String get failureWhatsAppUnavailable =>
+      'WhatsApp isn\'t installed on this device.';
+
+  @override
+  String get failureAlreadyActiveOrder =>
+      'You already have an active delivery in progress. Please complete it first.';
 }

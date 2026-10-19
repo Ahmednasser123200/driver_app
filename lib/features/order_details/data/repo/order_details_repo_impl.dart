@@ -3,6 +3,7 @@ import 'package:driver_app/features/order_details/data/datasources/order_details
 import 'package:driver_app/features/order_details/data/dtos/requests/report_driver_location_request_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/requests/update_order_status_request_dto.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
+import 'package:driver_app/features/order_details/domain/entities/order_pricing.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
 import 'package:driver_app/features/order_details/domain/params/report_driver_location_params.dart';
@@ -26,6 +27,13 @@ class OrderDetailsRepoImpl implements OrderDetailsRepo {
   );
 
   @override
+  Future<BaseResponse<OrderPricingEntity>> getOrderPricing(String orderId) =>
+      _mapResponse(
+        () => _remoteDataSource.getOrderPricing(orderId),
+        (response) => response.toDomain(),
+      );
+
+  @override
   Future<BaseResponse<ReportDriverLocationEntity>> reportDriverLocation(
     ReportDriverLocationParams params,
   ) => _mapResponse(
@@ -44,7 +52,7 @@ class OrderDetailsRepoImpl implements OrderDetailsRepo {
     UpdateOrderStatusParams params,
   ) => _mapResponse(
     () => _remoteDataSource.updateOrderStatus(
-      UpdateOrderStatusRequestDto(newStatus: params.newStatus),
+      UpdateOrderStatusRequestDto(newStatus: params.newStatus.wireValue),
       params.orderId,
     ),
     (response) => response.toDomain(),

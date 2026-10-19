@@ -14,6 +14,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'routes.dart';
 
 abstract final class AppRoutes {
+  /// Lets a screen react when a route pushed on top of it is popped back to:
+  /// Home re-reads its active order after Order Details returns, so the top
+  /// button never keeps pointing at a completed/changed order.
+  static final RouteObserver<ModalRoute<dynamic>> routeObserver =
+      RouteObserver<ModalRoute<dynamic>>();
+
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
       case Routes.initial:
@@ -69,27 +75,25 @@ abstract final class AppRoutes {
           builder: (_) => const _StubScreen('Orders'),
         );
       case Routes.orderDetails:
-  final arguments = settings.arguments;
+        final arguments = settings.arguments;
 
-  if (arguments is! String || arguments.isEmpty) {
-    return MaterialPageRoute(
-      settings: settings,
-      builder: (context) => _StubScreen(
-  AppLocalizations.of(context)!.invalidOrderId,
-),
-    );
-  }
+        if (arguments is! String || arguments.trim().isEmpty) {
+          return MaterialPageRoute(
+            settings: settings,
+            builder: (context) =>
+                _StubScreen(AppLocalizations.of(context)!.invalidOrderId),
+          );
+        }
 
-  final orderId = arguments;
+        final orderId = arguments;
 
-  return MaterialPageRoute(
-    settings: settings,
-    builder: (_) => BlocProvider(
-      create: (_) => getIt<OrderDetailsCubit>(),
-      child: OrderDetailsView(orderId: orderId),
-    ),
-  
-);
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => BlocProvider(
+            create: (_) => getIt<OrderDetailsCubit>(),
+            child: OrderDetailsView(orderId: orderId),
+          ),
+        );
       case Routes.tracking:
         return MaterialPageRoute(
           settings: settings,

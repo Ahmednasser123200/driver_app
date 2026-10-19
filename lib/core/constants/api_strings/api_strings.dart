@@ -164,6 +164,12 @@ abstract class ApiStrings {
   static String updateOrderStatus(String orderId) =>
       '/order/orders/$orderId/status';
 
+  /// Customer order details. The driver app only reads it for the per-item
+  /// prices and the authoritative total the driver endpoints omit.
+  static const String orderPricingRoute = '/order/orders/{$orderIdPath}';
+
+  static String orderPricing(String orderId) => '/order/orders/$orderId';
+
   static const String reportDriverLocation = '/order/drivers/me/location';
 
   // =========================

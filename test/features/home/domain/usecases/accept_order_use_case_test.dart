@@ -35,4 +35,16 @@ void main() {
 
     expect((result as Error<void>).failure, isA<ConflictFailure>());
   });
+
+  test('forwards active-order lookup to the repository', () async {
+    when(
+      () => repo.getActiveOrderId(),
+    ).thenAnswer((_) async => const Success<String>('active-order-9'));
+
+    final result = await useCase.getActiveOrderId();
+
+    expect(result, isA<Success<String>>());
+    expect((result as Success<String>).data, 'active-order-9');
+    verify(() => repo.getActiveOrderId()).called(1);
+  });
 }

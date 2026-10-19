@@ -221,6 +221,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get accepted => 'مقبول';
 
   @override
+  String get orderUpdated => 'تم تحديث الأوردر';
+
+  @override
   String get picked => 'تم الاستلام';
 
   @override
@@ -267,6 +270,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get accept => 'قبول';
+
+  @override
+  String get viewActiveOrder => 'عرض الطلب النشط';
 
   @override
   String get yourLocation => 'موقعك';
@@ -489,4 +495,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get retry => 'إعادة المحاولة';
+
+  @override
+  String get currency => 'ج.م';
+
+  @override
+  String get failureInvalidPhone => 'رقم التواصل غير صالح.';
+
+  @override
+  String get failureContactLaunch =>
+      'تعذر فتح التطبيق. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get failureWhatsAppUnavailable =>
+      'تطبيق واتساب غير مثبت على هذا الجهاز.';
+
+  @override
+  String get failureAlreadyActiveOrder =>
+      'لديك طلب توصيل نشط بالفعل. يرجى إكماله أولاً.';
 }

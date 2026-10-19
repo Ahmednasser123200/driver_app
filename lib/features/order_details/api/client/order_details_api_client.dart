@@ -3,6 +3,7 @@ import 'package:driver_app/core/constants/api_strings/api_strings.dart';
 import 'package:driver_app/features/order_details/data/dtos/requests/report_driver_location_request_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/requests/update_order_status_request_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/driver_order_details_response_dto.dart';
+import 'package:driver_app/features/order_details/data/dtos/responses/order_pricing_response_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/report_driver_location_response_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/update_order_status_response_dto.dart';
 import 'package:injectable/injectable.dart';
@@ -25,6 +26,11 @@ abstract class OrderDetailsApiClient {
   Future<UpdateOrderStatusResponseDto> updateOrderStatus(
     @Path(ApiStrings.orderIdPath) String orderId,
     @Body() UpdateOrderStatusRequestDto request,
+  );
+
+  @GET(ApiStrings.orderPricingRoute)
+  Future<OrderPricingDto> getOrderPricing(
+    @Path(ApiStrings.orderIdPath) String orderId,
   );
 
   @POST(ApiStrings.reportDriverLocation)

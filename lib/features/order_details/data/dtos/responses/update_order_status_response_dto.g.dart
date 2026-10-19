@@ -9,9 +9,9 @@ part of 'update_order_status_response_dto.dart';
 UpdateOrderStatusResponseDto _$UpdateOrderStatusResponseDtoFromJson(
   Map<String, dynamic> json,
 ) => UpdateOrderStatusResponseDto(
-  orderId: json['orderId'] as String,
-  status: json['status'] as String,
-  updatedAt: json['updatedAt'] as String,
+  orderId: json['orderId'] as String?,
+  status: json['status'] as String?,
+  updatedAt: json['updatedAt'] as String?,
 );
 
 Map<String, dynamic> _$UpdateOrderStatusResponseDtoToJson(

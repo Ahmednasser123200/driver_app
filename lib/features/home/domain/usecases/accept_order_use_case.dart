@@ -10,4 +10,7 @@ class AcceptOrderUseCase {
 
   Future<BaseResponse<void>> call(String orderId) =>
       homeRepo.acceptOrder(orderId);
+
+  Future<BaseResponse<String>> getActiveOrderId() =>
+      homeRepo.getActiveOrderId();
 }

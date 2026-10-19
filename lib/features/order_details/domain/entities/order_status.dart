@@ -1,4 +1,3 @@
-
 enum OrderStatus {
   pending,
   accepted,
@@ -9,4 +8,6 @@ enum OrderStatus {
   arrived,
   pickedUp,
   picked,
+  delivered,
+  cancelled,
 }

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/home/api/data_source_impl/remote/home_remote_data_source_impl.dart';
+import 'package:driver_app/features/home/data/dtos/active_order_id_dto.dart';
 import 'package:driver_app/features/home/data/dtos/available_orders_response_dto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -84,6 +85,47 @@ void main() {
       expect(
         (result as Error<AvailableOrdersResponseDto>).failure,
         isA<UnknownFailure>(),
+      );
+    });
+  });
+
+  group('getActiveOrderId', () {
+    test('extracts the order ID from the active-order response', () async {
+      when(() => apiClient.getActiveOrder()).thenAnswer(
+        (_) async => {
+          'success': true,
+          'data': {'orderId': 'active-order-9'},
+        },
+      );
+
+      final result = await dataSource.getActiveOrderId();
+
+      expect(result, isA<Success<ActiveOrderIdDto>>());
+      expect(
+        (result as Success<ActiveOrderIdDto>).data.orderId,
+        'active-order-9',
+      );
+      verify(() => apiClient.getActiveOrder()).called(1);
+    });
+
+    test('maps an active-order request failure', () async {
+      when(() => apiClient.getActiveOrder()).thenThrow(
+        DioException(
+          requestOptions: RequestOptions(path: '/active-order'),
+          type: DioExceptionType.badResponse,
+          response: Response(
+            requestOptions: RequestOptions(path: '/active-order'),
+            statusCode: 404,
+          ),
+        ),
+      );
+
+      final result = await dataSource.getActiveOrderId();
+
+      expect(result, isA<Error<ActiveOrderIdDto>>());
+      expect(
+        (result as Error<ActiveOrderIdDto>).failure,
+        isA<NotFoundFailure>(),
       );
     });
   });

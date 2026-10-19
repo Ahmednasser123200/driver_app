@@ -8,16 +8,16 @@ part of 'pickup_address_dto.dart';
 
 PickupAddressDto _$PickupAddressDtoFromJson(Map<String, dynamic> json) =>
     PickupAddressDto(
-      storeName: json['storeName'] as String,
-      addressLine: json['addressLine'] as String,
-      latitude: (json['latitude'] as num).toDouble(),
-      longitude: (json['longitude'] as num).toDouble(),
+      storeName: json['storeName'] as String?,
+      addressLine: json['address'] as String?,
+      location: json['location'] == null
+          ? null
+          : LocationDto.fromJson(json['location'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$PickupAddressDtoToJson(PickupAddressDto instance) =>
     <String, dynamic>{
       'storeName': instance.storeName,
-      'addressLine': instance.addressLine,
-      'latitude': instance.latitude,
-      'longitude': instance.longitude,
+      'address': instance.addressLine,
+      'location': instance.location,
     };

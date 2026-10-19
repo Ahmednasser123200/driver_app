@@ -1,4 +1,5 @@
 import 'package:driver_app/features/order_details/data/dtos/responses/driver_order_details_response_dto.dart';
+import 'package:driver_app/features/order_details/data/dtos/responses/location_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/order_item_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/pickup_address_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/recipient_info_dto.dart';
@@ -17,6 +18,87 @@ import 'package:driver_app/features/order_details/domain/entities/update_order_s
 import 'package:driver_app/features/order_details/domain/entities/user_address.dart';
 
 const String kOrderId = 'bbbb2222-0002-0002-0002-000000000002';
+
+/// The order id of the driver's active delivery on the dev backend.
+const String kRealOrderId = 'b1111111-1111-1111-1111-111111111111';
+
+/// Verbatim body of `GET /order/drivers/me/orders/{orderId}` captured from the
+/// dev backend, envelope included. It is the contract the order details screen
+/// has to survive: no `orderNumber`, no prices, no timeline, `pickup` instead
+/// of `pickupAddress` and coordinates nested under `location`.
+Map<String, dynamic> realDriverOrderDetailsResponse() => <String, dynamic>{
+  'success': true,
+  'message': 'Request completed successfully',
+  'data': <String, dynamic>{
+    'orderId': kRealOrderId,
+    'status': 'Preparing',
+    'isGift': false,
+    'items': <Map<String, dynamic>>[
+      <String, dynamic>{
+        'productId': 'd00a5eab-d909-4101-bf1b-1bfb76221ec9',
+        'productName': 'Glass Flower Vase',
+        'quantity': 1,
+      },
+      <String, dynamic>{
+        'productId': 'be4941ea-b70d-4819-8606-923c878814b7',
+        'productName': 'Red Roses Bouquet (12 Stems)',
+        'quantity': 1,
+      },
+    ],
+    'pickup': <String, dynamic>{
+      'storeName': 'Unknown Store',
+      'location': <String, dynamic>{'lat': 0, 'lng': 0},
+      'address': 'Store Location',
+    },
+    'userAddress': <String, dynamic>{
+      'recipientName': 'Sarah Ahmed',
+      'recipientPhone': '+201001234567',
+      'location': <String, dynamic>{'lat': 29.9602, 'lng': 31.2569},
+      'address': '45 El-Nahr Street, Apartment 4B',
+    },
+  },
+  'error': null,
+};
+
+/// The driver order payload (`data` content) as the backend sends it, with all
+/// optional keys present so the full mapping can be asserted.
+Map<String, dynamic> driverOrderDetailsJson() => <String, dynamic>{
+  'orderId': kOrderId,
+  'orderNumber': 'ORD-12345',
+  'status': 'PickedUp',
+  'isGift': true,
+  'totalPrice': 3000.0,
+  'currency': 'EGP',
+  'paymentMethod': 'COD',
+  'notes': 'Handle flowers with care',
+  'pickup': <String, dynamic>{
+    'storeName': 'Flowery store',
+    'address': '20th st, Sheikh Zayed, Giza',
+    'location': <String, dynamic>{'lat': 30.0511, 'lng': 31.3656},
+  },
+  'userAddress': <String, dynamic>{
+    'recipientName': 'Nour Mohamed',
+    'recipientPhone': '+201012345678',
+    'address': '20th st, Sheikh Zayed, Giza',
+    'location': <String, dynamic>{'lat': 30.0444, 'lng': 31.2357},
+  },
+  'items': <Map<String, dynamic>>[
+    <String, dynamic>{
+      'productId': '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      'productName': 'Red Roses Bouquet',
+      'quantity': 2,
+      'unitPrice': 1500.0,
+      'imageUrl': 'https://example.com/rose.png',
+    },
+  ],
+  'timeline': <Map<String, dynamic>>[
+    <String, dynamic>{'status': 'Placed', 'timestamp': '2026-09-19T17:00:00Z'},
+    <String, dynamic>{
+      'status': 'PickedUp',
+      'timestamp': '2026-09-19T17:30:00Z',
+    },
+  ],
+};
 
 PickupAddressEntity buildPickupAddressEntity() => PickupAddressEntity(
   storeName: 'Flowery store',
@@ -43,7 +125,7 @@ OrderItemEntity buildOrderItemEntity({
   String productId = '3fa85f64-5717-4562-b3fc-2c963f66afa6',
   String productName = 'Red Roses Bouquet',
   int quantity = 2,
-  double unitPrice = 1500.0,
+  double? unitPrice = 1500.0,
   String imageUrl = 'https://example.com/rose.png',
 }) => OrderItemEntity(
   productId: productId,
@@ -61,12 +143,17 @@ TimelineEntity buildTimelineEntity({
 OrderStatus _resolveOrderStatus(dynamic value) {
   if (value is OrderStatus) return value;
 
-  final normalized = value.toString()
+  final normalized = value
+      .toString()
       .replaceAll(RegExp(r'[\s_-]+'), '')
       .toLowerCase();
 
   switch (normalized) {
     case 'pending':
+    case 'placed':
+    case 'pendingpayment':
+    case 'paymentfailed':
+    case 'preparing':
       return OrderStatus.pending;
     case 'accepted':
       return OrderStatus.accepted;
@@ -79,11 +166,17 @@ OrderStatus _resolveOrderStatus(dynamic value) {
     case 'inprogress':
       return OrderStatus.inProgress;
     case 'arrived':
+    case 'awaitingdeliveryconfirmation':
       return OrderStatus.arrived;
     case 'pickedup':
       return OrderStatus.pickedUp;
     case 'picked':
       return OrderStatus.picked;
+    case 'delivered':
+      return OrderStatus.delivered;
+    case 'cancelled':
+    case 'canceled':
+      return OrderStatus.cancelled;
     default:
       return OrderStatus.pending;
   }
@@ -93,7 +186,7 @@ DriverOrderDetailsEntity buildDriverOrderDetailsEntity({
   String orderId = kOrderId,
   String orderNumber = 'ORD-12345',
   dynamic status = OrderStatus.pickedUp,
-  double totalPrice = 3000.0,
+  double? totalPrice = 3000.0,
   String currency = 'EGP',
   String paymentMethod = 'COD',
   String notes = 'Handle flowers with care',
@@ -124,19 +217,29 @@ UpdateOrderStatusEntity buildUpdateOrderStatusEntity() =>
       updatedAt: '2026-09-19T18:00:00Z',
     );
 
-PickupAddressDto buildPickupAddressDto() => PickupAddressDto(
-  storeName: 'Flowery store',
-  addressLine: '20th st, Sheikh Zayed, Giza',
-  latitude: 30.0511,
-  longitude: 31.3656,
+LocationDto buildLocationDto({double? lat = 30.0511, double? lng = 31.3656}) =>
+    LocationDto(lat: lat, lng: lng);
+
+PickupAddressDto buildPickupAddressDto({
+  String? storeName = 'Flowery store',
+  String? addressLine = '20th st, Sheikh Zayed, Giza',
+  LocationDto? location,
+}) => PickupAddressDto(
+  storeName: storeName,
+  addressLine: addressLine,
+  location: location ?? buildLocationDto(),
 );
 
-UserAddressDto buildUserAddressDto() => UserAddressDto(
-  recipientName: 'Nour Mohamed',
-  phone: '+201012345678',
-  addressLine: '20th st, Sheikh Zayed, Giza',
-  latitude: 30.0444,
-  longitude: 31.2357,
+UserAddressDto buildUserAddressDto({
+  String? recipientName = 'Nour Mohamed',
+  String? phone = '+201012345678',
+  String? addressLine = '20th st, Sheikh Zayed, Giza',
+  LocationDto? location,
+}) => UserAddressDto(
+  recipientName: recipientName,
+  phone: phone,
+  addressLine: addressLine,
+  location: location ?? buildLocationDto(lat: 30.0444, lng: 31.2357),
 );
 
 RecipientInfoDto buildRecipientInfoDto() => RecipientInfoDto(
@@ -146,11 +249,11 @@ RecipientInfoDto buildRecipientInfoDto() => RecipientInfoDto(
 );
 
 OrderItemDto buildOrderItemDto({
-  String productId = '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-  String productName = 'Red Roses Bouquet',
-  int quantity = 2,
-  double unitPrice = 1500.0,
-  String imageUrl = 'https://example.com/rose.png',
+  String? productId = '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+  String? productName = 'Red Roses Bouquet',
+  int? quantity = 2,
+  double? unitPrice = 1500.0,
+  String? imageUrl = 'https://example.com/rose.png',
 }) => OrderItemDto(
   productId: productId,
   productName: productName,
@@ -165,12 +268,13 @@ TimelineDto buildTimelineDto({
 }) => TimelineDto(status: status, timestamp: timestamp);
 
 DriverOrderDetailsDto buildDriverOrderDetailsDto({
-  String orderId = kOrderId,
-  String orderNumber = 'ORD-12345',
+  String? orderId = kOrderId,
+  String? orderNumber = 'ORD-12345',
   dynamic status = OrderStatus.pickedUp,
-  double totalPrice = 3000.0,
-  String currency = 'EGP',
-  String paymentMethod = 'COD',
+  bool? isGift = true,
+  double? totalPrice = 3000.0,
+  String? currency = 'EGP',
+  String? paymentMethod = 'COD',
   String? notes = 'Handle flowers with care',
   PickupAddressDto? pickupAddress,
   UserAddressDto? userAddress,
@@ -181,6 +285,7 @@ DriverOrderDetailsDto buildDriverOrderDetailsDto({
   orderId: orderId,
   orderNumber: orderNumber,
   status: _resolveOrderStatus(status),
+  isGift: isGift,
   totalPrice: totalPrice,
   currency: currency,
   paymentMethod: paymentMethod,
@@ -193,10 +298,7 @@ DriverOrderDetailsDto buildDriverOrderDetailsDto({
       timeline ??
       [
         buildTimelineDto(),
-        buildTimelineDto(
-          status: 'PickedUp',
-          timestamp: '2026-09-19T17:30:00Z',
-        ),
+        buildTimelineDto(status: 'PickedUp', timestamp: '2026-09-19T17:30:00Z'),
       ],
 );
 
@@ -218,15 +320,3 @@ ReportDriverLocationEntity buildReportDriverLocationEntity() =>
       success: true,
       recordedAt: '2026-09-19T18:00:00Z',
     );
-
-Map<String, dynamic> driverOrderDetailsJson() {
-  final dto = buildDriverOrderDetailsDto();
-  final json = dto.toJson()
-    ..['pickupAddress'] = dto.pickupAddress.toJson()
-    ..['userAddress'] = dto.userAddress.toJson()
-    ..['recipientInfo'] = dto.recipientInfo.toJson()
-    ..['items'] = dto.items.map((item) => item.toJson()).toList()
-    ..['timeline'] = dto.timeline.map((entry) => entry.toJson()).toList();
-
-  return json;
-}

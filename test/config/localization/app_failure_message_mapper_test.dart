@@ -24,6 +24,7 @@ void main() {
       const TooManyRequestsFailure(): '',
       const ServerFailure(): '',
       const UnknownFailure(): '',
+      const AlreadyActiveOrderFailure(): '',
     };
 
     expectations.forEach((failure, key) {
@@ -124,11 +125,21 @@ void main() {
       );
     });
 
-    test('ServerFailure ignores statusCode and returns the generic message', () {
+    test('AlreadyActiveOrderFailure uses the dedicated localized message', () {
       expect(
-        mapAppFailureToMessage(const ServerFailure(statusCode: 503), l10n),
-        l10n.failureServerError,
+        mapAppFailureToMessage(const AlreadyActiveOrderFailure(), l10n),
+        l10n.failureAlreadyActiveOrder,
       );
     });
+
+    test(
+      'ServerFailure ignores statusCode and returns the generic message',
+      () {
+        expect(
+          mapAppFailureToMessage(const ServerFailure(statusCode: 503), l10n),
+          l10n.failureServerError,
+        );
+      },
+    );
   });
 }

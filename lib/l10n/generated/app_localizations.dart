@@ -512,6 +512,12 @@ abstract class AppLocalizations {
   /// **'Accepted'**
   String get accepted;
 
+  /// No description provided for @orderUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Updated'**
+  String get orderUpdated;
+
   /// No description provided for @picked.
   ///
   /// In en, this message translates to:
@@ -607,6 +613,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Accept'**
   String get accept;
+
+  /// No description provided for @viewActiveOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'View Active Order'**
+  String get viewActiveOrder;
 
   /// No description provided for @yourLocation.
   ///
@@ -1039,6 +1051,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
+
+  /// No description provided for @currency.
+  ///
+  /// In en, this message translates to:
+  /// **'EGP'**
+  String get currency;
+
+  /// No description provided for @failureInvalidPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'This contact number is not valid.'**
+  String get failureInvalidPhone;
+
+  /// No description provided for @failureContactLaunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the app. Please try again.'**
+  String get failureContactLaunch;
+
+  /// No description provided for @failureWhatsAppUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp isn\'t installed on this device.'**
+  String get failureWhatsAppUnavailable;
+
+  /// No description provided for @failureAlreadyActiveOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have an active delivery in progress. Please complete it first.'**
+  String get failureAlreadyActiveOrder;
 }
 
 class _AppLocalizationsDelegate

@@ -1,5 +1,6 @@
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
+import 'package:driver_app/features/order_details/domain/entities/driver_status_update.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
 import 'package:driver_app/features/order_details/domain/params/update_order_status_params.dart';
 import 'package:driver_app/features/order_details/domain/repo/order_details_repo.dart';
@@ -18,7 +19,10 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      const UpdateOrderStatusParams(orderId: '', newStatus: ''),
+      const UpdateOrderStatusParams(
+        orderId: '',
+        newStatus: DriverStatusUpdate.pickedUp,
+      ),
     );
   });
 
@@ -27,15 +31,16 @@ void main() {
     useCase = UpdateOrderStatusUseCase(repository);
     params = const UpdateOrderStatusParams(
       orderId: kOrderId,
-      newStatus: 'PickedUp',
+      newStatus: DriverStatusUpdate.pickedUp,
     );
   });
 
   group('success path', () {
     test('returns the entity produced by the repository', () async {
       final entity = buildUpdateOrderStatusEntity();
-      when(() => repository.updateOrderStatus(any()))
-          .thenAnswer((_) async => Success(entity));
+      when(
+        () => repository.updateOrderStatus(any()),
+      ).thenAnswer((_) async => Success(entity));
 
       final result = await useCase.execute(params);
 
@@ -44,9 +49,9 @@ void main() {
     });
 
     test('forwards the exact params instance to the repository', () async {
-      when(() => repository.updateOrderStatus(any())).thenAnswer(
-        (_) async => Success(buildUpdateOrderStatusEntity()),
-      );
+      when(
+        () => repository.updateOrderStatus(any()),
+      ).thenAnswer((_) async => Success(buildUpdateOrderStatusEntity()));
 
       await useCase.execute(params);
 
@@ -54,23 +59,20 @@ void main() {
     });
 
     test('passes each documented backend status through untouched', () async {
-      for (final status in [
-        'PickedUp',
-        'OutForDelivery',
-        'AwaitingDeliveryConfirmation',
-      ]) {
-        when(() => repository.updateOrderStatus(any())).thenAnswer(
-          (_) async => Success(buildUpdateOrderStatusEntity()),
-        );
+      for (final status in DriverStatusUpdate.values) {
+        when(
+          () => repository.updateOrderStatus(any()),
+        ).thenAnswer((_) async => Success(buildUpdateOrderStatusEntity()));
 
         await useCase.execute(
           UpdateOrderStatusParams(orderId: kOrderId, newStatus: status),
         );
 
         final captured =
-            verify(() => repository.updateOrderStatus(captureAny()))
-                .captured
-                .single as UpdateOrderStatusParams;
+            verify(
+                  () => repository.updateOrderStatus(captureAny()),
+                ).captured.single
+                as UpdateOrderStatusParams;
 
         expect(captured.orderId, kOrderId);
         expect(captured.newStatus, status);
@@ -102,9 +104,9 @@ void main() {
     });
 
     test('propagates thrown exceptions', () async {
-      when(() => repository.updateOrderStatus(any())).thenThrow(
-        StateError('boom'),
-      );
+      when(
+        () => repository.updateOrderStatus(any()),
+      ).thenThrow(StateError('boom'));
 
       await expectLater(
         () => useCase.execute(params),

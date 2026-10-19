@@ -87,6 +87,10 @@ class OrderStatusAction extends StatelessWidget {
         final status = state.orderDetails.data?.status;
         final updateState = state.updateOrderStatus;
 
+        if (status != null && status.nextStatus == null) {
+          return const SizedBox.shrink();
+        }
+
         return Container(
           decoration: BoxDecoration(
             border: Border(top: BorderSide(color: Colors.grey[300]!, width: 3)),

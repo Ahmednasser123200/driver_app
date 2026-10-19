@@ -1,4 +1,5 @@
 import 'package:driver_app/features/order_details/data/dtos/requests/update_order_status_request_dto.dart';
+import 'package:driver_app/features/order_details/domain/entities/driver_status_update.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -19,8 +20,9 @@ void main() {
   group('fromJson', () {
     test('parses the newStatus field', () {
       expect(
-        UpdateOrderStatusRequestDto.fromJson({'newStatus': 'OutForDelivery'})
-            .newStatus,
+        UpdateOrderStatusRequestDto.fromJson({
+          'newStatus': 'OutForDelivery',
+        }).newStatus,
         'OutForDelivery',
       );
     });
@@ -36,17 +38,28 @@ void main() {
   });
 
   group('status passthrough', () {
-    test('keeps each documented backend status verbatim', () {
-      for (final status in [
-        'PickedUp',
-        'OutForDelivery',
-        'AwaitingDeliveryConfirmation',
-      ]) {
+    test('keeps each driver status verbatim', () {
+      for (final status in DriverStatusUpdate.values) {
         expect(
-          UpdateOrderStatusRequestDto(newStatus: status).toJson(),
-          {'newStatus': status},
+          UpdateOrderStatusRequestDto(newStatus: status.wireValue).toJson(),
+          {'newStatus': status.wireValue},
         );
       }
+    });
+
+    test('sends the exact names the backend binds', () {
+      expect(
+        UpdateOrderStatusRequestDto(
+          newStatus: DriverStatusUpdate.pickedUp.wireValue,
+        ).toJson(),
+        {'newStatus': 'PickedUp'},
+      );
+      expect(
+        UpdateOrderStatusRequestDto(
+          newStatus: DriverStatusUpdate.awaitingDeliveryConfirmation.wireValue,
+        ).toJson(),
+        {'newStatus': 'AwaitingDeliveryConfirmation'},
+      );
     });
   });
 }

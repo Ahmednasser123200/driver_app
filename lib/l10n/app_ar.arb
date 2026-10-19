@@ -79,7 +79,7 @@
   "orderNumber": "# 123456",
   "pending": "قيد الانتظار",
   "accepted": "مقبول",
-  "orderUpdated": "تم تحديث الأوردر,
+  "orderUpdated": "تم تحديث الأوردر",
   "picked": "تم الاستلام",
   "outForDelivery": "في الطريق للتوصيل",
   "arrived": "وصل",
@@ -96,6 +96,7 @@
   "orderPrice": "3000 ج.م",
   "reject": "رفض",
   "accept": "قبول",
+  "viewActiveOrder": "عرض الطلب النشط",
 
   "yourLocation": "موقعك",
   "user": "المستخدم",
@@ -175,5 +176,11 @@
   "unknown": "غير معروف",
   "invalidOrderId": "رقم الطلب غير صالح",
   "orderStatusUpdatedSuccessfully": "تم تحديث حالة الطلب بنجاح",
-  "retry": "إعادة المحاولة"
+  "retry": "إعادة المحاولة",
+
+  "currency": "ج.م",
+  "failureInvalidPhone": "رقم التواصل غير صالح.",
+  "failureContactLaunch": "تعذر فتح التطبيق. يرجى المحاولة مرة أخرى.",
+  "failureWhatsAppUnavailable": "تطبيق واتساب غير مثبت على هذا الجهاز.",
+  "failureAlreadyActiveOrder": "لديك طلب توصيل نشط بالفعل. يرجى إكماله أولاً."
 }

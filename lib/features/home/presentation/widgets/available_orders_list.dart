@@ -73,7 +73,11 @@ class _AvailableOrdersListState extends State<AvailableOrdersList> {
                     child: Center(child: CircularProgressIndicator()),
                   );
                 }
-                return AvailableOrderCard(order: orderData[index]);
+                final order = orderData[index];
+                return AvailableOrderCard(
+                  key: ValueKey(order.orderId),
+                  order: order,
+                );
               },
             ),
           ),

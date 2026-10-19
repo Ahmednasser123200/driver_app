@@ -10,15 +10,15 @@ void main() {
       const state = OrderDetailsState();
 
       expect(state.orderDetails.isLoading, isFalse);
-      expect(state.orderDetails.errorMessage, '');
+      expect(state.orderDetails.errorMessage, isNull);
       expect(state.orderDetails.data, isNull);
 
       expect(state.updateOrderStatus.isLoading, isFalse);
-      expect(state.updateOrderStatus.errorMessage, '');
+      expect(state.updateOrderStatus.errorMessage, isNull);
       expect(state.updateOrderStatus.data, isNull);
 
       expect(state.reportDriverLocation.isLoading, isFalse);
-      expect(state.reportDriverLocation.errorMessage, '');
+      expect(state.reportDriverLocation.errorMessage, isNull);
       expect(state.reportDriverLocation.data, isNull);
     });
   });
@@ -64,8 +64,10 @@ void main() {
         orderDetails: const BaseState(isLoading: true),
       );
 
-      expect(identical(updated.updateOrderStatus, state.updateOrderStatus),
-          isTrue);
+      expect(
+        identical(updated.updateOrderStatus, state.updateOrderStatus),
+        isTrue,
+      );
     });
 
     test('cannot clear a slice with null', () {
@@ -101,15 +103,11 @@ void main() {
 
     test('states differing in any slice are not equal', () {
       expect(
-        const OrderDetailsState(
-          orderDetails: BaseState(isLoading: true),
-        ),
+        const OrderDetailsState(orderDetails: BaseState(isLoading: true)),
         isNot(const OrderDetailsState()),
       );
       expect(
-        const OrderDetailsState(
-          updateOrderStatus: BaseState(isLoading: true),
-        ),
+        const OrderDetailsState(updateOrderStatus: BaseState(isLoading: true)),
         isNot(const OrderDetailsState()),
       );
       expect(
@@ -124,12 +122,8 @@ void main() {
       final entity = buildDriverOrderDetailsEntity();
 
       expect(
-        OrderDetailsState(
-          orderDetails: BaseState(data: entity),
-        ),
-        OrderDetailsState(
-          orderDetails: BaseState(data: entity),
-        ),
+        OrderDetailsState(orderDetails: BaseState(data: entity)),
+        OrderDetailsState(orderDetails: BaseState(data: entity)),
       );
     });
 

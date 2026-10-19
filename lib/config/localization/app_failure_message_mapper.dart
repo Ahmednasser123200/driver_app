@@ -17,6 +17,7 @@ String mapAppFailureToMessage(AppFailure failure, AppLocalizations l10n) {
     MethodNotAllowedFailure() => l10n.failureMethodNotAllowed,
     ConflictFailure(:final serverMessage) =>
       serverMessage?.isNotEmpty == true ? serverMessage! : l10n.failureConflict,
+    AlreadyActiveOrderFailure() => l10n.failureAlreadyActiveOrder,
     UnprocessableEntityFailure(:final serverMessage) =>
       serverMessage?.isNotEmpty == true
           ? serverMessage!
@@ -24,5 +25,8 @@ String mapAppFailureToMessage(AppFailure failure, AppLocalizations l10n) {
     TooManyRequestsFailure() => l10n.failureTooManyRequests,
     ServerFailure() => l10n.failureServerError,
     UnknownFailure() => l10n.failureUnknown,
+    InvalidPhoneFailure() => l10n.failureInvalidPhone,
+    ContactLaunchFailure() => l10n.failureContactLaunch,
+    WhatsAppUnavailableFailure() => l10n.failureWhatsAppUnavailable,
   };
 }

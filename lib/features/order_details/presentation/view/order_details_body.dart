@@ -231,6 +231,12 @@ class OrderAddressesSection extends StatelessWidget {
         UserAddressCard(
           address: data.userAddress.addressLine,
           userName: data.userAddress.recipientName ,
+          onCallPressed: () => context
+              .read<OrderDetailsCubit>()
+              .doEvent(const CallRecipientEvent()),
+          onWhatsAppPressed: () => context
+              .read<OrderDetailsCubit>()
+              .doEvent(const WhatsAppRecipientEvent()),
         ),
       ],
     );
@@ -248,6 +254,12 @@ class OrderItemsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    // Falls back to the localized currency code so an order without an explicit
+    // currency is not rendered with a stray "$".
+    final currencyLabel = (data.currency.trim().isNotEmpty
+            ? data.currency
+            : l10n.currency)
+        .currencyLabel;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,27 +278,29 @@ class OrderItemsSection extends StatelessWidget {
             child: OrderItemCard(
               productName: item.productName,
               quantity: item.quantity,
-              price:
-                  '${data.currency.currencyLabel}'
-                  '${item.unitPrice.toStringAsFixed(2)}',
+              // An empty string makes the card show the localized "Unknown"
+              // instead of a price the backend never sent.
+              price: item.unitPrice == null
+                  ? ''
+                  : '$currencyLabel${item.unitPrice!.toStringAsFixed(2)}',
             ),
           ),
         ),
         if (data.items.isEmpty)
-          const Padding(
-            padding: EdgeInsets.only(bottom: 8),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
             child: OrderItemCard(
-              productName: 'Unknown',
-              price: 'Unknown',
+              productName: l10n.unknown,
+              price: l10n.unknown,
               quantity: 0,
             ),
           ),
         SizedBox(height: 8.h),
         OrderTotal(
           totalLabel: l10n.total,
-          totalAmount:
-              '${data.currency.currencyLabel}'
-              '${data.totalPrice.toStringAsFixed(2)}',
+          totalAmount: data.totalPrice == null
+              ? l10n.unknown
+              : '$currencyLabel${data.totalPrice!.toStringAsFixed(2)}',
         ),
       ],
     );

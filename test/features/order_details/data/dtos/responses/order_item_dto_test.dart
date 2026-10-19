@@ -23,6 +23,21 @@ void main() {
       expect(dto.imageUrl, 'https://example.com/rose.png');
     });
 
+    test('parses the reduced item the driver endpoint sends', () {
+      // `GET /order/drivers/me/orders/{id}` only sends these three keys, so the
+      // missing price and image must not break deserialization.
+      final dto = OrderItemDto.fromJson(<String, dynamic>{
+        'productId': 'd00a5eab-d909-4101-bf1b-1bfb76221ec9',
+        'productName': 'Glass Flower Vase',
+        'quantity': 1,
+      });
+
+      expect(dto.productName, 'Glass Flower Vase');
+      expect(dto.quantity, 1);
+      expect(dto.unitPrice, isNull);
+      expect(dto.imageUrl, isNull);
+    });
+
     test('keeps quantity as an int and unitPrice as a double', () {
       final dto = OrderItemDto.fromJson(
         json()
@@ -49,16 +64,22 @@ void main() {
 
   group('toJson', () {
     test('emits the expected keys', () {
-      expect(
-        buildOrderItemDto().toJson().keys.toSet(),
-        {'productId', 'productName', 'quantity', 'unitPrice', 'imageUrl'},
-      );
+      expect(buildOrderItemDto().toJson().keys.toSet(), {
+        'productId',
+        'productName',
+        'quantity',
+        'unitPrice',
+        'imageUrl',
+      });
     });
 
     test('round-trips through fromJson', () {
       final original = buildOrderItemDto();
 
-      expect(OrderItemDto.fromJson(original.toJson()).toJson(), original.toJson());
+      expect(
+        OrderItemDto.fromJson(original.toJson()).toJson(),
+        original.toJson(),
+      );
     });
   });
 
@@ -71,6 +92,20 @@ void main() {
       expect(entity.quantity, 2);
       expect(entity.unitPrice, 1500.0);
       expect(entity.imageUrl, 'https://example.com/rose.png');
+    });
+
+    test('defaults the fields the backend omits', () {
+      final entity = OrderItemDto(
+        productName: 'Glass Flower Vase',
+        quantity: 1,
+      ).toDomain();
+
+      expect(entity.productId, '');
+      expect(entity.productName, 'Glass Flower Vase');
+      expect(entity.quantity, 1);
+      expect(entity.unitPrice, isNull);
+      expect(entity.imageUrl, '');
+      expect(entity.lineTotal, isNull);
     });
 
     test('honours the fixture builder overrides', () {

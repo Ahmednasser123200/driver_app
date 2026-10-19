@@ -1,3 +1,4 @@
+import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:driver_app/features/home/presentation/manager/cubit/home_cubit.dart';
 import 'package:driver_app/features/home/presentation/manager/cubit/home_event.dart';
 import 'package:driver_app/features/home/presentation/manager/cubit/home_state.dart';
@@ -24,18 +25,18 @@ class AcceptOrderButton extends StatelessWidget {
       builder: (context, state) {
         final hasRunningAccept = state.acceptOrderId.isNotEmpty;
         final isLoading = state.acceptOrderId == orderId;
+        // Every card keeps the primary colour and stays tappable: the cubit
+        // decides what a tap means (open the driver's own order, explain that a
+        // delivery is already running, or accept this one).
         return SizedBox(
           width: 140,
           height: 46,
           child: ElevatedButton(
             onPressed: hasRunningAccept
                 ? null
-                : () {
-                    cubit.doEvent(AcceptOrderEvent(orderId));
-                  },
-
+                : () => cubit.doEvent(AcceptOrderEvent(orderId)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.pink,
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               elevation: 0,
               shape: const StadiumBorder(),

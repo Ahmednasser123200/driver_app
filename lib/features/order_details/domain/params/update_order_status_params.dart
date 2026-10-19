@@ -1,9 +1,10 @@
-
 import 'package:equatable/equatable.dart';
+
+import '../entities/driver_status_update.dart';
 
 class UpdateOrderStatusParams extends Equatable {
   final String orderId;
-  final String newStatus;
+  final DriverStatusUpdate newStatus;
 
   const UpdateOrderStatusParams({
     required this.orderId,
@@ -11,8 +12,5 @@ class UpdateOrderStatusParams extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-        orderId,
-        newStatus,
-      ];
+  List<Object?> get props => [orderId, newStatus];
 }

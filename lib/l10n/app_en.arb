@@ -79,7 +79,7 @@
   "orderNumber": "# 123456",
   "pending": "Pending",
   "accepted": "Accepted",
-  "orderUpdated": "Order Updated"
+  "orderUpdated": "Order Updated",
   "picked": "Picked",
   "outForDelivery": "Out for delivery",
   "arrived": "Arrived",
@@ -97,6 +97,7 @@
   "orderPrice": "EGP 3000",
   "reject": "Reject",
   "accept": "Accept",
+  "viewActiveOrder": "View Active Order",
 
   "yourLocation": "Your location",
   "user": "User",
@@ -175,5 +176,11 @@
   "whatsApp": "WhatsApp",
   "invalidOrderId": "Invalid order ID",
   "orderStatusUpdatedSuccessfully": "Order status updated successfully",
-  "retry": "Retry"
+  "retry": "Retry",
+
+  "currency": "EGP",
+  "failureInvalidPhone": "This contact number is not valid.",
+  "failureContactLaunch": "Couldn't open the app. Please try again.",
+  "failureWhatsAppUnavailable": "WhatsApp isn't installed on this device.",
+  "failureAlreadyActiveOrder": "You already have an active delivery in progress. Please complete it first."
 }

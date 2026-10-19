@@ -24,6 +24,9 @@ void main() {
   setUp(() {
     getOrders = MockGetAvailableOrdersUseCase();
     acceptOrder = MockAcceptOrderUseCase();
+    when(
+      () => acceptOrder.getActiveOrderId(),
+    ).thenAnswer((_) async => const Success<String>(''));
   });
 
   HomeCubit buildCubit() => HomeCubit(

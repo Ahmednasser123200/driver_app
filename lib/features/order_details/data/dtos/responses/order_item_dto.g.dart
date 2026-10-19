@@ -7,11 +7,11 @@ part of 'order_item_dto.dart';
 // **************************************************************************
 
 OrderItemDto _$OrderItemDtoFromJson(Map<String, dynamic> json) => OrderItemDto(
-  productId: json['productId'] as String,
-  productName: json['productName'] as String,
-  quantity: (json['quantity'] as num).toInt(),
-  unitPrice: (json['unitPrice'] as num).toDouble(),
-  imageUrl: json['imageUrl'] as String,
+  productId: json['productId'] as String?,
+  productName: json['productName'] as String?,
+  quantity: (json['quantity'] as num?)?.toInt(),
+  unitPrice: (json['unitPrice'] as num?)?.toDouble(),
+  imageUrl: json['imageUrl'] as String?,
 );
 
 Map<String, dynamic> _$OrderItemDtoToJson(OrderItemDto instance) =>

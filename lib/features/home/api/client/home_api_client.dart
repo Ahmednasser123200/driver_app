@@ -15,15 +15,13 @@ abstract class HomeApiClient {
 
   @GET(ApiStrings.availableOrders)
   Future<AvailableOrdersResponseDto> getAvailableOrders({
-   
     @Query(AppStrings.page) int page = 1,
     @Query(AppStrings.pageSize) int pageSize = 10,
   });
 
+  @GET(ApiStrings.activeOrder)
+  Future<Map<String, dynamic>> getActiveOrder();
+
   @POST(ApiStrings.acceptOrder)
-
-  Future<void> acceptOrder(
-
-    @Path(AppStrings.orderrId) String orderId,
-  );
+  Future<void> acceptOrder(@Path(AppStrings.orderrId) String orderId);
 }

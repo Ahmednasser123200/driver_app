@@ -46,6 +46,12 @@ class ConflictFailure extends AppFailure {
   final String? serverMessage;
 }
 
+/// Raised locally when the driver taps another order while a delivery of theirs
+/// is already running. The accept request is never sent in that case.
+class AlreadyActiveOrderFailure extends AppFailure {
+  const AlreadyActiveOrderFailure();
+}
+
 class UnprocessableEntityFailure extends AppFailure {
   const UnprocessableEntityFailure({this.serverMessage});
 
@@ -64,4 +70,16 @@ class ServerFailure extends AppFailure {
 
 class UnknownFailure extends AppFailure {
   const UnknownFailure();
+}
+
+class InvalidPhoneFailure extends AppFailure {
+  const InvalidPhoneFailure();
+}
+
+class ContactLaunchFailure extends AppFailure {
+  const ContactLaunchFailure();
+}
+
+class WhatsAppUnavailableFailure extends AppFailure {
+  const WhatsAppUnavailableFailure();
 }

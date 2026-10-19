@@ -53,6 +53,26 @@ class _HomeApiClient implements HomeApiClient {
   }
 
   @override
+  Future<Map<String, dynamic>> getActiveOrder() async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<Map<String, dynamic>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/order/drivers/me/active-order',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    return _result.data!;
+  }
+
+  @override
   Future<void> acceptOrder(String orderId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
