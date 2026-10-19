@@ -6,12 +6,15 @@ import 'config/di/di.dart';
 import 'config/routing/app_routes.dart';
 import 'config/routing/routes.dart';
 import 'core/themes/app_themes/app_theme.dart';
+import 'dev_login.dart';
 import 'l10n/generated/app_localizations.dart';
 
 Future<void> main() async {
-  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   configureDependencies();
+  await devLogin(); // TEMP - do not commit
+
   runApp(const DriverApp());
 }
 
@@ -32,7 +35,7 @@ class DriverApp extends StatelessWidget {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('en'),
-          initialRoute: Routes.initial,
+          initialRoute: Routes.orders,
           onGenerateRoute: AppRoutes.onGenerateRoute,
         );
       },

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../core/shared/widgets/bottom_navigation_bar.dart';
+import '../../features/order_history/presentation/view/order_details_view.dart';
+import '../../features/order_history/presentation/view/orders_view.dart';
 import 'routes.dart';
 
 abstract final class AppRoutes {
@@ -44,17 +47,28 @@ abstract final class AppRoutes {
       case Routes.home:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const _StubScreen('Home'),
+          builder: (_) => const AppBottomNavigationBar(
+            homeScreen: _StubScreen('Home'),
+            ordersScreen: OrdersView(),
+            profileScreen: _StubScreen('Profile'),
+            initialIndex: 0,
+          ),
         );
       case Routes.orders:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const _StubScreen('Orders'),
+          builder: (_) => const AppBottomNavigationBar(
+            homeScreen: _StubScreen('Home'),
+            ordersScreen: OrdersView(),
+            profileScreen: _StubScreen('Profile'),
+            initialIndex: 1,
+          ),
         );
       case Routes.orderDetails:
+        final orderId = settings.arguments as String? ?? '';
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const _StubScreen('Order Details'),
+          builder: (_) => OrderDetailsView(orderId: orderId),
         );
       case Routes.tracking:
         return MaterialPageRoute(

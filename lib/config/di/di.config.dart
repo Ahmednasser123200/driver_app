@@ -16,6 +16,26 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
+import '../../features/order_history/api/client/order_history_api_client.dart'
+    as _i380;
+import '../../features/order_history/api/data_source_impl/order_history_remote_data_source_impl.dart'
+    as _i1042;
+import '../../features/order_history/data/data_source/order_history_remote_data_source.dart'
+    as _i794;
+import '../../features/order_history/data/repo_impl/order_history_repo_impl.dart'
+    as _i325;
+import '../../features/order_history/domain/repo/order_history_repo.dart'
+    as _i183;
+import '../../features/order_history/domain/use_case/get_order_details_use_case.dart'
+    as _i17;
+import '../../features/order_history/domain/use_case/get_orders_use_case..dart'
+    as _i853;
+import '../../features/order_history/domain/use_case/watch_order_updates_use_case.dart'
+    as _i649;
+import '../../features/order_history/presentation/manager/order_details_cubit.dart'
+    as _i851;
+import '../../features/order_history/presentation/manager/orders_cubit.dart'
+    as _i134;
 import '../dio/auth_interceptor.dart' as _i839;
 import '../dio/dio_module.dart' as _i977;
 import '../utils/secure_storage_module.dart' as _i327;
@@ -40,6 +60,33 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i361.Dio>(
       () => dioModule.dio(gh<_i839.AuthInterceptors>()),
+    );
+    gh.singleton<_i380.OrderHistoryApiClient>(
+      () => _i380.OrderHistoryApiClient(gh<_i361.Dio>()),
+    );
+    gh.lazySingleton<_i794.OrderHistoryRemoteDataSource>(
+      () => _i1042.OrderHistoryRemoteDataSourceImpl(
+        gh<_i380.OrderHistoryApiClient>(),
+      ),
+    );
+    gh.lazySingleton<_i183.OrderHistoryRepo>(
+      () =>
+          _i325.OrderHistoryRepoImpl(gh<_i794.OrderHistoryRemoteDataSource>()),
+    );
+    gh.factory<_i17.GetOrderDetailsUseCase>(
+      () => _i17.GetOrderDetailsUseCase(gh<_i183.OrderHistoryRepo>()),
+    );
+    gh.factory<_i853.GetOrdersUseCase>(
+      () => _i853.GetOrdersUseCase(gh<_i183.OrderHistoryRepo>()),
+    );
+    gh.factory<_i649.WatchOrderUpdatesUseCase>(
+      () => _i649.WatchOrderUpdatesUseCase(gh<_i183.OrderHistoryRepo>()),
+    );
+    gh.factory<_i134.OrdersCubit>(
+      () => _i134.OrdersCubit(gh<_i853.GetOrdersUseCase>()),
+    );
+    gh.factory<_i851.OrderDetailsCubit>(
+      () => _i851.OrderDetailsCubit(gh<_i17.GetOrderDetailsUseCase>()),
     );
     return this;
   }
