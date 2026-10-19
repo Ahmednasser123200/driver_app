@@ -37,7 +37,7 @@ class DriverApp extends StatelessWidget {
           locale: const Locale('en'),
           initialRoute: Routes.orders,
           onGenerateRoute: AppRoutes.onGenerateRoute,
-        );
+          );
       },
     );
   }
