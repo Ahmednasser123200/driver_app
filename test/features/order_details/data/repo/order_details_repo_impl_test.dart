@@ -6,6 +6,7 @@ import 'package:driver_app/features/order_details/data/datasources/order_details
 import 'package:driver_app/features/order_details/data/dtos/requests/report_driver_location_request_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/requests/update_order_status_request_dto.dart';
 import 'package:driver_app/features/order_details/data/repo/order_details_repo_impl.dart';
+import 'package:driver_app/features/order_details/domain/entities/driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
@@ -44,20 +45,45 @@ void main() {
   });
 
   group('driverLocationStream', () {
-    test('forwards the stream from LocationService', () async {
+    test('maps each position onto a success response', () async {
       final controller = StreamController<Position>();
       when(
         () => locationService.locationStream,
       ).thenAnswer((_) => controller.stream);
 
-      final received = <Position>[];
+      final received = <BaseResponse<DriverLocation>>[];
       final subscription = repository.driverLocationStream.listen(received.add);
 
-      final pos = buildPositionFixture();
-      controller.add(pos);
+      controller.add(buildPositionFixture(latitude: 30.1, longitude: 31.2));
       await pumpEventQueue();
 
-      expect(received, [pos]);
+      expect(received, hasLength(1));
+      final location = (received.single as Success<DriverLocation>).data;
+      expect(location.latitude, 30.1);
+      expect(location.longitude, 31.2);
+
+      await subscription.cancel();
+      await controller.close();
+    });
+
+    test('maps stream errors onto an unknown failure response', () async {
+      final controller = StreamController<Position>();
+      when(
+        () => locationService.locationStream,
+      ).thenAnswer((_) => controller.stream);
+
+      final received = <BaseResponse<DriverLocation>>[];
+      final subscription = repository.driverLocationStream.listen(received.add);
+
+      controller.addError(Exception('gps lost'));
+      await pumpEventQueue();
+
+      expect(received, hasLength(1));
+      expect(
+        (received.single as Error<DriverLocation>).failure,
+        isA<UnknownFailure>(),
+      );
+
       await subscription.cancel();
       await controller.close();
     });

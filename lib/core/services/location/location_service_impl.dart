@@ -53,7 +53,6 @@ class LocationServiceImpl implements LocationService {
       return false;
     }
 
-  
     return true;
   }
 
@@ -83,35 +82,41 @@ class LocationServiceImpl implements LocationService {
     }
   }
 
- 
-Future<void>? _startingListening;
+  Future<void>? _startingListening;
 
-Future<void> _startListening() {
-  if (_geolocatorSubscription != null) {
-    return Future<void>.value();
+  Future<void> _startListening() {
+    if (_geolocatorSubscription != null) {
+      return Future<void>.value();
+    }
+
+    if (_startingListening != null) {
+      return _startingListening!;
+    }
+
+    final future = _startListeningInternal();
+    _startingListening = future;
+
+    return future.whenComplete(() {
+      _startingListening = null;
+    });
   }
 
-  if (_startingListening != null) {
-    return _startingListening!;
+  Future<void> _startListeningInternal() async {
+    _geolocatorSubscription = _geolocatorWrapper
+        .getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            distanceFilter: 10,
+          ),
+        )
+        .listen(_locationController.add, onError: _locationController.addError);
   }
-
-  final future = _startListeningInternal();
-  _startingListening = future;
-
-  return future.whenComplete(() {
-    _startingListening = null;
-  });
-}
-
-Future<void> _startListeningInternal() async {
-
-}
-
 
   void _stopListening() {
     _geolocatorSubscription?.cancel();
     _geolocatorSubscription = null;
   }
+
   @disposeMethod
   @override
   Future<void> dispose() async {

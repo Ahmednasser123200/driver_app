@@ -16,7 +16,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../helpers/fixtures.dart';

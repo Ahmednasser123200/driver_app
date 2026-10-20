@@ -4,6 +4,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
+import 'package:driver_app/features/order_details/domain/entities/driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
@@ -15,8 +16,8 @@ import 'package:driver_app/features/order_details/domain/usecases/update_order_s
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_event.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_state.dart';
+import 'package:driver_app/features/order_details/presentation/utils/location_reporting_status.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../../helpers/fixtures.dart';
@@ -31,7 +32,7 @@ class MockReportDriverLocationUseCase extends Mock
     implements ReportDriverLocationUseCase {}
 
 class MockStreamSubscription extends Mock
-    implements StreamSubscription<Position> {}
+    implements StreamSubscription<BaseResponse<DriverLocation>> {}
 
 void main() {
   late MockGetDriverOrderDetailsUseCase getOrderDetails;
@@ -53,6 +54,7 @@ void main() {
     when(
       () => reportDriverLocation.start(
         onReportResult: any(named: 'onReportResult'),
+        onLocationError: any(named: 'onLocationError'),
         minDisplacementMeters: any(named: 'minDisplacementMeters'),
       ),
     ).thenAnswer((_) {
@@ -87,7 +89,10 @@ void main() {
       expect(cubit.state.orderDetails.data, isNull);
       expect(cubit.state.updateOrderStatus.data, isNull);
       expect(cubit.state.reportDriverLocation.data, isNull);
-      expect(cubit.state.isLocationReportingActive, isFalse);
+      expect(
+        cubit.state.locationReportingStatus,
+        LocationReportingStatus.inactive,
+      );
     });
   });
 
@@ -116,9 +121,9 @@ void main() {
             .having((s) => s.orderDetails.data, 'data', isNotNull),
         isA<OrderDetailsState>()
             .having(
-              (s) => s.isLocationReportingActive,
-              'isLocationReportingActive',
-              isTrue,
+              (s) => s.locationReportingStatus,
+              'locationReportingStatus',
+              LocationReportingStatus.active,
             )
             .having(
               (s) => s.reportDriverLocation.isLoading,
@@ -130,6 +135,7 @@ void main() {
         verify(
           () => reportDriverLocation.start(
             onReportResult: any(named: 'onReportResult'),
+            onLocationError: any(named: 'onLocationError'),
             minDisplacementMeters: any(named: 'minDisplacementMeters'),
           ),
         ).called(1);
@@ -144,10 +150,14 @@ void main() {
 
       await cubit.doEvent(const GetDriverOrderDetailsEvent(orderId: kOrderId));
 
-      expect(cubit.state.isLocationReportingActive, isFalse);
+      expect(
+        cubit.state.locationReportingStatus,
+        LocationReportingStatus.inactive,
+      );
       verifyNever(
         () => reportDriverLocation.start(
           onReportResult: any(named: 'onReportResult'),
+          onLocationError: any(named: 'onLocationError'),
         ),
       );
     });
@@ -202,9 +212,9 @@ void main() {
             .having((s) => s.updateOrderStatus.data, 'data', isNotNull),
         isA<OrderDetailsState>()
             .having(
-              (s) => s.isLocationReportingActive,
-              'isLocationReportingActive',
-              isTrue,
+              (s) => s.locationReportingStatus,
+              'locationReportingStatus',
+              LocationReportingStatus.active,
             )
             .having(
               (s) => s.reportDriverLocation.isLoading,
@@ -222,13 +232,19 @@ void main() {
         ).thenAnswer((_) async => Success(buildUpdateOrderStatusEntity()));
 
         await cubit.doEvent(const StartLocationReportingEvent());
-        expect(cubit.state.isLocationReportingActive, isTrue);
+        expect(
+          cubit.state.locationReportingStatus,
+          LocationReportingStatus.active,
+        );
 
         await cubit.doEvent(
           const UpdateOrderStatusEvent(orderId: kOrderId, newStatus: 'arrived'),
         );
 
-        expect(cubit.state.isLocationReportingActive, isFalse);
+        expect(
+          cubit.state.locationReportingStatus,
+          LocationReportingStatus.inactive,
+        );
       },
     );
 
@@ -271,6 +287,7 @@ void main() {
         when(
           () => reportDriverLocation.start(
             onReportResult: any(named: 'onReportResult'),
+            onLocationError: any(named: 'onLocationError'),
             minDisplacementMeters: any(named: 'minDisplacementMeters'),
           ),
         ).thenAnswer((invocation) {
@@ -284,7 +301,10 @@ void main() {
 
         await cubit.doEvent(const StartLocationReportingEvent());
 
-        expect(cubit.state.isLocationReportingActive, isTrue);
+        expect(
+          cubit.state.locationReportingStatus,
+          LocationReportingStatus.active,
+        );
         expect(cubit.state.reportDriverLocation.isLoading, isTrue);
         expect(capturedCallback, isNotNull);
 
@@ -303,6 +323,7 @@ void main() {
       when(
         () => reportDriverLocation.start(
           onReportResult: any(named: 'onReportResult'),
+          onLocationError: any(named: 'onLocationError'),
           minDisplacementMeters: any(named: 'minDisplacementMeters'),
         ),
       ).thenAnswer((invocation) {
@@ -319,7 +340,9 @@ void main() {
 
       await cubit.doEvent(const StartLocationReportingEvent());
 
-      capturedCallback!(const Error(InternetConnectionFailure()));
+      capturedCallback!(
+        const Error<ReportDriverLocationEntity>(InternetConnectionFailure()),
+      );
       await pumpEventQueue();
 
       expect(cubit.state.reportDriverLocation.isLoading, isFalse);
@@ -327,11 +350,52 @@ void main() {
         cubit.state.reportDriverLocation.failure,
         isA<InternetConnectionFailure>(),
       );
-      expect(events, hasLength(1));
-      expect(events.single, isA<ShowOrderDetailsFailure>());
+      expect(
+        cubit.state.locationReportingStatus,
+        LocationReportingStatus.active,
+      );
+      expect(events, isEmpty);
 
       await subscription.cancel();
     });
+
+    test(
+      'StartLocationReportingEvent handles location stream errors',
+      () async {
+        void Function(AppFailure)? capturedLocationError;
+
+        when(
+          () => reportDriverLocation.start(
+            onReportResult: any(named: 'onReportResult'),
+            onLocationError: any(named: 'onLocationError'),
+            minDisplacementMeters: any(named: 'minDisplacementMeters'),
+          ),
+        ).thenAnswer((invocation) {
+          capturedLocationError =
+              invocation.namedArguments[#onLocationError]
+                  as void Function(AppFailure);
+          final sub = MockStreamSubscription();
+          when(() => sub.cancel()).thenAnswer((_) async {});
+          return sub;
+        });
+
+        await cubit.doEvent(const StartLocationReportingEvent());
+        expect(
+          cubit.state.locationReportingStatus,
+          LocationReportingStatus.active,
+        );
+
+        capturedLocationError!(const UnknownFailure());
+        await pumpEventQueue();
+
+        expect(cubit.state.reportDriverLocation.isLoading, isFalse);
+        expect(cubit.state.reportDriverLocation.failure, isA<UnknownFailure>());
+        expect(
+          cubit.state.locationReportingStatus,
+          LocationReportingStatus.error,
+        );
+      },
+    );
 
     test(
       'StopLocationReportingEvent cancels subscription and sets active to false',
@@ -342,15 +406,22 @@ void main() {
         when(
           () => reportDriverLocation.start(
             onReportResult: any(named: 'onReportResult'),
+            onLocationError: any(named: 'onLocationError'),
             minDisplacementMeters: any(named: 'minDisplacementMeters'),
           ),
         ).thenReturn(mockSub);
 
         await cubit.doEvent(const StartLocationReportingEvent());
-        expect(cubit.state.isLocationReportingActive, isTrue);
+        expect(
+          cubit.state.locationReportingStatus,
+          LocationReportingStatus.active,
+        );
 
         await cubit.doEvent(const StopLocationReportingEvent());
-        expect(cubit.state.isLocationReportingActive, isFalse);
+        expect(
+          cubit.state.locationReportingStatus,
+          LocationReportingStatus.inactive,
+        );
         verify(() => mockSub.cancel()).called(1);
       },
     );
@@ -362,6 +433,7 @@ void main() {
       when(
         () => reportDriverLocation.start(
           onReportResult: any(named: 'onReportResult'),
+          onLocationError: any(named: 'onLocationError'),
           minDisplacementMeters: any(named: 'minDisplacementMeters'),
         ),
       ).thenReturn(mockSub);

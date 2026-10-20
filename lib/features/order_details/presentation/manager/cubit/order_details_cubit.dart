@@ -6,7 +6,6 @@ import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
-import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
 import 'package:driver_app/features/order_details/domain/params/update_order_status_params.dart';
@@ -90,7 +89,7 @@ class OrderDetailsCubit
           ),
         );
 
-        if (result.data.status?.shouldTrackLocation ?? false) {
+        if (result.data.status.shouldTrackLocation) {
           await _startLocationReporting();
         }
       case Error<DriverOrderDetailsEntity>():
@@ -213,39 +212,6 @@ class OrderDetailsCubit
         ),
       ),
     );
-  }
-
-  bool _shouldTrackLocation(OrderStatus? status) {
-    if (status == null) return false;
-
-    switch (status) {
-      case OrderStatus.pickedUp:
-      case OrderStatus.picked:
-      case OrderStatus.onTheWay:
-      case OrderStatus.outForDelivery:
-      case OrderStatus.inProgress:
-        return true;
-
-      case OrderStatus.pending:
-      case OrderStatus.accepted:
-      case OrderStatus.assigned:
-      case OrderStatus.arrived:
-        return false;
-    }
-  }
-
-  bool _isTerminalStatus(String normalizedStatus) {
-    return normalizedStatus == 'arrived' ||
-        normalizedStatus == 'delivered' ||
-        normalizedStatus == 'awaitingdeliveryconfirmation' ||
-        normalizedStatus == 'cancelled';
-  }
-
-  bool _isInTransitStatus(String normalizedStatus) {
-    return normalizedStatus == 'ontheway' ||
-        normalizedStatus == 'outfordelivery' ||
-        normalizedStatus == 'pickedup' ||
-        normalizedStatus == 'inprogress';
   }
 
   void _reportFailure(AppFailure failure) {
