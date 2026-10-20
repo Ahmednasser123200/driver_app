@@ -14,7 +14,7 @@ Future<void> main() async {
   await dotenv.load(fileName: ".env");
   configureDependencies();
   await getIt<AuthInterceptors>().setToken(
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMWExNTQyNy0yMmQyLTczNDYtOWQ3Zi04ZTkyYjQ1NWFkM2QiLCJlbWFpbCI6ImRyaXZlcjM4N0BleGFtcGxlLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkRyaXZlciIsImV4cCI6MTc5MjQyODEzNiwiaXNzIjoiRmxvd2Vyc0F1dGgiLCJhdWQiOiJGbG93ZXJzQXBwIn0.Zu-1d8eavdyrecGg-KXOTQ2Pvpzsc9b7Sf4xinGdjXU',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMWExNTU2Yi05NTc4LTc0MTEtODcyOS02NGJmNmZiMjgwYzEiLCJlbWFpbCI6Ik1vaGFtZWRkcml2ZUBleGFtcGxlLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkRyaXZlciIsImV4cCI6MTc5MjQ0MDY5NCwiaXNzIjoiRmxvd2Vyc0F1dGgiLCJhdWQiOiJGbG93ZXJzQXBwIn0.KYf-cb49S7m5C8KtHmgkhAR5TnstPGChee6FP8nUiYk',
   );
   runApp(const DriverApp());
 }
