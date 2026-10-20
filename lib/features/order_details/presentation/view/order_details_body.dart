@@ -9,6 +9,7 @@ import 'package:driver_app/features/order_details/presentation/extensions/curren
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_event.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_state.dart';
+import 'package:driver_app/features/order_details/presentation/utils/location_reporting_status.dart';
 import 'package:driver_app/features/order_details/presentation/utils/order_status_helper.dart';
 import 'package:driver_app/features/order_details/presentation/widgets/order_status_header.dart';
 import 'package:driver_app/features/order_details/presentation/widgets/order_total.dart';
@@ -172,48 +173,84 @@ class OrderStatusSection extends StatelessWidget {
           orderId: orderId,
           date: timeline.isNotEmpty ? timeline.last.timestamp : l10n.orderDate,
         ),
-        BlocSelector<OrderDetailsCubit, OrderDetailsState, bool>(
-          selector: (state) => state.isLocationReportingActive,
-          builder: (context, isTrackingActive) {
-            if (!isTrackingActive) return const SizedBox.shrink();
+        
 
-            return Padding(
-              padding: EdgeInsets.only(top: 8.h),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(
-                    color: Colors.green.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 8.w,
-                      height: 8.w,
-                      decoration: const BoxDecoration(
-                        color: Colors.green,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    SizedBox(width: 6.w),
-                    Text(
-                      'Live GPS Tracking Active',
-                      style: TextStyle(
-                        color: Colors.green[800],
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+BlocSelector<
+  OrderDetailsCubit,
+  OrderDetailsState,
+  LocationReportingStatus
+>(
+  selector: (state) => state.locationReportingStatus,
+  builder: (context, status) {
+    final (statusColor, statusText) = switch (status) {
+      LocationReportingStatus.active => (
+          Colors.green,
+          l10n.liveGpsTrackingActive,
         ),
+      LocationReportingStatus.inactive => (
+          null,
+          null,
+        ),
+      LocationReportingStatus.permissionDenied => (
+          Colors.orange,
+          l10n.locationPermissionRequired,
+        ),
+      LocationReportingStatus.gpsDisabled => (
+          Colors.orange,
+          l10n.enableGps,
+        ),
+      LocationReportingStatus.error => (
+          Colors.red,
+          l10n.locationTrackingUnavailable,
+        ),
+    };
+
+    if (statusColor == null || statusText == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: EdgeInsets.only(top: 8.h),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: 10.w,
+          vertical: 4.h,
+        ),
+        decoration: BoxDecoration(
+          color: statusColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: statusColor.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 8.w,
+              height: 8.w,
+              decoration: BoxDecoration(
+                color: statusColor,
+                shape: BoxShape.circle,
+              ),
+            ),
+            SizedBox(width: 6.w),
+            Text(
+              statusText,
+              style: TextStyle(
+                color: statusColor,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  },
+),
+
+
       ],
     );
   }

@@ -53,10 +53,7 @@ class LocationServiceImpl implements LocationService {
       return false;
     }
 
-    if (_locationController.hasListener && _geolocatorSubscription == null) {
-      await _startListening();
-    }
-
+  
     return true;
   }
 
@@ -86,34 +83,36 @@ class LocationServiceImpl implements LocationService {
     }
   }
 
-  Future<void> _startListening() async {
-    if (_geolocatorSubscription != null) return;
+ 
+Future<void>? _startingListening;
 
-    final serviceEnabled = await isLocationServiceEnabled();
-    if (!serviceEnabled) return;
-
-    final permission = await checkPermission();
-    final isAllowed =
-        permission == LocationPermission.always ||
-        permission == LocationPermission.whileInUse;
-
-    if (!isAllowed) return;
-
-    _geolocatorSubscription = _geolocatorWrapper
-        .getPositionStream(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            distanceFilter: 10,
-          ),
-        )
-        .listen(_locationController.add, onError: _locationController.addError);
+Future<void> _startListening() {
+  if (_geolocatorSubscription != null) {
+    return Future<void>.value();
   }
+
+  if (_startingListening != null) {
+    return _startingListening!;
+  }
+
+  final future = _startListeningInternal();
+  _startingListening = future;
+
+  return future.whenComplete(() {
+    _startingListening = null;
+  });
+}
+
+Future<void> _startListeningInternal() async {
+
+}
+
 
   void _stopListening() {
     _geolocatorSubscription?.cancel();
     _geolocatorSubscription = null;
   }
-
+  @disposeMethod
   @override
   Future<void> dispose() async {
     _stopListening();

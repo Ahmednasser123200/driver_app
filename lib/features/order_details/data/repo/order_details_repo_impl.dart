@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:driver_app/config/base/base_response.dart';
+import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/core/services/location/location_service.dart';
 import 'package:driver_app/features/order_details/data/datasources/order_details_remote_data_source.dart';
 import 'package:driver_app/features/order_details/data/dtos/requests/report_driver_location_request_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/requests/update_order_status_request_dto.dart';
+import 'package:driver_app/features/order_details/domain/entities/driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
@@ -21,7 +25,29 @@ class OrderDetailsRepoImpl implements OrderDetailsRepo {
   final LocationService _locationService;
 
   @override
-  Stream<Position> get driverLocationStream => _locationService.locationStream;
+
+@override
+Stream<BaseResponse<DriverLocation>> get driverLocationStream {
+  return _locationService.locationStream.transform(
+    StreamTransformer<Position, BaseResponse<DriverLocation>>.fromHandlers(
+      handleData: (position, sink) {
+        sink.add(
+          Success<DriverLocation>(
+            DriverLocation(
+              latitude: position.latitude,
+              longitude: position.longitude,
+            ),
+          ),
+        );
+      },
+      handleError: (error, stackTrace, sink) {
+        sink.add(
+          const Error<DriverLocation>(UnknownFailure()),
+        );
+      },
+    ),
+  );
+}
 
   @override
   Future<BaseResponse<DriverOrderDetailsEntity>> getOrderDetails(

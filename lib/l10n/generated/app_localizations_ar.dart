@@ -296,6 +296,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cashOnDelivery => 'الدفع عند الاستلام';
 
   @override
+  String get liveGpsTrackingActive => 'تتبع GPS مباشر نشط';
+
+  @override
+  String get locationPermissionRequired => 'إذن الموقع مطلوب';
+
+  @override
+  String get locationPermissionToTrackDelivery =>
+      'إذن الموقع مطلوب لتتبع التسليم المباشر.';
+
+  @override
+  String get enableGps => 'يرجى تفعيل GPS';
+
+  @override
+  String get locationTrackingUnavailable => 'تتبع الموقع غير متوفر';
+
+  @override
   String get arrivedAtPickupPoint => 'وصل إلى نقطة الاستلام';
 
   @override

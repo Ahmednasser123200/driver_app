@@ -4,6 +4,7 @@ import 'package:driver_app/config/base/base_cubit.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
+import 'package:driver_app/features/order_details/domain/entities/driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
@@ -12,9 +13,11 @@ import 'package:driver_app/features/order_details/domain/params/update_order_sta
 import 'package:driver_app/features/order_details/domain/usecases/get_driver_order_details_use_case.dart';
 import 'package:driver_app/features/order_details/domain/usecases/report_driver_location_use_case.dart';
 import 'package:driver_app/features/order_details/domain/usecases/update_order_status_use_case.dart';
+import 'package:driver_app/features/order_details/presentation/extensions/order_status_string_extension.dart';
+import 'package:driver_app/features/order_details/presentation/extensions/order_status_tracking_extension.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_event.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_state.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:driver_app/features/order_details/presentation/utils/location_reporting_status.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
@@ -30,7 +33,7 @@ class OrderDetailsCubit
   final UpdateOrderStatusUseCase updateOrderStatusUseCase;
   final ReportDriverLocationUseCase reportDriverLocationUseCase;
 
-  StreamSubscription<Position>? _locationSubscription;
+  StreamSubscription<BaseResponse<DriverLocation>>? _locationSubscription;
 
   Future<void> doEvent(OrderDetailsEvent event) async {
     switch (event) {
@@ -46,6 +49,21 @@ class OrderDetailsCubit
       case StopLocationReportingEvent():
         await _stopLocationReporting();
     }
+  }
+
+  Future<void> _handleLocationError(AppFailure failure) async {
+    await _locationSubscription?.cancel();
+    _locationSubscription = null;
+
+    emit(
+      state.copyWith(
+        locationReportingStatus: LocationReportingStatus.error,
+        reportDriverLocation: state.reportDriverLocation.copyWith(
+          isLoading: false,
+          failure: failure,
+        ),
+      ),
+    );
   }
 
   Future<void> _getOrderDetails(String orderId) async {
@@ -72,10 +90,9 @@ class OrderDetailsCubit
           ),
         );
 
-        if (_shouldTrackLocation(result.data.status)) {
+        if (result.data.status?.shouldTrackLocation ?? false) {
           await _startLocationReporting();
         }
-
       case Error<DriverOrderDetailsEntity>():
         emit(
           state.copyWith(
@@ -118,13 +135,9 @@ class OrderDetailsCubit
 
         emitEvent(const ShowOrderStatusUpdated());
 
-        final normalized = newStatus
-            .replaceAll(RegExp(r'[\s_-]+'), '')
-            .toLowerCase();
-
-        if (_isTerminalStatus(normalized)) {
+        if (newStatus.isTerminalOrderStatus) {
           await _stopLocationReporting();
-        } else if (_isInTransitStatus(normalized)) {
+        } else if (newStatus.isInTransitOrderStatus) {
           await _startLocationReporting();
         }
 
@@ -148,7 +161,7 @@ class OrderDetailsCubit
 
     emit(
       state.copyWith(
-        isLocationReportingActive: true,
+        locationReportingStatus: LocationReportingStatus.active,
         reportDriverLocation: state.reportDriverLocation.copyWith(
           isLoading: true,
           clearFailure: true,
@@ -171,6 +184,7 @@ class OrderDetailsCubit
             );
 
           case Error<ReportDriverLocationEntity>():
+            // Background reporting: update state without showing a UI event.
             emit(
               state.copyWith(
                 reportDriverLocation: state.reportDriverLocation.copyWith(
@@ -179,9 +193,10 @@ class OrderDetailsCubit
                 ),
               ),
             );
-
-            _reportFailure(result.failure);
         }
+      },
+      onLocationError: (failure) {
+        unawaited(_handleLocationError(failure));
       },
     );
   }
@@ -192,7 +207,7 @@ class OrderDetailsCubit
 
     emit(
       state.copyWith(
-        isLocationReportingActive: false,
+        locationReportingStatus: LocationReportingStatus.inactive,
         reportDriverLocation: state.reportDriverLocation.copyWith(
           isLoading: false,
         ),
@@ -202,6 +217,7 @@ class OrderDetailsCubit
 
   bool _shouldTrackLocation(OrderStatus? status) {
     if (status == null) return false;
+
     switch (status) {
       case OrderStatus.pickedUp:
       case OrderStatus.picked:
@@ -209,6 +225,7 @@ class OrderDetailsCubit
       case OrderStatus.outForDelivery:
       case OrderStatus.inProgress:
         return true;
+
       case OrderStatus.pending:
       case OrderStatus.accepted:
       case OrderStatus.assigned:

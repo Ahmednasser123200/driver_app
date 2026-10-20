@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
+import 'package:driver_app/features/order_details/domain/entities/driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/usecases/get_driver_order_details_use_case.dart';
 import 'package:driver_app/features/order_details/domain/usecases/report_driver_location_use_case.dart';
@@ -30,7 +31,7 @@ class MockReportDriverLocationUseCase extends Mock
     implements ReportDriverLocationUseCase {}
 
 class MockStreamSubscription extends Mock
-    implements StreamSubscription<Position> {}
+    implements StreamSubscription<BaseResponse<DriverLocation>> {}
 
 void main() {
   late MockGetDriverOrderDetailsUseCase getOrderDetails;
@@ -46,6 +47,7 @@ void main() {
     when(
       () => reportDriverLocation.start(
         onReportResult: any(named: 'onReportResult'),
+        onLocationError: any(named: 'onLocationError'),
         minDisplacementMeters: any(named: 'minDisplacementMeters'),
       ),
     ).thenAnswer((_) {
