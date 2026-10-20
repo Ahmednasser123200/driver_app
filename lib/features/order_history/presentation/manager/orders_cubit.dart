@@ -1,5 +1,3 @@
-
-
 import 'package:injectable/injectable.dart';
 
 import '../../../../config/base/base_cubit.dart';
@@ -9,13 +7,13 @@ import '../../../../config/base/base_ui_event.dart';
 import '../../../../config/errors/app_failure.dart';
 import '../../domain/entities/order_history_entities.dart';
 import '../../domain/entities/pagination_entities.dart';
-import '../../domain/use_case/get_orders_use_case..dart';
+import '../../domain/use_case/get_orders_use_case.dart';
+import '../constants/order_history_constants.dart';
 import 'orders_event.dart';
 import 'orders_state.dart';
 
 @injectable
 class OrdersCubit extends BaseCubit<OrdersState, BaseUiEvent> {
-  static const int _pageSize = 10;
   final GetOrdersUseCase _getOrdersUseCase;
 
   int _requestId = 0;
@@ -50,7 +48,9 @@ class OrdersCubit extends BaseCubit<OrdersState, BaseUiEvent> {
   Future<void> _loadMoreIfNeeded() async {
     final pagination = state.ordersListState.data?.pagination;
     final hasNext = pagination?.hasNextPage ?? false;
-    if (hasNext && state.visibleOrders.length < _pageSize) await _loadMore();
+    final needsMore =
+        state.visibleOrders.length < OrderHistoryConstants.pageSize;
+    if (hasNext && needsMore) await _loadMore();
   }
 
   Future<void> _loadPage(int page, {bool refresh = false}) async {
@@ -60,7 +60,7 @@ class OrdersCubit extends BaseCubit<OrdersState, BaseUiEvent> {
     _emitLoading(previous);
     final result = await _getOrdersUseCase.execute(
       page: page,
-      pageSize: _pageSize,
+      pageSize: OrderHistoryConstants.pageSize,
     );
     if (isClosed || requestId != _requestId) return;
     switch (result) {

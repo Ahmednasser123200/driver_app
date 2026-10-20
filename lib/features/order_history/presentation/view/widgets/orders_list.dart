@@ -1,4 +1,6 @@
 import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
+import 'package:driver_app/features/order_history/presentation/constants/order_history_constants.dart';
+import 'package:driver_app/features/order_history/presentation/constants/order_history_dimens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
@@ -16,15 +18,15 @@ class OrdersList extends StatelessWidget {
   final List<OrderHistoryEntity> orders;
   final bool isLoadingMore;
 
+  /// After a failed request, load-more is retried only by a new swipe up at the
+  /// end of the list (once per gesture), not on every scroll tick.
   final bool loadMoreFailed;
   final VoidCallback onLoadMore;
 
-  static const double _loadMoreThreshold = 200;
-
   bool _shouldLoadMore(ScrollNotification notification) {
     final metrics = notification.metrics;
-    final nearEnd =
-        metrics.pixels >= metrics.maxScrollExtent - _loadMoreThreshold;
+    final nearEnd = metrics.pixels >=
+        metrics.maxScrollExtent - OrderHistoryConstants.loadMoreThreshold;
     if (!nearEnd) return false;
     return !loadMoreFailed || notification is ScrollEndNotification;
   }
@@ -54,7 +56,7 @@ class _LoadMoreIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.h),
+      padding: EdgeInsets.symmetric(vertical: OrderHistoryDimens.paddingXl.h),
       child: const Center(child: CircularProgressIndicator()),
     );
   }

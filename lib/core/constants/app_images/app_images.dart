@@ -5,6 +5,5 @@ abstract final class AppImages {
 
   static const String logo = '$_basePath/logo.png';
 
-  static const String defaultAvatar = 'assets/images/default_avatar.png';
-
+  static const String defaultAvatar = '$_basePath/default_avatar.png';
 }

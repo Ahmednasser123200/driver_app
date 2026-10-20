@@ -28,8 +28,8 @@ import '../../features/order_history/domain/repo/order_history_repo.dart'
     as _i183;
 import '../../features/order_history/domain/use_case/get_order_details_use_case.dart'
     as _i17;
-import '../../features/order_history/domain/use_case/get_orders_use_case..dart'
-    as _i853;
+import '../../features/order_history/domain/use_case/get_orders_use_case.dart'
+    as _i781;
 import '../../features/order_history/domain/use_case/watch_order_updates_use_case.dart'
     as _i649;
 import '../../features/order_history/presentation/manager/order_details_cubit.dart'
@@ -76,14 +76,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i17.GetOrderDetailsUseCase>(
       () => _i17.GetOrderDetailsUseCase(gh<_i183.OrderHistoryRepo>()),
     );
-    gh.factory<_i853.GetOrdersUseCase>(
-      () => _i853.GetOrdersUseCase(gh<_i183.OrderHistoryRepo>()),
+    gh.factory<_i781.GetOrdersUseCase>(
+      () => _i781.GetOrdersUseCase(gh<_i183.OrderHistoryRepo>()),
     );
     gh.factory<_i649.WatchOrderUpdatesUseCase>(
       () => _i649.WatchOrderUpdatesUseCase(gh<_i183.OrderHistoryRepo>()),
     );
     gh.factory<_i134.OrdersCubit>(
-      () => _i134.OrdersCubit(gh<_i853.GetOrdersUseCase>()),
+      () => _i134.OrdersCubit(gh<_i781.GetOrdersUseCase>()),
     );
     gh.factory<_i851.OrderDetailsCubit>(
       () => _i851.OrderDetailsCubit(gh<_i17.GetOrderDetailsUseCase>()),

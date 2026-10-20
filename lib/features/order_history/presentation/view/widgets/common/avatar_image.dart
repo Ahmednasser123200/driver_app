@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:driver_app/core/constants/app_images/app_images.dart';
+import 'package:driver_app/features/order_history/presentation/constants/order_history_dimens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-import '../order_history_dimens.dart';
 
 class AvatarImage extends StatelessWidget {
   const AvatarImage({

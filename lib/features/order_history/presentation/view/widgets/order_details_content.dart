@@ -1,3 +1,4 @@
+import 'package:driver_app/features/order_history/presentation/constants/order_history_dimens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import '../../../domain/entities/order_history_entities.dart';
@@ -13,18 +14,19 @@ class OrderDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sectionGap = SizedBox(height: OrderHistoryDimens.paddingXxl.h);
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(OrderHistoryDimens.paddingXl.w),
       children: [
         OrderDetailsHeader(status: details.status, orderId: details.orderId),
-        SizedBox(height: 20.h),
+        sectionGap,
         PickupSection(store: details.store),
-        SizedBox(height: 20.h),
+        sectionGap,
         UserSection(user: details.user),
-        SizedBox(height: 20.h),
+        sectionGap,
         ItemsSection(items: details.items),
-        SizedBox(height: 8.h),
+        SizedBox(height: OrderHistoryDimens.paddingM.h),
         SummarySection(details: details),
       ],
     );

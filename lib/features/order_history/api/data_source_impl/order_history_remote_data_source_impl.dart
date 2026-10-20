@@ -1,14 +1,11 @@
-
-
 import 'package:dio/dio.dart';
+import 'package:driver_app/config/base/base_response.dart';
+import 'package:driver_app/config/dio/dio_failure_mapper.dart';
+import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../../config/base/base_response.dart';
-import '../../../../config/dio/dio_failure_mapper.dart';
-import '../../../../config/errors/app_failure.dart';
 import '../../data/data_source/order_history_remote_data_source.dart';
-import '../../data/model/catalog_api_response_dto.dart';
-import '../../data/model/order_api_response_dto.dart';
+import '../../data/model/api_envelope.dart';
 import '../../data/model/order_details_response_dto.dart';
 import '../../data/model/order_history_list_response_dto.dart';
 import '../../data/model/order_history_request_dto.dart';
@@ -27,7 +24,7 @@ class OrderHistoryRemoteDataSourceImpl implements OrderHistoryRemoteDataSource {
       ) {
     return _execute(() async {
       final response = await _client.getOrders(request.toJson());
-      return _fromOrderEnvelope(response);
+      return _unwrap(response);
     });
   }
 
@@ -37,7 +34,7 @@ class OrderHistoryRemoteDataSourceImpl implements OrderHistoryRemoteDataSource {
       ) {
     return _execute(() async {
       final response = await _client.getOrderDetails(orderId);
-      return _fromOrderEnvelope(response);
+      return _unwrap(response);
     });
   }
 
@@ -45,7 +42,7 @@ class OrderHistoryRemoteDataSourceImpl implements OrderHistoryRemoteDataSource {
   Future<BaseResponse<ProductResponseDto>> getProduct(String productId) {
     return _execute(() async {
       final response = await _client.getProduct(productId);
-      return _fromCatalogEnvelope(response);
+      return _unwrap(response);
     });
   }
 
@@ -61,17 +58,8 @@ class OrderHistoryRemoteDataSourceImpl implements OrderHistoryRemoteDataSource {
     }
   }
 
-  BaseResponse<T> _fromOrderEnvelope<T>(OrderApiResponseDto<T> response) {
-    if (!response.success) {
-      return Error(BadRequestFailure(serverMessage: response.message));
-    }
-    final data = response.data;
-    if (data == null) return Error(const UnknownFailure());
-    return Success(data);
-  }
-
-  BaseResponse<T> _fromCatalogEnvelope<T>(CatalogApiResponseDto<T> response) {
-    if (!response.isSuccess) {
+  BaseResponse<T> _unwrap<T>(ApiEnvelope<T> response) {
+    if (!response.isOk) {
       return Error(BadRequestFailure(serverMessage: response.message));
     }
     final data = response.data;

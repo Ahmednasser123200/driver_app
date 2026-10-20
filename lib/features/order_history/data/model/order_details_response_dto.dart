@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import '../../domain/entities/order_history_entities.dart';
-import 'order_history_list_response_dto.dart';
+import 'order_status_api.dart';
 
 part 'order_details_response_dto.g.dart';
 
@@ -43,21 +43,8 @@ class OrderDetailsResponseDto {
       store: pickup.toEntity(),
       user: userAddress.toEntity(),
       items: orderItems,
-      totalPrice: _total(orderItems),
-      currency: _currency(orderItems),
       isCashOnDelivery: !isGift,
     );
-  }
-
-  double _total(List<OrderItemEntity> orderItems) {
-    return orderItems.fold(
-      0.0,
-          (sum, item) => sum + (item.product.price * item.quantity),
-    );
-  }
-
-  String _currency(List<OrderItemEntity> orderItems) {
-    return orderItems.isEmpty ? 'EGP' : orderItems.first.product.currency;
   }
 }
 

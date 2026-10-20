@@ -10,17 +10,15 @@ class SummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return InfoCard(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text(label, style: textTheme.titleMedium),
           Text(
             value,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            style: textTheme.bodyMedium?.copyWith(
               color: AppColors.grey.shade500,
             ),
           ),

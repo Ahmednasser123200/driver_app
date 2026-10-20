@@ -13,7 +13,7 @@ class OrderStatusLabel extends StatelessWidget {
   final OrderStatus status;
   final double iconSize;
   final double spacing;
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {

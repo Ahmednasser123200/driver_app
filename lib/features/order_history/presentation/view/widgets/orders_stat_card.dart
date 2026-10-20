@@ -1,5 +1,6 @@
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
+import 'package:driver_app/features/order_history/presentation/constants/order_history_dimens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'orders_stat_card_body.dart';
@@ -20,17 +21,18 @@ class OrdersStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = selected == status;
+    final radius = BorderRadius.circular(OrderHistoryDimens.radiusM.r);
     return Material(
       color: AppColors.primary.shade50,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: radius,
         side: BorderSide(
           color: isSelected ? AppColors.primary : AppColors.transparent,
-          width: 1.5,
+          width: OrderHistoryDimens.selectedBorderWidth,
         ),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: radius,
         onTap: () => onToggle(status),
         child: OrdersStatCardBody(status: status, count: count),
       ),

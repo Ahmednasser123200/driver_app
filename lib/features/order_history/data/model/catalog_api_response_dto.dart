@@ -1,13 +1,17 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import 'api_envelope.dart';
+
 part 'catalog_api_response_dto.g.dart';
 
 @JsonSerializable(genericArgumentFactories: true)
-class CatalogApiResponseDto<T> {
+class CatalogApiResponseDto<T> implements ApiEnvelope<T> {
   final bool isSuccess;
+  @override
   final String message;
   final String? messageLocalized;
   final String statusCode;
+  @override
   final T? data;
 
   const CatalogApiResponseDto({
@@ -17,6 +21,9 @@ class CatalogApiResponseDto<T> {
     required this.statusCode,
     this.data,
   });
+
+  @override
+  bool get isOk => isSuccess;
 
   factory CatalogApiResponseDto.fromJson(
       Map<String, dynamic> json,

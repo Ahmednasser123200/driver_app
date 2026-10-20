@@ -1,3 +1,4 @@
+import 'package:driver_app/features/order_history/presentation/constants/order_history_dimens.dart';
 import 'package:driver_app/features/order_history/presentation/utils/order_formatters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
@@ -18,7 +19,7 @@ class SummarySection extends StatelessWidget {
           value: formatPrice(details.totalPrice, details.currency),
         ),
         if (details.isCashOnDelivery) ...[
-          SizedBox(height: 12.h),
+          SizedBox(height: OrderHistoryDimens.paddingL.h),
           const SummaryRow(
             label: AppStrings.paymentMethod,
             value: AppStrings.cashOnDelivery,

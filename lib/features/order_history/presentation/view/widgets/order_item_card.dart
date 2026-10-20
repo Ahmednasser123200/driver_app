@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
+import 'package:driver_app/features/order_history/presentation/constants/order_history_dimens.dart';
 import 'package:driver_app/features/order_history/presentation/utils/order_formatters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'common/info_card.dart';
-import 'order_history_dimens.dart';
 
 class OrderItemCard extends StatelessWidget {
   const OrderItemCard({super.key, required this.item});
@@ -22,14 +22,24 @@ class OrderItemCard extends StatelessWidget {
           _ProductImage(imageUrl: product.imageUrl),
           SizedBox(width: OrderHistoryDimens.paddingL.w),
           Expanded(child: _ProductText(product: product)),
-          Text(
-            'X${item.quantity}',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          _QuantityText(quantity: item.quantity),
         ],
+      ),
+    );
+  }
+}
+
+class _QuantityText extends StatelessWidget {
+  const _QuantityText({required this.quantity});
+
+  final int quantity;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      formatQuantity(quantity),
+      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+        color: AppColors.primary,
       ),
     );
   }
@@ -42,19 +52,18 @@ class _ProductText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           product.name,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            color: AppColors.grey.shade500,
-          ),
+          style: textTheme.bodyMedium?.copyWith(color: AppColors.grey.shade500),
         ),
         SizedBox(height: OrderHistoryDimens.paddingM.h),
         Text(
           formatPrice(product.price, product.currency),
-          style: Theme.of(context).textTheme.titleMedium,
+          style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
