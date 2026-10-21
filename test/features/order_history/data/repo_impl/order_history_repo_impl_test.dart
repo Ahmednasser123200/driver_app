@@ -2,9 +2,8 @@ import 'package:driver_app/config/base/base_response.dart' as base;
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/order_history/data/model/order_history_request_dto.dart';
 import 'package:driver_app/features/order_history/data/repo_impl/order_history_repo_impl.dart';
-import 'package:driver_app/features/order_history/domain/entities/order_history_details_entity.dart';
-import 'package:driver_app/features/order_history/domain/entities/order_history_entity.dart';
-import 'package:driver_app/features/order_history/domain/entities/paginated_entity.dart';
+import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
+import 'package:driver_app/features/order_history/domain/entities/pagination_entities.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

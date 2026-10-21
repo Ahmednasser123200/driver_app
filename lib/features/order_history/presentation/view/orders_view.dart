@@ -9,7 +9,7 @@ import '../../../../core/themes/app_colors/app_colors.dart';
 import '../manager/orders_cubit.dart';
 import '../manager/orders_event.dart';
 import '../manager/orders_state.dart';
-import 'widgets/order_history_app_bar.dart';
+import 'widgets/order_widgets.dart';
 import 'widgets/orders_body.dart';
 
 class OrdersView extends StatelessWidget {

@@ -47,6 +47,13 @@ void main() {
       final item2 = createOrderItemEntity(productId: 'p1', product: prod2);
       expect(item1, equals(item2));
     });
+
+    test('OrderHistoryDetailsEntity equality', () {
+      final d1 = createOrderHistoryDetailsEntity(orderId: '123');
+      final d2 = createOrderHistoryDetailsEntity(orderId: '123');
+
+      expect(d1, equals(d2));
+    });
   });
 
   group('OrderHistoryDetailsEntity derived values and props', () {

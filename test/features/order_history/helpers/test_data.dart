@@ -347,79 +347,79 @@ OrderHistoryDetailsEntity createOrderHistoryDetailsEntity({
 
 // --- JSON Fixtures ---
 
-Map<String, dynamic> get ordersListResponseJson => {
-      'items': [
-        {
-          'orderId': 'order123',
-          'status': 'delivered',
-          'store': {
-            'name': 'Flowery Store',
-            'address': '123 Flower St',
-            'imageUrl': 'http://example.com/store.png',
-          },
-          'recipient': {
-            'name': 'John Doe',
-            'city': 'Giza',
-            'area': 'Zayed',
-            'imageUrl': 'http://example.com/user.png',
-          },
-          'itemCount': 3,
-          'total': 150.0,
-          'assignedAt': '2024-09-03T10:00:00.000Z',
-          'deliveredAt': '2024-09-03T11:00:00.000Z',
-        }
-      ],
-      'pagination': {
-        'page': 1,
-        'pageSize': 10,
-        'totalCount': 1,
-        'totalPages': 1,
-        'hasNextPage': false,
-        'hasPreviousPage': false,
-      }
-    };
-
-Map<String, dynamic> get orderDetailsResponseJson => {
+final Map<String, dynamic> ordersListResponseJson = {
+  'items': [
+    {
       'orderId': 'order123',
       'status': 'delivered',
-      'isGift': false,
-      'items': [
-        {
-          'productId': 'p1',
-          'productName': 'Red Roses',
-          'quantity': 2,
-        }
-      ],
-      'pickup': {
-        'storeName': 'Flowery Store',
-        'location': {'lat': 30.0, 'lng': 31.0},
+      'store': {
+        'name': 'Flowery Store',
         'address': '123 Flower St',
         'imageUrl': 'http://example.com/store.png',
       },
-      'userAddress': {
-        'recipientName': 'John Doe',
-        'recipientPhone': '+201234567890',
-        'location': {'lat': 30.0, 'lng': 31.0},
-        'address': '456 User St',
+      'recipient': {
+        'name': 'John Doe',
+        'city': 'Giza',
+        'area': 'Zayed',
         'imageUrl': 'http://example.com/user.png',
-      }
-    };
+      },
+      'itemCount': 3,
+      'total': 150.0,
+      'assignedAt': '2024-09-03T10:00:00.000Z',
+      'deliveredAt': '2024-09-03T11:00:00.000Z',
+    }
+  ],
+  'pagination': {
+    'page': 1,
+    'pageSize': 10,
+    'totalCount': 1,
+    'totalPages': 1,
+    'hasNextPage': false,
+    'hasPreviousPage': false,
+  }
+};
 
-Map<String, dynamic> get productResponseJson => {
-      'id': 'p1',
-      'name': 'Red Roses',
-      'imageUrl': 'http://example.com/rose.png',
-      'currency': 'EGP',
-      'price': 100.0,
-      'originalPrice': 120.0,
-      'discountPercentage': 16.6,
-      'status': 'in_stock',
-      'images': ['http://example.com/rose.png'],
-      'description': 'Beautiful red roses',
-      'includes': [
-        {'name': 'Vase'}
-      ],
-    };
+final Map<String, dynamic> orderDetailsResponseJson = {
+  'orderId': 'order123',
+  'status': 'delivered',
+  'isGift': false,
+  'items': [
+    {
+      'productId': 'p1',
+      'productName': 'Red Roses',
+      'quantity': 2,
+    }
+  ],
+  'pickup': {
+    'storeName': 'Flowery Store',
+    'location': {'lat': 30.0, 'lng': 31.0},
+    'address': '123 Flower St',
+    'imageUrl': 'http://example.com/store.png',
+  },
+  'userAddress': {
+    'recipientName': 'John Doe',
+    'recipientPhone': '+201234567890',
+    'location': {'lat': 30.0, 'lng': 31.0},
+    'address': '456 User St',
+    'imageUrl': 'http://example.com/user.png',
+  }
+};
+
+final Map<String, dynamic> productResponseJson = {
+  'id': 'p1',
+  'name': 'Red Roses',
+  'imageUrl': 'http://example.com/rose.png',
+  'currency': 'EGP',
+  'price': 100.0,
+  'originalPrice': 120.0,
+  'discountPercentage': 16.6,
+  'status': 'in_stock',
+  'images': ['http://example.com/rose.png'],
+  'description': 'Beautiful red roses',
+  'includes': [
+    {'name': 'Vase'}
+  ],
+};
 
 Map<String, dynamic> orderApiResponseJson(
   Map<String, dynamic>? data, {

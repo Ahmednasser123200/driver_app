@@ -6,7 +6,7 @@ import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
-import 'package:driver_app/features/order_history/domain/entities/paginated_entity.dart';
+import 'package:driver_app/features/order_history/domain/entities/pagination_entities.dart';
 import 'package:driver_app/features/order_history/presentation/constants/order_history_constants.dart';
 import 'package:driver_app/features/order_history/presentation/manager/orders_cubit.dart';
 import 'package:driver_app/features/order_history/presentation/manager/orders_event.dart';

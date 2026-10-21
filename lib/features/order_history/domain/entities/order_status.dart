@@ -1,1 +1,0 @@
-enum OrderStatus { completed, cancelled }

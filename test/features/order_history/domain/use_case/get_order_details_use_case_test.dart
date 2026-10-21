@@ -1,6 +1,6 @@
 import 'package:driver_app/config/base/base_response.dart' as base;
 import 'package:driver_app/config/errors/app_failure.dart';
-import 'package:driver_app/features/order_history/domain/entities/order_history_details_entity.dart';
+import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
 import 'package:driver_app/features/order_history/domain/use_case/get_order_details_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
