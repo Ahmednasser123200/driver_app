@@ -58,10 +58,24 @@ abstract final class AppRoutes {
           builder: (_) => const _StubScreen('Orders'),
         );
       case Routes.pickupLocation:
-        return MaterialPageRoute(
-          settings: settings,
-          builder: (_) => const PickupLocationView(),
-        );
+  final orderDetailsCubit = settings.arguments;
+
+  if (orderDetailsCubit is! OrderDetailsCubit) {
+    return MaterialPageRoute(
+      settings: settings,
+      builder: (_) => const _StubScreen(
+        'Order details context is missing',
+      ),
+    );
+  }
+
+  return MaterialPageRoute(
+    settings: settings,
+    builder: (_) => BlocProvider.value(
+      value: orderDetailsCubit,
+      child: const PickupLocationView(),
+    ),
+  );
       case Routes.orderDetails:
   final arguments = settings.arguments;
 

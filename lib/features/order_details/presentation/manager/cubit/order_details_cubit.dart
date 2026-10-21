@@ -155,50 +155,52 @@ class OrderDetailsCubit
   }
 
   Future<void> _startLocationReporting() async {
-    await _locationSubscription?.cancel();
-    _locationSubscription = null;
+  await _locationSubscription?.cancel();
+  _locationSubscription = null;
 
-    emit(
-      state.copyWith(
-        locationReportingStatus: LocationReportingStatus.active,
-        reportDriverLocation: state.reportDriverLocation.copyWith(
-          isLoading: true,
-          clearFailure: true,
-        ),
+  emit(
+    state.copyWith(
+      locationReportingStatus: LocationReportingStatus.active,
+      reportDriverLocation: state.reportDriverLocation.copyWith(
+        isLoading: true,
+        clearFailure: true,
       ),
-    );
+    ),
+  );
 
-    _locationSubscription = reportDriverLocationUseCase.start(
-      onReportResult: (result) {
-        switch (result) {
-          case Success<ReportDriverLocationEntity>():
-            emit(
-              state.copyWith(
-                reportDriverLocation: state.reportDriverLocation.copyWith(
-                  isLoading: false,
-                  data: result.data,
-                  clearFailure: true,
-                ),
+  _locationSubscription = reportDriverLocationUseCase.start(
+    onReportResult: (result, location) {
+      switch (result) {
+        case Success<ReportDriverLocationEntity>():
+          emit(
+            state.copyWith(
+              driverLocation: location,
+              reportDriverLocation:
+                  state.reportDriverLocation.copyWith(
+                isLoading: false,
+                data: result.data,
+                clearFailure: true,
               ),
-            );
+            ),
+          );
 
-          case Error<ReportDriverLocationEntity>():
-            // Background reporting: update state without showing a UI event.
-            emit(
-              state.copyWith(
-                reportDriverLocation: state.reportDriverLocation.copyWith(
-                  isLoading: false,
-                  failure: result.failure,
-                ),
+        case Error<ReportDriverLocationEntity>():
+          emit(
+            state.copyWith(
+              reportDriverLocation:
+                  state.reportDriverLocation.copyWith(
+                isLoading: false,
+                failure: result.failure,
               ),
-            );
-        }
-      },
-      onLocationError: (failure) {
-        unawaited(_handleLocationError(failure));
-      },
-    );
-  }
+            ),
+          );
+      }
+    },
+    onLocationError: (failure) {
+      unawaited(_handleLocationError(failure));
+    },
+  );
+}
 
   Future<void> _stopLocationReporting() async {
     await _locationSubscription?.cancel();
