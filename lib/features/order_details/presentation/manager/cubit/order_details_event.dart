@@ -1,15 +1,27 @@
-sealed class OrderDetailsEvent {}
+sealed class OrderDetailsEvent {
+  const OrderDetailsEvent();
+}
 
 class GetDriverOrderDetailsEvent extends OrderDetailsEvent {
   final String orderId;
 
-  GetDriverOrderDetailsEvent({required this.orderId});
+  const GetDriverOrderDetailsEvent({required this.orderId});
 }
-
 
 class UpdateOrderStatusEvent extends OrderDetailsEvent {
   final String orderId;
   final String newStatus;
 
-  UpdateOrderStatusEvent({required this.orderId, required this.newStatus});
+  const UpdateOrderStatusEvent({
+    required this.orderId,
+    required this.newStatus,
+  });
+}
+
+class StartLocationReportingEvent extends OrderDetailsEvent {
+  const StartLocationReportingEvent();
+}
+
+class StopLocationReportingEvent extends OrderDetailsEvent {
+  const StopLocationReportingEvent();
 }

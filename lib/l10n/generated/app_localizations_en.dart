@@ -295,6 +295,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cashOnDelivery => 'Cash on delivery';
 
   @override
+  String get liveGpsTrackingActive => 'Live GPS Tracking Active';
+
+  @override
+  String get locationPermissionRequired => 'Location permission required';
+
+  @override
+  String get locationPermissionToTrackDelivery =>
+      'Location permission is required for live delivery tracking.';
+
+  @override
+  String get enableGps => 'Please enable GPS';
+
+  @override
+  String get locationTrackingUnavailable => 'Location tracking unavailable';
+
+  @override
   String get arrivedAtPickupPoint => 'Arrived at Pickup point';
 
   @override

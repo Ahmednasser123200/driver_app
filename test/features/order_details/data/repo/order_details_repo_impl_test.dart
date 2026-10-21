@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/order_details/data/datasources/order_details_remote_data_source.dart';
 import 'package:driver_app/features/order_details/data/dtos/requests/report_driver_location_request_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/requests/update_order_status_request_dto.dart';
 import 'package:driver_app/features/order_details/data/repo/order_details_repo_impl.dart';
+import 'package:driver_app/features/order_details/domain/entities/driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
@@ -13,13 +16,19 @@ import 'package:driver_app/features/order_details/domain/params/update_order_sta
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:driver_app/core/services/location/location_service.dart';
+import 'package:geolocator/geolocator.dart';
+
 import '../../../../helpers/fixtures.dart';
 
 class MockOrderDetailsRemoteDataSource extends Mock
     implements OrderDetailsRemoteDataSource {}
 
+class MockLocationService extends Mock implements LocationService {}
+
 void main() {
   late MockOrderDetailsRemoteDataSource remoteDataSource;
+  late MockLocationService locationService;
   late OrderDetailsRepoImpl repository;
 
   setUpAll(() {
@@ -31,14 +40,60 @@ void main() {
 
   setUp(() {
     remoteDataSource = MockOrderDetailsRemoteDataSource();
-    repository = OrderDetailsRepoImpl(remoteDataSource);
+    locationService = MockLocationService();
+    repository = OrderDetailsRepoImpl(remoteDataSource, locationService);
+  });
+
+  group('driverLocationStream', () {
+    test('maps each position onto a success response', () async {
+      final controller = StreamController<Position>();
+      when(
+        () => locationService.locationStream,
+      ).thenAnswer((_) => controller.stream);
+
+      final received = <BaseResponse<DriverLocation>>[];
+      final subscription = repository.driverLocationStream.listen(received.add);
+
+      controller.add(buildPositionFixture(latitude: 30.1, longitude: 31.2));
+      await pumpEventQueue();
+
+      expect(received, hasLength(1));
+      final location = (received.single as Success<DriverLocation>).data;
+      expect(location.latitude, 30.1);
+      expect(location.longitude, 31.2);
+
+      await subscription.cancel();
+      await controller.close();
+    });
+
+    test('maps stream errors onto an unknown failure response', () async {
+      final controller = StreamController<Position>();
+      when(
+        () => locationService.locationStream,
+      ).thenAnswer((_) => controller.stream);
+
+      final received = <BaseResponse<DriverLocation>>[];
+      final subscription = repository.driverLocationStream.listen(received.add);
+
+      controller.addError(Exception('gps lost'));
+      await pumpEventQueue();
+
+      expect(received, hasLength(1));
+      expect(
+        (received.single as Error<DriverLocation>).failure,
+        isA<UnknownFailure>(),
+      );
+
+      await subscription.cancel();
+      await controller.close();
+    });
   });
 
   group('getOrderDetails', () {
     test('maps the DTO onto the domain entity on success', () async {
-      when(() => remoteDataSource.getOrderDetails(any())).thenAnswer(
-        (_) async => Success(buildDriverOrderDetailsDto()),
-      );
+      when(
+        () => remoteDataSource.getOrderDetails(any()),
+      ).thenAnswer((_) async => Success(buildDriverOrderDetailsDto()));
 
       final result = await repository.getOrderDetails(kOrderId);
 
@@ -64,9 +119,9 @@ void main() {
     });
 
     test('forwards the orderId to the data source', () async {
-      when(() => remoteDataSource.getOrderDetails(any())).thenAnswer(
-        (_) async => Success(buildDriverOrderDetailsDto()),
-      );
+      when(
+        () => remoteDataSource.getOrderDetails(any()),
+      ).thenAnswer((_) async => Success(buildDriverOrderDetailsDto()));
 
       await repository.getOrderDetails(kOrderId);
 
@@ -74,9 +129,9 @@ void main() {
     });
 
     test('propagates the failure unchanged', () async {
-      when(() => remoteDataSource.getOrderDetails(any())).thenAnswer(
-        (_) async => Error(const NotFoundFailure()),
-      );
+      when(
+        () => remoteDataSource.getOrderDetails(any()),
+      ).thenAnswer((_) async => Error(const NotFoundFailure()));
 
       final result = await repository.getOrderDetails(kOrderId);
 
@@ -89,35 +144,37 @@ void main() {
   });
 
   group('reportDriverLocation', () {
-    test('maps the response and builds the request DTO from the params', () async {
-      when(() => remoteDataSource.reportDriverLocation(any())).thenAnswer(
-        (_) async => Success(buildReportDriverLocationResponseDto()),
-      );
+    test(
+      'maps the response and builds the request DTO from the params',
+      () async {
+        when(() => remoteDataSource.reportDriverLocation(any())).thenAnswer(
+          (_) async => Success(buildReportDriverLocationResponseDto()),
+        );
 
-      final result = await repository.reportDriverLocation(
-        const ReportDriverLocationParams(
-          lat: 30.0444,
-          lng: 31.2357,
-          recordedAt: '2026-09-19T18:00:00Z',
-        ),
-      );
+        final result = await repository.reportDriverLocation(
+          const ReportDriverLocationParams(
+            lat: 30.0444,
+            lng: 31.2357,
+            recordedAt: '2026-09-19T18:00:00Z',
+          ),
+        );
 
-      expect(result, isA<Success<ReportDriverLocationEntity>>());
-      final entity = (result as Success<ReportDriverLocationEntity>).data;
-      expect(entity.success, isTrue);
-      expect(entity.recordedAt, '2026-09-19T18:00:00Z');
+        expect(result, isA<Success<ReportDriverLocationEntity>>());
+        final entity = (result as Success<ReportDriverLocationEntity>).data;
+        expect(entity.success, isTrue);
+        expect(entity.recordedAt, '2026-09-19T18:00:00Z');
 
-      final request =
-          verify(
-                () => remoteDataSource.reportDriverLocation(captureAny()),
-              )
-              .captured
-              .single as ReportDriverLocationRequestDto;
+        final request =
+            verify(
+                  () => remoteDataSource.reportDriverLocation(captureAny()),
+                ).captured.single
+                as ReportDriverLocationRequestDto;
 
-      expect(request.lat, 30.0444);
-      expect(request.lng, 31.2357);
-      expect(request.recordedAt, '2026-09-19T18:00:00Z');
-    });
+        expect(request.lat, 30.0444);
+        expect(request.lng, 31.2357);
+        expect(request.recordedAt, '2026-09-19T18:00:00Z');
+      },
+    );
 
     test('does not add an orderId to the location request', () async {
       when(() => remoteDataSource.reportDriverLocation(any())).thenAnswer(
@@ -137,9 +194,9 @@ void main() {
     });
 
     test('propagates the failure unchanged', () async {
-      when(() => remoteDataSource.reportDriverLocation(any())).thenAnswer(
-        (_) async => Error(const InternetConnectionFailure()),
-      );
+      when(
+        () => remoteDataSource.reportDriverLocation(any()),
+      ).thenAnswer((_) async => Error(const InternetConnectionFailure()));
 
       final result = await repository.reportDriverLocation(
         const ReportDriverLocationParams(lat: 1, lng: 2, recordedAt: 'ts'),
@@ -154,34 +211,37 @@ void main() {
   });
 
   group('updateOrderStatus', () {
-    test('maps the response and forwards the orderId with the new status', () async {
-      when(() => remoteDataSource.updateOrderStatus(any(), any())).thenAnswer(
-        (_) async => Success(buildUpdateOrderStatusResponseDto()),
-      );
+    test(
+      'maps the response and forwards the orderId with the new status',
+      () async {
+        when(
+          () => remoteDataSource.updateOrderStatus(any(), any()),
+        ).thenAnswer((_) async => Success(buildUpdateOrderStatusResponseDto()));
 
-      final result = await repository.updateOrderStatus(
-        const UpdateOrderStatusParams(
-          orderId: kOrderId,
-          newStatus: 'OutForDelivery',
-        ),
-      );
+        final result = await repository.updateOrderStatus(
+          const UpdateOrderStatusParams(
+            orderId: kOrderId,
+            newStatus: 'OutForDelivery',
+          ),
+        );
 
-      expect(result, isA<Success<UpdateOrderStatusEntity>>());
-      final entity = (result as Success<UpdateOrderStatusEntity>).data;
-      expect(entity.orderId, kOrderId);
-      expect(entity.status, 'PickedUp');
-      expect(entity.updatedAt, '2026-09-19T18:00:00Z');
+        expect(result, isA<Success<UpdateOrderStatusEntity>>());
+        final entity = (result as Success<UpdateOrderStatusEntity>).data;
+        expect(entity.orderId, kOrderId);
+        expect(entity.status, 'PickedUp');
+        expect(entity.updatedAt, '2026-09-19T18:00:00Z');
 
-      final captured = verify(
-        () => remoteDataSource.updateOrderStatus(captureAny(), captureAny()),
-      ).captured;
+        final captured = verify(
+          () => remoteDataSource.updateOrderStatus(captureAny(), captureAny()),
+        ).captured;
 
-      expect(
-        (captured.first as UpdateOrderStatusRequestDto).newStatus,
-        'OutForDelivery',
-      );
-      expect(captured.last, kOrderId);
-    });
+        expect(
+          (captured.first as UpdateOrderStatusRequestDto).newStatus,
+          'OutForDelivery',
+        );
+        expect(captured.last, kOrderId);
+      },
+    );
 
     test('propagates the conflict failure unchanged', () async {
       when(() => remoteDataSource.updateOrderStatus(any(), any())).thenAnswer(

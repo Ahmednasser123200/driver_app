@@ -1,4 +1,5 @@
 import 'package:driver_app/config/base/base_response.dart';
+import 'package:driver_app/features/order_details/domain/entities/driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
@@ -7,6 +8,7 @@ import 'package:driver_app/features/order_details/domain/params/report_driver_lo
 import '../params/update_order_status_params.dart';
 
 abstract interface class OrderDetailsRepo {
+Stream<BaseResponse<DriverLocation>> get driverLocationStream;
   Future<BaseResponse<DriverOrderDetailsEntity>> getOrderDetails(
     String orderId,
   );

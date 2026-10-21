@@ -16,6 +16,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
+import '../../core/services/location/geolocator_wrapper.dart' as _i970;
+import '../../core/services/location/location_service.dart' as _i898;
+import '../../core/services/location/location_service_impl.dart' as _i614;
 import '../../features/order_details/api/client/order_details_api_client.dart'
     as _i329;
 import '../../features/order_details/api/data_source_impl/remote/order_details_remote_data_source_impl.dart'
@@ -53,6 +56,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => secureStorageModule.secureStorage,
     );
+    gh.lazySingleton<_i970.GeolocatorWrapper>(
+      () => const _i970.GeolocatorWrapper(),
+    );
     gh.lazySingleton<_i839.AuthInterceptors>(
       () => _i839.AuthInterceptors(gh<_i558.FlutterSecureStorage>()),
     );
@@ -67,23 +73,32 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i329.OrderDetailsApiClient>(),
       ),
     );
-    gh.factory<_i788.OrderDetailsRepo>(
-      () =>
-          _i692.OrderDetailsRepoImpl(gh<_i702.OrderDetailsRemoteDataSource>()),
+    gh.lazySingleton<_i898.LocationService>(
+      () => _i614.LocationServiceImpl(gh<_i970.GeolocatorWrapper>()),
     );
-    gh.lazySingleton<_i837.GetDriverOrderDetailsUseCase>(
+    gh.factory<_i788.OrderDetailsRepo>(
+      () => _i692.OrderDetailsRepoImpl(
+        gh<_i702.OrderDetailsRemoteDataSource>(),
+        gh<_i898.LocationService>(),
+      ),
+    );
+    gh.factory<_i59.ReportDriverLocationUseCase>(
+      () => _i59.ReportDriverLocationUseCase(
+        gh<_i788.OrderDetailsRepo>(),
+        gh<_i970.GeolocatorWrapper>(),
+      ),
+    );
+    gh.factory<_i837.GetDriverOrderDetailsUseCase>(
       () => _i837.GetDriverOrderDetailsUseCase(gh<_i788.OrderDetailsRepo>()),
     );
-    gh.lazySingleton<_i59.ReportDriverLocationUseCase>(
-      () => _i59.ReportDriverLocationUseCase(gh<_i788.OrderDetailsRepo>()),
-    );
-    gh.lazySingleton<_i591.UpdateOrderStatusUseCase>(
+    gh.factory<_i591.UpdateOrderStatusUseCase>(
       () => _i591.UpdateOrderStatusUseCase(gh<_i788.OrderDetailsRepo>()),
     );
     gh.factory<_i841.OrderDetailsCubit>(
       () => _i841.OrderDetailsCubit(
         getDriverOrderDetailsUseCase: gh<_i837.GetDriverOrderDetailsUseCase>(),
         updateOrderStatusUseCase: gh<_i591.UpdateOrderStatusUseCase>(),
+        reportDriverLocationUseCase: gh<_i59.ReportDriverLocationUseCase>(),
       ),
     );
     return this;

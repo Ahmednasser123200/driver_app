@@ -662,6 +662,36 @@ abstract class AppLocalizations {
   /// **'Cash on delivery'**
   String get cashOnDelivery;
 
+  /// No description provided for @liveGpsTrackingActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live GPS Tracking Active'**
+  String get liveGpsTrackingActive;
+
+  /// No description provided for @locationPermissionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission required'**
+  String get locationPermissionRequired;
+
+  /// No description provided for @locationPermissionToTrackDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is required for live delivery tracking.'**
+  String get locationPermissionToTrackDelivery;
+
+  /// No description provided for @enableGps.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enable GPS'**
+  String get enableGps;
+
+  /// No description provided for @locationTrackingUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Location tracking unavailable'**
+  String get locationTrackingUnavailable;
+
   /// No description provided for @arrivedAtPickupPoint.
   ///
   /// In en, this message translates to:
