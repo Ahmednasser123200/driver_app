@@ -23,7 +23,7 @@ class OrderStatusHeader extends StatelessWidget {
         color: AppColors.primary[50],
         borderRadius: BorderRadius.circular(8.r),
       ),
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(16.w),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,12 +37,12 @@ class OrderStatusHeader extends StatelessWidget {
               color: AppColors.success,
             ),
           ),
-          const SizedBox(height: 8.0),
+          SizedBox(height: 8.h),
           Text(
             orderId,
             style: TextStyle(fontSize: 16.0.sp, color: AppColors.black),
           ),
-          const SizedBox(height: 8.0),
+          SizedBox(height: 8.h),
           Text(
             date,
             style: TextStyle(fontSize: 16.0.sp, color: AppColors.grey[600]),

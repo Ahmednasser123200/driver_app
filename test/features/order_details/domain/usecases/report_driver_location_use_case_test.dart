@@ -127,8 +127,12 @@ void main() {
       ).thenAnswer((_) async => Success(entity));
 
       final results = <BaseResponse<ReportDriverLocationEntity>>[];
+      final reportedLocations = <DriverLocation>[];
       final subscription = useCase.start(
-        onReportResult: results.add,
+        onReportResult: (result, location) {
+          results.add(result);
+          reportedLocations.add(location);
+        },
         onLocationError: errors.add,
       );
 
@@ -138,6 +142,8 @@ void main() {
 
       expect(results, hasLength(1));
       expect(results.first, isA<Success<ReportDriverLocationEntity>>());
+      expect(reportedLocations, hasLength(1));
+      expect(reportedLocations.single, firstPos);
       expect(errors, isEmpty);
 
       final captured =
@@ -160,8 +166,12 @@ void main() {
         ).thenAnswer((_) async => Success(buildReportDriverLocationEntity()));
 
         final results = <BaseResponse<ReportDriverLocationEntity>>[];
+        final reportedLocations = <DriverLocation>[];
         final subscription = useCase.start(
-          onReportResult: results.add,
+          onReportResult: (result, location) {
+            results.add(result);
+            reportedLocations.add(location);
+          },
           onLocationError: errors.add,
         );
 
@@ -198,8 +208,12 @@ void main() {
         ).thenAnswer((_) async => Success(buildReportDriverLocationEntity()));
 
         final results = <BaseResponse<ReportDriverLocationEntity>>[];
+        final reportedLocations = <DriverLocation>[];
         final subscription = useCase.start(
-          onReportResult: results.add,
+          onReportResult: (result, location) {
+            results.add(result);
+            reportedLocations.add(location);
+          },
           onLocationError: errors.add,
         );
 
@@ -222,6 +236,9 @@ void main() {
         await pumpEventQueue();
 
         expect(results, hasLength(2));
+        expect(reportedLocations, hasLength(2));
+        expect(reportedLocations.first, pos1);
+        expect(reportedLocations.last, pos2);
         verify(() => repository.reportDriverLocation(any())).called(2);
 
         await subscription.cancel();
@@ -236,8 +253,12 @@ void main() {
       );
 
       final results = <BaseResponse<ReportDriverLocationEntity>>[];
+      final reportedLocations = <DriverLocation>[];
       final subscription = useCase.start(
-        onReportResult: results.add,
+        onReportResult: (result, location) {
+          results.add(result);
+          reportedLocations.add(location);
+        },
         onLocationError: errors.add,
       );
 
@@ -256,8 +277,12 @@ void main() {
       'forwards location stream errors to onLocationError callback',
       () async {
         final results = <BaseResponse<ReportDriverLocationEntity>>[];
+        final reportedLocations = <DriverLocation>[];
         final subscription = useCase.start(
-          onReportResult: results.add,
+          onReportResult: (result, location) {
+            results.add(result);
+            reportedLocations.add(location);
+          },
           onLocationError: errors.add,
         );
 
@@ -281,8 +306,12 @@ void main() {
       ).thenAnswer((_) async => Success(buildReportDriverLocationEntity()));
 
       final results = <BaseResponse<ReportDriverLocationEntity>>[];
+      final reportedLocations = <DriverLocation>[];
       final subscription = useCase.start(
-        onReportResult: results.add,
+        onReportResult: (result, location) {
+          results.add(result);
+          reportedLocations.add(location);
+        },
         onLocationError: errors.add,
       );
 

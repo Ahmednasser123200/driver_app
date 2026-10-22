@@ -3,7 +3,9 @@ import 'package:driver_app/features/pickup_location/domain/entities/driving_rout
 import 'package:driver_app/features/pickup_location/presentation/utils/map_helper.dart';
 import 'package:driver_app/features/pickup_location/presentation/widgets/location_addresses_panel.dart';
 import 'package:driver_app/features/pickup_location/presentation/widgets/pickup_map.dart';
+import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class PickupLocationBody extends StatelessWidget {
@@ -27,6 +29,8 @@ class PickupLocationBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     final routePoints =
         route?.points.map((point) => point.toLatLng()).toList() ?? const [];
 
@@ -43,13 +47,13 @@ class PickupLocationBody extends StatelessWidget {
                 routePoints: routePoints,
               ),
             ),
-            const Expanded(
+            Expanded(
               flex: 4,
               child: LocationAddressesPanel(
-                userName: 'Nour mohamed',
-                userAddress: '20th st, Sheikh Zayed, Giza',
-                storeName: 'Flowery store',
-                storeAddress: '20th st, Sheikh Zayed, Giza',
+                userName: l10n.customerName,
+                userAddress: l10n.address,
+                storeName: l10n.floweryStore,
+                storeAddress: l10n.address,
               ),
             ),
           ],
@@ -67,10 +71,10 @@ class _RouteLoadingIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8.r),
         boxShadow: const [
           BoxShadow(
             color: AppColors.shadow,

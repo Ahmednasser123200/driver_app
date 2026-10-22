@@ -3,6 +3,8 @@ import 'package:driver_app/features/pickup_location/presentation/utils/map_helpe
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../../helpers/fixtures.dart';
+
 void main() {
   group('MapLocationLatLngExtension.toLatLng', () {
     test('maps the latitude and the longitude in the right order', () {
@@ -22,6 +24,48 @@ void main() {
 
       expect(location.latitude, 30.0444);
       expect(location.longitude, 31.2357);
+    });
+  });
+
+  group('resolvePickupLocation', () {
+    test('returns the pickup coordinates of the order', () {
+      final location = resolvePickupLocation(
+        buildDriverOrderDetailsEntity(),
+        fallback: const LatLng(0, 0),
+      );
+
+      expect(location.latitude, 30.0511);
+      expect(location.longitude, 31.3656);
+    });
+
+    test('returns the fallback when the order details are not loaded', () {
+      final location = resolvePickupLocation(
+        null,
+        fallback: const LatLng(30.0444, 31.2357),
+      );
+
+      expect(location, const LatLng(30.0444, 31.2357));
+    });
+  });
+
+  group('resolveCustomerLocation', () {
+    test('returns the customer coordinates of the order', () {
+      final location = resolveCustomerLocation(
+        buildDriverOrderDetailsEntity(),
+        fallback: const LatLng(0, 0),
+      );
+
+      expect(location.latitude, 30.0444);
+      expect(location.longitude, 31.2357);
+    });
+
+    test('returns the fallback when the order details are not loaded', () {
+      final location = resolveCustomerLocation(
+        null,
+        fallback: const LatLng(30.0398, 31.2302),
+      );
+
+      expect(location, const LatLng(30.0398, 31.2302));
     });
   });
 

@@ -281,7 +281,7 @@ void main() {
     test(
       'StartLocationReportingEvent begins tracking and handles successful reports',
       () async {
-        void Function(BaseResponse<ReportDriverLocationEntity>)?
+        void Function(BaseResponse<ReportDriverLocationEntity>, DriverLocation)?
         capturedCallback;
 
         when(
@@ -293,7 +293,10 @@ void main() {
         ).thenAnswer((invocation) {
           capturedCallback =
               invocation.namedArguments[#onReportResult]
-                  as void Function(BaseResponse<ReportDriverLocationEntity>);
+                  as void Function(
+                    BaseResponse<ReportDriverLocationEntity>,
+                    DriverLocation,
+                  );
           final sub = MockStreamSubscription();
           when(() => sub.cancel()).thenAnswer((_) async {});
           return sub;
@@ -310,15 +313,21 @@ void main() {
 
         // Trigger a report success
         final locationEntity = buildReportDriverLocationEntity();
-        capturedCallback!(Success(locationEntity));
+        const reportedLocation = DriverLocation(
+          latitude: 30.0444,
+          longitude: 31.2357,
+        );
+        capturedCallback!(Success(locationEntity), reportedLocation);
 
         expect(cubit.state.reportDriverLocation.isLoading, isFalse);
         expect(cubit.state.reportDriverLocation.data, locationEntity);
+        expect(cubit.state.driverLocation, reportedLocation);
       },
     );
 
     test('StartLocationReportingEvent handles report errors', () async {
-      void Function(BaseResponse<ReportDriverLocationEntity>)? capturedCallback;
+      void Function(BaseResponse<ReportDriverLocationEntity>, DriverLocation)?
+      capturedCallback;
 
       when(
         () => reportDriverLocation.start(
@@ -329,7 +338,10 @@ void main() {
       ).thenAnswer((invocation) {
         capturedCallback =
             invocation.namedArguments[#onReportResult]
-                as void Function(BaseResponse<ReportDriverLocationEntity>);
+                as void Function(
+                  BaseResponse<ReportDriverLocationEntity>,
+                  DriverLocation,
+                );
         final sub = MockStreamSubscription();
         when(() => sub.cancel()).thenAnswer((_) async {});
         return sub;
@@ -342,6 +354,7 @@ void main() {
 
       capturedCallback!(
         const Error<ReportDriverLocationEntity>(InternetConnectionFailure()),
+        const DriverLocation(latitude: 30.0444, longitude: 31.2357),
       );
       await pumpEventQueue();
 

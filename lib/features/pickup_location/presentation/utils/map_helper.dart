@@ -1,3 +1,4 @@
+import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/pickup_location/domain/entities/map_location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -10,7 +11,32 @@ extension LatLngMapLocationExtension on LatLng {
       MapLocation(latitude: latitude, longitude: longitude);
 }
 
-/// Builds the bounding box that contains every given point.
+
+LatLng resolvePickupLocation(
+  DriverOrderDetailsEntity? orderDetails, {
+  required LatLng fallback,
+}) {
+  if (orderDetails == null) return fallback;
+
+  return LatLng(
+    orderDetails.pickupAddress.latitude,
+    orderDetails.pickupAddress.longitude,
+  );
+}
+
+
+LatLng resolveCustomerLocation(
+  DriverOrderDetailsEntity? orderDetails, {
+  required LatLng fallback,
+}) {
+  if (orderDetails == null) return fallback;
+
+  return LatLng(
+    orderDetails.userAddress.latitude,
+    orderDetails.userAddress.longitude,
+  );
+}
+
 LatLngBounds? buildRouteBounds(List<LatLng> points) {
   if (points.isEmpty) return null;
 

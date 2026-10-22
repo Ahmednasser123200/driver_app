@@ -16,17 +16,33 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class PickupLocationView extends StatelessWidget {
   const PickupLocationView({super.key});
 
+  
+  static const LatLng fallbackPickupLocation = LatLng(30.0444, 31.2357);
+  static const LatLng fallbackCustomerLocation = LatLng(30.0398, 31.2302);
+
   @override
   Widget build(BuildContext context) {
-    const pickup = LatLng(30.0444, 31.2357);
-    const user = LatLng(30.0398, 31.2302);
+    final orderDetails = context
+        .read<OrderDetailsCubit?>()
+        ?.state
+        .orderDetails
+        .data;
+
+    final pickup = resolvePickupLocation(
+      orderDetails,
+      fallback: fallbackPickupLocation,
+    );
+    final customer = resolveCustomerLocation(
+      orderDetails,
+      fallback: fallbackCustomerLocation,
+    );
 
     return BlocProvider(
       create: (_) => getIt<PickupLocationCubit>()
         ..loadDrivingRoute(
           DrivingRouteParams(
             origin: pickup.toMapLocation(),
-            destination: user.toMapLocation(),
+            destination: customer.toMapLocation(),
           ),
         ),
       child:
@@ -46,14 +62,23 @@ class PickupLocationView extends StatelessWidget {
                           ? null
                           : LatLng(location.latitude, location.longitude);
 
+                      final currentPickup = resolvePickupLocation(
+                        state.orderDetails.data,
+                        fallback: fallbackPickupLocation,
+                      );
+                      final currentCustomer = resolveCustomerLocation(
+                        state.orderDetails.data,
+                        fallback: fallbackCustomerLocation,
+                      );
+
                       return BlocBuilder<
                         PickupLocationCubit,
                         PickupLocationState
                       >(
                         builder: (context, routeState) {
                           return PickupLocationBody(
-                            pickupLocation: pickup,
-                            userLocation: user,
+                            pickupLocation: currentPickup,
+                            userLocation: currentCustomer,
                             driverLocation: driverPosition,
                             route: routeState.drivingRoute.data,
                             isLoadingRoute: routeState.drivingRoute.isLoading,

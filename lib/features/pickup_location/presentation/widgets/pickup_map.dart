@@ -1,4 +1,6 @@
+import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:driver_app/features/pickup_location/presentation/utils/map_helper.dart';
+import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -18,7 +20,7 @@ class PickupMap extends StatefulWidget {
   /// The coordinates of the driving route, empty when no route is available.
   final List<LatLng> routePoints;
 
-  static const Color routeColor = Color(0xFFE91E63);
+  static const Color routeColor = AppColors.primary;
 
   @override
   State<PickupMap> createState() => _PickupMapState();
@@ -73,24 +75,26 @@ class _PickupMapState extends State<PickupMap> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     final markers = <Marker>{
       Marker(
         markerId: const MarkerId('pickup'),
         position: widget.pickupLocation,
-        infoWindow: const InfoWindow(title: 'Pickup location'),
+        infoWindow: InfoWindow(title: l10n.pickupLocationTitle),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
       ),
       Marker(
         markerId: const MarkerId('user'),
         position: widget.userLocation,
-        infoWindow: const InfoWindow(title: 'User location'),
+        infoWindow: InfoWindow(title: l10n.userLocationTitle),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
       ),
       if (widget.driverLocation != null)
         Marker(
           markerId: const MarkerId('driver'),
           position: widget.driverLocation!,
-          infoWindow: const InfoWindow(title: 'Driver location'),
+          infoWindow: InfoWindow(title: l10n.driverLocationTitle),
           icon: BitmapDescriptor.defaultMarkerWithHue(
             BitmapDescriptor.hueGreen,
           ),

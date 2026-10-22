@@ -88,6 +88,9 @@
 
   "pickupAddress": "Pickup address",
   "userAddress": "User address",
+  "pickupLocationTitle": "Pickup location",
+  "userLocationTitle": "User location",
+  "driverLocationTitle": "Driver location",
   "unknown": "Unknown",
   "flowery": "Flowery",
   "floweryStore": "Flowery store",

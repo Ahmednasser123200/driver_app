@@ -560,6 +560,24 @@ abstract class AppLocalizations {
   /// **'User address'**
   String get userAddress;
 
+  /// No description provided for @pickupLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup location'**
+  String get pickupLocationTitle;
+
+  /// No description provided for @userLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'User location'**
+  String get userLocationTitle;
+
+  /// No description provided for @driverLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver location'**
+  String get driverLocationTitle;
+
   /// No description provided for @unknown.
   ///
   /// In en, this message translates to:

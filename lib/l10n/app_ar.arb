@@ -88,6 +88,9 @@
 
   "pickupAddress": "عنوان الاستلام",
   "userAddress": "عنوان المستخدم",
+  "pickupLocationTitle": "موقع الاستلام",
+  "userLocationTitle": "موقع العميل",
+  "driverLocationTitle": "موقع السائق",
   "flowery": "فلاوري",
   "floweryStore": "متجر فلاوري",
   "address": "الشارع 20، الشيخ زايد، الجيزة",

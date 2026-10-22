@@ -244,6 +244,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userAddress => 'User address';
 
   @override
+  String get pickupLocationTitle => 'Pickup location';
+
+  @override
+  String get userLocationTitle => 'User location';
+
+  @override
+  String get driverLocationTitle => 'Driver location';
+
+  @override
   String get unknown => 'Unknown';
 
   @override

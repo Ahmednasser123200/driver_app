@@ -245,6 +245,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get userAddress => 'عنوان المستخدم';
 
   @override
+  String get pickupLocationTitle => 'موقع الاستلام';
+
+  @override
+  String get userLocationTitle => 'موقع العميل';
+
+  @override
+  String get driverLocationTitle => 'موقع السائق';
+
+  @override
   String get unknown => 'غير معروف';
 
   @override
