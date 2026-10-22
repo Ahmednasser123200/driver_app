@@ -52,21 +52,16 @@ abstract final class AppRoutes {
             homeScreen: _StubScreen('Home'),
             ordersScreen: OrdersView(),
             profileScreen: _StubScreen('Profile'),
-            initialIndex: 0,
           ),
         );
       case Routes.orders:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const AppBottomNavigationBar(
-            homeScreen: _StubScreen('Home'),
-            ordersScreen: OrdersView(),
-            profileScreen: _StubScreen('Profile'),
-            initialIndex: 1,
-          ),
+          builder: (_) => const _StubScreen('Orders'),
         );
       case Routes.orderDetails:
-        final orderId = settings.arguments as String? ?? '';
+        final args = settings.arguments;
+        final orderId = args is String ? args : '';
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => OrderDetailsView(orderId: orderId),
@@ -79,12 +74,7 @@ abstract final class AppRoutes {
       case Routes.profile:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const AppBottomNavigationBar(
-            homeScreen: _StubScreen('Home'),
-            ordersScreen: OrdersView(),
-            profileScreen: _StubScreen('Profile'),
-            initialIndex: 2,
-          ),
+          builder: (_) => const _StubScreen('Profile'),
         );
       case Routes.editProfile:
         return MaterialPageRoute(
