@@ -3,7 +3,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'route_geometry_dto.g.dart';
 
-/// The GeoJSON geometry returned by the routing service.
 @JsonSerializable()
 class RouteGeometryDto {
   const RouteGeometryDto({this.type, this.coordinates});
@@ -19,9 +18,7 @@ class RouteGeometryDto {
 
   Map<String, dynamic> toJson() => _$RouteGeometryDtoToJson(this);
 
-  /// Converts the GeoJSON coordinates into domain locations.
-  ///
-  /// GeoJSON orders every coordinate as `[longitude, latitude]`.
+  
   List<MapLocation> toDomainPoints() => (coordinates ?? const <List<double>>[])
       .where((coordinate) => coordinate.length >= 2)
       .map(

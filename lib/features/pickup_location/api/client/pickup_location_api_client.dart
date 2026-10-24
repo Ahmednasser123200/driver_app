@@ -7,18 +7,13 @@ part 'pickup_location_api_client.g.dart';
 
 /// Client of the public OSRM routing service.
 @singleton
-@RestApi()
+@RestApi(baseUrl: PickupLocationApiClient.routingBaseUrl)
 abstract class PickupLocationApiClient {
-  /// The base url of the public routing service.
   static const String routingBaseUrl = 'https://router.project-osrm.org';
 
   @factoryMethod
-  factory PickupLocationApiClient(@Named('osrm') Dio dio) =
-      _PickupLocationApiClient;
+  factory PickupLocationApiClient(Dio dio) = _PickupLocationApiClient;
 
-  /// Requests the driving route between the given coordinates.
-  ///
-  /// The coordinates are ordered as `longitude,latitude;longitude,latitude`.
   @GET('/route/v1/driving/{coordinates}')
   Future<DrivingRouteResponseDto> getDrivingRoute(
     @Path('coordinates') String coordinates, {

@@ -4,7 +4,6 @@ import 'driving_route_dto.dart';
 
 part 'driving_route_response_dto.g.dart';
 
-/// The response returned by the routing service.
 @JsonSerializable()
 class DrivingRouteResponseDto {
   const DrivingRouteResponseDto({this.code, this.routes, this.message});
@@ -23,7 +22,6 @@ class DrivingRouteResponseDto {
 
   Map<String, dynamic> toJson() => _$DrivingRouteResponseDtoToJson(this);
 
-  /// `true` when the routing service answered with a valid route.
   bool get isOk => code == 'Ok';
 
   List<DrivingRouteDto> get routeList => routes ?? const [];

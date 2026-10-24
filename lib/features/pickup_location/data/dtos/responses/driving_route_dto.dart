@@ -5,7 +5,6 @@ import 'route_geometry_dto.dart';
 
 part 'driving_route_dto.g.dart';
 
-/// A single route returned by the routing service.
 @JsonSerializable()
 class DrivingRouteDto {
   const DrivingRouteDto({this.distance, this.duration, this.geometry});

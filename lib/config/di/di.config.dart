@@ -41,8 +41,6 @@ import '../../features/pickup_location/api/client/pickup_location_api_client.dar
     as _i114;
 import '../../features/pickup_location/api/data_source_impl/remote/pickup_location_remote_data_source_impl.dart'
     as _i89;
-import '../../features/pickup_location/api/pickup_location_api_module.dart'
-    as _i535;
 import '../../features/pickup_location/data/datasources/pickup_location_remote_data_source.dart'
     as _i315;
 import '../../features/pickup_location/data/repo/pickup_location_repo_impl.dart'
@@ -68,7 +66,6 @@ extension GetItInjectableX on _i174.GetIt {
     final appModule = _$AppModule();
     final secureStorageModule = _$SecureStorageModule();
     final dioModule = _$DioModule();
-    final pickupLocationApiModule = _$PickupLocationApiModule();
     gh.lazySingleton<_i281.AssetBundle>(() => appModule.assetBundle);
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => secureStorageModule.secureStorage,
@@ -82,24 +79,30 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i361.Dio>(
       () => dioModule.dio(gh<_i839.AuthInterceptors>()),
     );
-    gh.lazySingleton<_i361.Dio>(
-      () => pickupLocationApiModule.osrmDio(),
-      instanceName: 'osrm',
-    );
     gh.singleton<_i329.OrderDetailsApiClient>(
       () => _i329.OrderDetailsApiClient(gh<_i361.Dio>()),
+    );
+    gh.singleton<_i114.PickupLocationApiClient>(
+      () => _i114.PickupLocationApiClient(gh<_i361.Dio>()),
     );
     gh.factory<_i702.OrderDetailsRemoteDataSource>(
       () => _i537.OrderDetailsRemoteDataSourceImpl(
         gh<_i329.OrderDetailsApiClient>(),
       ),
     );
+    gh.factory<_i315.PickupLocationRemoteDataSource>(
+      () => _i89.PickupLocationRemoteDataSourceImpl(
+        gh<_i114.PickupLocationApiClient>(),
+      ),
+    );
+    gh.factory<_i724.PickupLocationRepo>(
+      () => _i933.PickupLocationRepoImpl(
+        gh<_i315.PickupLocationRemoteDataSource>(),
+      ),
+    );
     gh.lazySingleton<_i898.LocationService>(
       () => _i614.LocationServiceImpl(gh<_i970.GeolocatorWrapper>()),
       dispose: (i) => i.dispose(),
-    );
-    gh.singleton<_i114.PickupLocationApiClient>(
-      () => _i114.PickupLocationApiClient(gh<_i361.Dio>(instanceName: 'osrm')),
     );
     gh.factory<_i788.OrderDetailsRepo>(
       () => _i692.OrderDetailsRepoImpl(
@@ -119,15 +122,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i591.UpdateOrderStatusUseCase>(
       () => _i591.UpdateOrderStatusUseCase(gh<_i788.OrderDetailsRepo>()),
     );
-    gh.factory<_i315.PickupLocationRemoteDataSource>(
-      () => _i89.PickupLocationRemoteDataSourceImpl(
-        gh<_i114.PickupLocationApiClient>(),
-      ),
-    );
-    gh.factory<_i724.PickupLocationRepo>(
-      () => _i933.PickupLocationRepoImpl(
-        gh<_i315.PickupLocationRemoteDataSource>(),
-      ),
+    gh.factory<_i1007.GetDrivingRouteUseCase>(
+      () => _i1007.GetDrivingRouteUseCase(gh<_i724.PickupLocationRepo>()),
     );
     gh.factory<_i841.OrderDetailsCubit>(
       () => _i841.OrderDetailsCubit(
@@ -135,9 +131,6 @@ extension GetItInjectableX on _i174.GetIt {
         updateOrderStatusUseCase: gh<_i591.UpdateOrderStatusUseCase>(),
         reportDriverLocationUseCase: gh<_i59.ReportDriverLocationUseCase>(),
       ),
-    );
-    gh.factory<_i1007.GetDrivingRouteUseCase>(
-      () => _i1007.GetDrivingRouteUseCase(gh<_i724.PickupLocationRepo>()),
     );
     gh.factory<_i719.PickupLocationCubit>(
       () => _i719.PickupLocationCubit(gh<_i1007.GetDrivingRouteUseCase>()),
@@ -151,5 +144,3 @@ class _$AppModule extends _i460.AppModule {}
 class _$SecureStorageModule extends _i327.SecureStorageModule {}
 
 class _$DioModule extends _i977.DioModule {}
-
-class _$PickupLocationApiModule extends _i535.PickupLocationApiModule {}
