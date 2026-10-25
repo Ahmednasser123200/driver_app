@@ -38,7 +38,9 @@ void main() {
   late OrderDetailsRemoteDataSourceImpl dataSource;
 
   setUpAll(() {
-    registerFallbackValue(UpdateOrderStatusRequestDto(newStatus: 'PickedUp'));
+    registerFallbackValue(
+      UpdateOrderStatusRequestDto(newStatus: 'PickedUp'),
+    );
     registerFallbackValue(
       ReportDriverLocationRequestDto(lat: 0, lng: 0, recordedAt: 'ts'),
     );
@@ -61,9 +63,9 @@ void main() {
     });
 
     test('passes the orderId straight to the API client', () async {
-      when(
-        () => apiClient.getOrderDetails(any()),
-      ).thenAnswer((_) async => buildDriverOrderDetailsDto());
+      when(() => apiClient.getOrderDetails(any())).thenAnswer(
+        (_) async => buildDriverOrderDetailsDto(),
+      );
 
       await dataSource.getOrderDetails(kOrderId);
 
@@ -84,26 +86,23 @@ void main() {
       );
     });
 
-    test(
-      'maps a connection error to Error(InternetConnectionFailure)',
-      () async {
-        when(
-          () => apiClient.getOrderDetails(any()),
-        ).thenThrow(buildException(type: DioExceptionType.connectionError));
+    test('maps a connection error to Error(InternetConnectionFailure)', () async {
+      when(() => apiClient.getOrderDetails(any())).thenThrow(
+        buildException(type: DioExceptionType.connectionError),
+      );
 
-        final result = await dataSource.getOrderDetails(kOrderId);
+      final result = await dataSource.getOrderDetails(kOrderId);
 
-        expect(
-          (result as Error<DriverOrderDetailsDto>).failure,
-          isA<InternetConnectionFailure>(),
-        );
-      },
-    );
+      expect(
+        (result as Error<DriverOrderDetailsDto>).failure,
+        isA<InternetConnectionFailure>(),
+      );
+    });
 
     test('maps a non-Dio exception to Error(UnknownFailure)', () async {
-      when(
-        () => apiClient.getOrderDetails(any()),
-      ).thenThrow(StateError('something else broke'));
+      when(() => apiClient.getOrderDetails(any())).thenThrow(
+        StateError('something else broke'),
+      );
 
       final result = await dataSource.getOrderDetails(kOrderId);
 
@@ -117,9 +116,9 @@ void main() {
   group('reportDriverLocation', () {
     test('wraps the DTO in Success', () async {
       final dto = buildReportDriverLocationResponseDto();
-      when(
-        () => apiClient.reportDriverLocation(any()),
-      ).thenAnswer((_) async => dto);
+      when(() => apiClient.reportDriverLocation(any())).thenAnswer(
+        (_) async => dto,
+      );
 
       final result = await dataSource.reportDriverLocation(
         ReportDriverLocationRequestDto(
@@ -130,16 +129,13 @@ void main() {
       );
 
       expect(result, isA<Success<ReportDriverLocationResponseDto>>());
-      expect(
-        (result as Success<ReportDriverLocationResponseDto>).data,
-        same(dto),
-      );
+      expect((result as Success<ReportDriverLocationResponseDto>).data, same(dto));
     });
 
     test('forwards the request DTO unchanged', () async {
-      when(
-        () => apiClient.reportDriverLocation(any()),
-      ).thenAnswer((_) async => buildReportDriverLocationResponseDto());
+      when(() => apiClient.reportDriverLocation(any())).thenAnswer(
+        (_) async => buildReportDriverLocationResponseDto(),
+      );
 
       final request = ReportDriverLocationRequestDto(
         lat: 30.0444,
@@ -153,9 +149,9 @@ void main() {
     });
 
     test('calls only the location endpoint', () async {
-      when(
-        () => apiClient.reportDriverLocation(any()),
-      ).thenAnswer((_) async => buildReportDriverLocationResponseDto());
+      when(() => apiClient.reportDriverLocation(any())).thenAnswer(
+        (_) async => buildReportDriverLocationResponseDto(),
+      );
 
       await dataSource.reportDriverLocation(
         ReportDriverLocationRequestDto(lat: 1, lng: 2, recordedAt: 'ts'),
@@ -165,28 +161,25 @@ void main() {
       verifyNever(() => apiClient.updateOrderStatus(any(), any()));
     });
 
-    test(
-      'maps a 500 response to Error(ServerFailure) with the status code',
-      () async {
-        when(() => apiClient.reportDriverLocation(any())).thenThrow(
-          buildException(type: DioExceptionType.badResponse, statusCode: 500),
-        );
+    test('maps a 500 response to Error(ServerFailure) with the status code', () async {
+      when(() => apiClient.reportDriverLocation(any())).thenThrow(
+        buildException(type: DioExceptionType.badResponse, statusCode: 500),
+      );
 
-        final result = await dataSource.reportDriverLocation(
-          ReportDriverLocationRequestDto(lat: 1, lng: 2, recordedAt: 'ts'),
-        );
+      final result = await dataSource.reportDriverLocation(
+        ReportDriverLocationRequestDto(lat: 1, lng: 2, recordedAt: 'ts'),
+      );
 
-        expect(
-          (result as Error<ReportDriverLocationResponseDto>).failure,
-          isA<ServerFailure>().having((f) => f.statusCode, 'statusCode', 500),
-        );
-      },
-    );
+      expect(
+        (result as Error<ReportDriverLocationResponseDto>).failure,
+        isA<ServerFailure>().having((f) => f.statusCode, 'statusCode', 500),
+      );
+    });
 
     test('maps a non-Dio exception to Error(UnknownFailure)', () async {
-      when(
-        () => apiClient.reportDriverLocation(any()),
-      ).thenThrow(StateError('boom'));
+      when(() => apiClient.reportDriverLocation(any())).thenThrow(
+        StateError('boom'),
+      );
 
       final result = await dataSource.reportDriverLocation(
         ReportDriverLocationRequestDto(lat: 1, lng: 2, recordedAt: 'ts'),
@@ -202,9 +195,9 @@ void main() {
   group('updateOrderStatus', () {
     test('wraps the DTO in Success', () async {
       final dto = buildUpdateOrderStatusResponseDto();
-      when(
-        () => apiClient.updateOrderStatus(any(), any()),
-      ).thenAnswer((_) async => dto);
+      when(() => apiClient.updateOrderStatus(any(), any())).thenAnswer(
+        (_) async => dto,
+      );
 
       final result = await dataSource.updateOrderStatus(
         UpdateOrderStatusRequestDto(newStatus: 'PickedUp'),
@@ -216,9 +209,9 @@ void main() {
     });
 
     test('sends the orderId as the first API client argument', () async {
-      when(
-        () => apiClient.updateOrderStatus(any(), any()),
-      ).thenAnswer((_) async => buildUpdateOrderStatusResponseDto());
+      when(() => apiClient.updateOrderStatus(any(), any())).thenAnswer(
+        (_) async => buildUpdateOrderStatusResponseDto(),
+      );
 
       await dataSource.updateOrderStatus(
         UpdateOrderStatusRequestDto(newStatus: 'PickedUp'),
@@ -236,58 +229,52 @@ void main() {
       );
     });
 
-    test(
-      'maps a 409 conflict to Error(ConflictFailure) with the server message',
-      () async {
-        when(() => apiClient.updateOrderStatus(any(), any())).thenThrow(
-          buildException(
-            type: DioExceptionType.badResponse,
-            statusCode: 409,
-            data: <String, dynamic>{
-              'message': 'You already have an active delivery in progress.',
-            },
-          ),
-        );
+    test('maps a 409 conflict to Error(ConflictFailure) with the server message', () async {
+      when(() => apiClient.updateOrderStatus(any(), any())).thenThrow(
+        buildException(
+          type: DioExceptionType.badResponse,
+          statusCode: 409,
+          data: <String, dynamic>{
+            'message': 'You already have an active delivery in progress.',
+          },
+        ),
+      );
 
-        final result = await dataSource.updateOrderStatus(
-          UpdateOrderStatusRequestDto(newStatus: 'PickedUp'),
-          kOrderId,
-        );
+      final result = await dataSource.updateOrderStatus(
+        UpdateOrderStatusRequestDto(newStatus: 'PickedUp'),
+        kOrderId,
+      );
 
-        expect(
-          (result as Error<UpdateOrderStatusResponseDto>).failure,
-          isA<ConflictFailure>().having(
-            (f) => f.serverMessage,
-            'serverMessage',
-            'You already have an active delivery in progress.',
-          ),
-        );
-      },
-    );
+      expect(
+        (result as Error<UpdateOrderStatusResponseDto>).failure,
+        isA<ConflictFailure>().having(
+          (f) => f.serverMessage,
+          'serverMessage',
+          'You already have an active delivery in progress.',
+        ),
+      );
+    });
 
-    test(
-      'maps an unauthorized response to Error(UnauthorizedFailure)',
-      () async {
-        when(() => apiClient.updateOrderStatus(any(), any())).thenThrow(
-          buildException(type: DioExceptionType.badResponse, statusCode: 401),
-        );
+    test('maps an unauthorized response to Error(UnauthorizedFailure)', () async {
+      when(() => apiClient.updateOrderStatus(any(), any())).thenThrow(
+        buildException(type: DioExceptionType.badResponse, statusCode: 401),
+      );
 
-        final result = await dataSource.updateOrderStatus(
-          UpdateOrderStatusRequestDto(newStatus: 'PickedUp'),
-          kOrderId,
-        );
+      final result = await dataSource.updateOrderStatus(
+        UpdateOrderStatusRequestDto(newStatus: 'PickedUp'),
+        kOrderId,
+      );
 
-        expect(
-          (result as Error<UpdateOrderStatusResponseDto>).failure,
-          isA<UnauthorizedFailure>(),
-        );
-      },
-    );
+      expect(
+        (result as Error<UpdateOrderStatusResponseDto>).failure,
+        isA<UnauthorizedFailure>(),
+      );
+    });
 
     test('maps a non-Dio exception to Error(UnknownFailure)', () async {
-      when(
-        () => apiClient.updateOrderStatus(any(), any()),
-      ).thenThrow(StateError('boom'));
+      when(() => apiClient.updateOrderStatus(any(), any())).thenThrow(
+        StateError('boom'),
+      );
 
       final result = await dataSource.updateOrderStatus(
         UpdateOrderStatusRequestDto(newStatus: 'PickedUp'),

@@ -1,3 +1,4 @@
+import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -25,11 +26,11 @@ class OrderItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
     final displayProductName = productName.trim().isEmpty
-        ? l10n.unknown
+        ? AppStrings.unknown
         : productName;
-    final displayPrice = price.trim().isEmpty ? l10n.unknown : price;
+    final displayPrice = price.trim().isEmpty ? 'Unknown' : price;
+    final displaySubTotal = subTotal.trim();
     final displayQuantity = quantity <= 0 ? 0 : quantity;
 
     return Container(
@@ -42,7 +43,7 @@ class OrderItemCard extends StatelessWidget {
       child: Row(
         children: [
           Padding(
-            padding: EdgeInsets.all(3.w),
+            padding: const EdgeInsets.all(3.0),
             child: Container(
               width: 80.w,
               height: 80.h,

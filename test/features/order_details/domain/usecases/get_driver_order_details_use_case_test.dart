@@ -107,7 +107,6 @@ void main() {
       );
     });
   });
-<<<<<<< HEAD
 
   group('pricing orchestration', () {
     DriverOrderDetailsEntity driverPayloadWithoutPrices() =>
@@ -233,6 +232,4 @@ void main() {
       expect(data.items.last, same(unknownItem));
     });
   });
-=======
->>>>>>> background-reporting
 }

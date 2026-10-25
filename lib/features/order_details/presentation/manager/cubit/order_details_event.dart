@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import 'package:driver_app/features/order_details/domain/entities/driver_status_update.dart';
 
-=======
->>>>>>> background-reporting
 sealed class OrderDetailsEvent {
   const OrderDetailsEvent();
 }
@@ -10,25 +7,14 @@ sealed class OrderDetailsEvent {
 class GetDriverOrderDetailsEvent extends OrderDetailsEvent {
   final String orderId;
 
-  const GetDriverOrderDetailsEvent({required this.orderId});
+  GetDriverOrderDetailsEvent({required this.orderId});
 }
 
 class UpdateOrderStatusEvent extends OrderDetailsEvent {
   final String orderId;
   final DriverStatusUpdate newStatus;
 
-  const UpdateOrderStatusEvent({
-    required this.orderId,
-    required this.newStatus,
-  });
-}
-
-class StartLocationReportingEvent extends OrderDetailsEvent {
-  const StartLocationReportingEvent();
-}
-
-class StopLocationReportingEvent extends OrderDetailsEvent {
-  const StopLocationReportingEvent();
+  UpdateOrderStatusEvent({required this.orderId, required this.newStatus});
 }
 
 class CallRecipientEvent extends OrderDetailsEvent {

@@ -1,9 +1,4 @@
-import 'dart:async';
-
 import 'package:driver_app/config/base/base_response.dart';
-import 'package:driver_app/config/errors/app_failure.dart';
-import 'package:driver_app/core/services/location/geolocator_wrapper.dart';
-import 'package:driver_app/features/order_details/domain/entities/driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
 import 'package:driver_app/features/order_details/domain/repo/order_details_repo.dart';
 import 'package:injectable/injectable.dart';
@@ -12,76 +7,11 @@ import '../params/report_driver_location_params.dart';
 
 @injectable
 class ReportDriverLocationUseCase {
-  ReportDriverLocationUseCase(
-    this._repository,
-    this._geolocatorWrapper,
-  );
+  ReportDriverLocationUseCase(this._repository);
 
   final OrderDetailsRepo _repository;
-  final GeolocatorWrapper _geolocatorWrapper;
 
   Future<BaseResponse<ReportDriverLocationEntity>> execute(
     ReportDriverLocationParams params,
-  ) =>
-      _repository.reportDriverLocation(params);
-
-  StreamSubscription<BaseResponse<DriverLocation>> start({
-    required void Function(
-      BaseResponse<ReportDriverLocationEntity> result,
-      DriverLocation location,
-    ) onReportResult,
-    required void Function(AppFailure failure) onLocationError,
-    double minDisplacementMeters = 50.0,
-  }) {
-    DriverLocation? lastReportedPosition;
-    bool isReporting = false;
-
-    return _repository.driverLocationStream.listen((locationResult) async {
-      switch (locationResult) {
-        case Success<DriverLocation>(data: final position):
-          if (isReporting) return;
-
-          final shouldReport = lastReportedPosition == null ||
-              _geolocatorWrapper.distanceBetween(
-                    lastReportedPosition!.latitude,
-                    lastReportedPosition!.longitude,
-                    position.latitude,
-                    position.longitude,
-                  ) >=
-                  minDisplacementMeters;
-
-          if (!shouldReport) return;
-
-          isReporting = true;
-
-          try {
-            final recordedAt =
-                DateTime.now().toUtc().toIso8601String();
-
-            final result = await _repository.reportDriverLocation(
-              ReportDriverLocationParams(
-                lat: position.latitude,
-                lng: position.longitude,
-                recordedAt: recordedAt,
-              ),
-            );
-
-            switch (result) {
-              case Success<ReportDriverLocationEntity>():
-                lastReportedPosition = position;
-
-              case Error<ReportDriverLocationEntity>():
-                break;
-            }
-
-            onReportResult(result, position);
-          } finally {
-            isReporting = false;
-          }
-
-        case Error<DriverLocation>(failure: final failure):
-          onLocationError(failure);
-      }
-    });
-  }
+  ) => _repository.reportDriverLocation(params);
 }

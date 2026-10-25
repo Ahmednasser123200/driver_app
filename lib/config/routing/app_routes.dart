@@ -8,7 +8,6 @@ import 'package:driver_app/features/home/presentation/view/home_driver_view.dart
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
 import 'package:driver_app/features/order_details/presentation/view/delivery_success_view.dart';
 import 'package:driver_app/features/order_details/presentation/view/order_details_view.dart';
-import 'package:driver_app/features/pickup_location/presentation/view/pickup_location_view.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -76,25 +75,6 @@ abstract final class AppRoutes {
           settings: settings,
           builder: (_) => const _StubScreen('Orders'),
         );
-      case Routes.pickupLocation:
-  final orderDetailsCubit = settings.arguments;
-
-  if (orderDetailsCubit is! OrderDetailsCubit) {
-    return MaterialPageRoute(
-      settings: settings,
-      builder: (_) => const _StubScreen(
-        'Order details context is missing',
-      ),
-    );
-  }
-
-  return MaterialPageRoute(
-    settings: settings,
-    builder: (_) => BlocProvider.value(
-      value: orderDetailsCubit,
-      child: const PickupLocationView(),
-    ),
-  );
       case Routes.orderDetails:
         final arguments = settings.arguments;
 
