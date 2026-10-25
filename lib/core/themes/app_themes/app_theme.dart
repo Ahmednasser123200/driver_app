@@ -6,7 +6,7 @@ import '../app_colors/app_colors.dart';
 import '../app_text_themes/app_text_themes.dart';
 
 abstract final class AppTheme {
-  static ThemeData get light => _buildTheme();
+  static ThemeData get dark => _buildTheme();
 
   static ThemeData _buildTheme() {
     final textTheme = AppTextThemes.textTheme();

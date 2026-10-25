@@ -93,10 +93,10 @@ class _BaseUiEventListenerState<
         widget.onCustomEvent?.call(context, event);
         widget.onEvent?.call(context, event);
         return;
-      default:
-        widget.onCustomEvent?.call(context, event);
-        widget.onEvent?.call(context, event);
-        return;
+      // default:
+      //   widget.onCustomEvent?.call(context, event);
+      //   widget.onEvent?.call(context, event);
+      //   return;
     }
   }
 

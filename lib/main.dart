@@ -28,7 +28,7 @@ class DriverApp extends StatelessWidget {
         return MaterialApp(
           title: AppLocalizations.of(context)?.appName ?? 'Flowery rider',
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.light,
+          theme: AppTheme.dark,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('en'),

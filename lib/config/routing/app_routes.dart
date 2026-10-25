@@ -69,27 +69,22 @@ abstract final class AppRoutes {
           builder: (_) => const _StubScreen('Orders'),
         );
       case Routes.orderDetails:
-  final arguments = settings.arguments;
-
-  if (arguments is! String || arguments.isEmpty) {
-    return MaterialPageRoute(
-      settings: settings,
-      builder: (context) => _StubScreen(
-  AppLocalizations.of(context)!.invalidOrderId,
-),
-    );
-  }
-
-  final orderId = arguments;
-
-  return MaterialPageRoute(
-    settings: settings,
-    builder: (_) => BlocProvider(
-      create: (_) => getIt<OrderDetailsCubit>(),
-      child: OrderDetailsView(orderId: orderId),
-    ),
-  
-);
+        final arguments = settings.arguments;
+        if (arguments is! String || arguments.isEmpty) {
+          return MaterialPageRoute(
+            settings: settings,
+            builder: (context) =>
+                _StubScreen(AppLocalizations.of(context)!.invalidOrderId),
+          );
+        }
+        final orderId = arguments;
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => BlocProvider(
+            create: (_) => getIt<OrderDetailsCubit>(),
+            child: OrderDetailsView(orderId: orderId),
+          ),
+        );
       case Routes.tracking:
         return MaterialPageRoute(
           settings: settings,
