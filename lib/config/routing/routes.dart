@@ -8,6 +8,7 @@ abstract final class Routes {
   static const String apply = '/apply';
   static const String successApply = '/success-apply';
   static const String home = '/';
+  static const String pickupLocation = '/pickup-location';
   static const String orders = '/orders';
   static const String orderDetails = '/order-details';
   static const String tracking = '/tracking';

@@ -12,6 +12,13 @@ import '../../features/order_details/domain/services/contact_launcher.dart';
 import '../../features/order_details/domain/usecases/get_driver_order_details_use_case.dart';
 import '../../features/order_details/domain/usecases/update_order_status_use_case.dart';
 import '../../features/order_details/presentation/manager/cubit/order_details_cubit.dart';
+import '../../features/pickup_location/api/client/pickup_location_api_client.dart';
+import '../../features/pickup_location/api/data_source_impl/remote/pickup_location_remote_data_source_impl.dart';
+import '../../features/pickup_location/data/datasources/pickup_location_remote_data_source.dart';
+import '../../features/pickup_location/data/repo/pickup_location_repo_impl.dart';
+import '../../features/pickup_location/domain/repo/pickup_location_repo.dart';
+import '../../features/pickup_location/domain/usecases/get_driving_route_use_case.dart';
+import '../../features/pickup_location/presentation/manager/cubit/pickup_location_cubit.dart';
 import 'di.config.dart';
 
 final getIt = GetIt.instance;
@@ -74,6 +81,38 @@ void configureDependencies() {
         updateOrderStatusUseCase: getIt<UpdateOrderStatusUseCase>(),
         contactLauncher: getIt<ContactLauncher>(),
       ),
+    );
+  }
+
+  if (!getIt.isRegistered<PickupLocationApiClient>()) {
+    getIt.registerLazySingleton<PickupLocationApiClient>(
+      () => PickupLocationApiClient(getIt<Dio>()),
+    );
+  }
+
+  if (!getIt.isRegistered<PickupLocationRemoteDataSource>()) {
+    getIt.registerFactory<PickupLocationRemoteDataSource>(
+      () => PickupLocationRemoteDataSourceImpl(
+        getIt<PickupLocationApiClient>(),
+      ),
+    );
+  }
+
+  if (!getIt.isRegistered<PickupLocationRepo>()) {
+    getIt.registerFactory<PickupLocationRepo>(
+      () => PickupLocationRepoImpl(getIt<PickupLocationRemoteDataSource>()),
+    );
+  }
+
+  if (!getIt.isRegistered<GetDrivingRouteUseCase>()) {
+    getIt.registerFactory<GetDrivingRouteUseCase>(
+      () => GetDrivingRouteUseCase(getIt<PickupLocationRepo>()),
+    );
+  }
+
+  if (!getIt.isRegistered<PickupLocationCubit>()) {
+    getIt.registerFactory<PickupLocationCubit>(
+      () => PickupLocationCubit(getIt<GetDrivingRouteUseCase>()),
     );
   }
 }

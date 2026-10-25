@@ -72,6 +72,18 @@ class UnknownFailure extends AppFailure {
   const UnknownFailure();
 }
 
+class LocationPermissionFailure extends AppFailure {
+  const LocationPermissionFailure();
+}
+
+class LocationServiceDisabledFailure extends AppFailure {
+  const LocationServiceDisabledFailure();
+}
+
+class LocationUnavailableFailure extends AppFailure {
+  const LocationUnavailableFailure();
+}
+
 class InvalidPhoneFailure extends AppFailure {
   const InvalidPhoneFailure();
 }

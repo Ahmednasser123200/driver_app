@@ -18,6 +18,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../helpers/fixtures.dart';
@@ -34,6 +35,31 @@ class MockContactLauncher extends Mock implements ContactLauncher {}
 class MockGetDrivingRouteUseCase extends Mock
     implements GetDrivingRouteUseCase {}
 
+class FakeGeolocatorPlatform extends GeolocatorPlatform {
+  @override
+  Future<bool> isLocationServiceEnabled() async => true;
+
+  @override
+  Future<LocationPermission> checkPermission() async =>
+      LocationPermission.whileInUse;
+
+  @override
+  Future<Position> getCurrentPosition({
+    LocationSettings? locationSettings,
+  }) async => Position(
+    longitude: -122.08,
+    latitude: 37.42,
+    timestamp: DateTime.utc(2024),
+    accuracy: 1,
+    altitude: 0,
+    altitudeAccuracy: 1,
+    heading: 0,
+    headingAccuracy: 1,
+    speed: 0,
+    speedAccuracy: 1,
+  );
+}
+
 void main() {
   late MockGetDriverOrderDetailsUseCase getOrderDetails;
   late MockUpdateOrderStatusUseCase updateOrderStatus;
@@ -41,10 +67,14 @@ void main() {
   late MockGetDrivingRouteUseCase getDrivingRoute;
   late OrderDetailsCubit orderDetailsCubit;
   late PickupLocationCubit pickupLocationCubit;
+  late GeolocatorPlatform originalGeolocatorPlatform;
 
   setUpAll(() => registerFallbackValue(kDrivingRouteParams));
 
   setUp(() {
+    originalGeolocatorPlatform = GeolocatorPlatform.instance;
+    GeolocatorPlatform.instance = FakeGeolocatorPlatform();
+
     getOrderDetails = MockGetDriverOrderDetailsUseCase();
     updateOrderStatus = MockUpdateOrderStatusUseCase();
     contactLauncher = MockContactLauncher();
@@ -80,11 +110,12 @@ void main() {
     await orderDetailsCubit.close();
     unawaited(pickupLocationCubit.close());
     await getIt.reset();
+    GeolocatorPlatform.instance = originalGeolocatorPlatform;
   });
 
   Future<void> pumpView(WidgetTester tester) async {
     tester.view.devicePixelRatio = 1.0;
-    tester.view.physicalSize = const Size(375, 812);
+    tester.view.physicalSize = const Size(450, 900);
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
@@ -152,31 +183,17 @@ void main() {
     expect(customer.position, const LatLng(30.0444, 31.2357));
   });
 
-  testWidgets(
-    'falls back to the placeholder coordinates without order details',
-    (tester) async {
-      await pumpView(tester);
+  testWidgets('uses device location without order data or a route request', (
+    tester,
+  ) async {
+    await pumpView(tester);
+    await tester.pumpAndSettle();
 
-      final params =
-          verify(() => getDrivingRoute.execute(captureAny())).captured.single
-              as DrivingRouteParams;
+    final map = tester.widget<GoogleMap>(find.byType(GoogleMap));
 
-      expect(
-        params.origin.latitude,
-        PickupLocationView.fallbackPickupLocation.latitude,
-      );
-      expect(
-        params.origin.longitude,
-        PickupLocationView.fallbackPickupLocation.longitude,
-      );
-      expect(
-        params.destination.latitude,
-        PickupLocationView.fallbackCustomerLocation.latitude,
-      );
-      expect(
-        params.destination.longitude,
-        PickupLocationView.fallbackCustomerLocation.longitude,
-      );
-    },
-  );
+    expect(map.initialCameraPosition.target, const LatLng(37.42, -122.08));
+    expect(map.markers, hasLength(1));
+    expect(map.markers.single.markerId.value, 'driver');
+    verifyNever(() => getDrivingRoute.execute(any()));
+  });
 }

@@ -493,6 +493,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get failureUnknown => 'Something went wrong. Please try again.';
 
   @override
+  String get locationPermissionRequired =>
+      'Location permission is required to show your current location.';
+
+  @override
+  String get locationServiceDisabled =>
+      'Enable location services to show your current location.';
+
+  @override
+  String get locationUnavailable =>
+      'Could not get your current location. Please try again.';
+
+  @override
   String get call => 'Call';
 
   @override

@@ -488,6 +488,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get failureUnknown => 'حدث خطأ ما. يرجى المحاولة مرة أخرى.';
 
   @override
+  String get locationPermissionRequired =>
+      'يلزم السماح بالوصول إلى الموقع لعرض موقعك الحالي.';
+
+  @override
+  String get locationServiceDisabled =>
+      'يرجى تفعيل خدمات الموقع لعرض موقعك الحالي.';
+
+  @override
+  String get locationUnavailable =>
+      'تعذر تحديد موقعك الحالي. يرجى المحاولة مرة أخرى.';
+
+  @override
   String get call => 'اتصال';
 
   @override

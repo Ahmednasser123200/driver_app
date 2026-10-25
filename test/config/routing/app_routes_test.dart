@@ -28,4 +28,20 @@ void main() {
 
     expect(find.byType(DeliverySuccessView), findsOneWidget);
   });
+
+  test('registers the pickup-location route', () {
+    final route = AppRoutes.onGenerateRoute(
+      const RouteSettings(name: Routes.pickupLocation),
+    );
+
+    expect(route, isA<MaterialPageRoute<dynamic>>());
+    expect(route.settings.name, Routes.pickupLocation);
+  });
+
+  test('starts from only the configured initial route', () {
+    final routes = AppRoutes.onGenerateInitialRoutes(Routes.pickupLocation);
+
+    expect(routes, hasLength(1));
+    expect(routes.single.settings.name, Routes.pickupLocation);
+  });
 }

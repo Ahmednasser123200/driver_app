@@ -1034,6 +1034,24 @@ abstract class AppLocalizations {
   /// **'Something went wrong. Please try again.'**
   String get failureUnknown;
 
+  /// No description provided for @locationPermissionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is required to show your current location.'**
+  String get locationPermissionRequired;
+
+  /// No description provided for @locationServiceDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable location services to show your current location.'**
+  String get locationServiceDisabled;
+
+  /// No description provided for @locationUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not get your current location. Please try again.'**
+  String get locationUnavailable;
+
   /// No description provided for @call.
   ///
   /// In en, this message translates to:

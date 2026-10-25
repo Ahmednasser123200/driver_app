@@ -7,14 +7,14 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class PickupMap extends StatefulWidget {
   const PickupMap({
     super.key,
-    required this.pickupLocation,
-    required this.userLocation,
+    this.pickupLocation,
+    this.userLocation,
     this.driverLocation,
     this.routePoints = const [],
   });
 
-  final LatLng pickupLocation;
-  final LatLng userLocation;
+  final LatLng? pickupLocation;
+  final LatLng? userLocation;
   final LatLng? driverLocation;
 
   /// The coordinates of the driving route, empty when no route is available.
@@ -76,20 +76,28 @@ class _PickupMapState extends State<PickupMap> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final initialLocation =
+        widget.driverLocation ?? widget.pickupLocation ?? widget.userLocation;
+
+    assert(initialLocation != null);
 
     final markers = <Marker>{
-      Marker(
-        markerId: const MarkerId('pickup'),
-        position: widget.pickupLocation,
-        infoWindow: InfoWindow(title: l10n.pickupAddress),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
-      ),
-      Marker(
-        markerId: const MarkerId('user'),
-        position: widget.userLocation,
-        infoWindow: InfoWindow(title: l10n.userAddress),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-      ),
+      if (widget.pickupLocation case final pickupLocation?)
+        Marker(
+          markerId: const MarkerId('pickup'),
+          position: pickupLocation,
+          infoWindow: InfoWindow(title: l10n.pickupAddress),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
+        ),
+      if (widget.userLocation case final userLocation?)
+        Marker(
+          markerId: const MarkerId('user'),
+          position: userLocation,
+          infoWindow: InfoWindow(title: l10n.userAddress),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueAzure,
+          ),
+        ),
       if (widget.driverLocation != null)
         Marker(
           markerId: const MarkerId('driver'),
@@ -112,10 +120,7 @@ class _PickupMapState extends State<PickupMap> {
     };
 
     return GoogleMap(
-      initialCameraPosition: CameraPosition(
-        target: widget.driverLocation ?? widget.pickupLocation,
-        zoom: 14,
-      ),
+      initialCameraPosition: CameraPosition(target: initialLocation!, zoom: 14),
       onMapCreated: (controller) {
         _mapController = controller;
 

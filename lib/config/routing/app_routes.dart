@@ -8,6 +8,7 @@ import 'package:driver_app/features/home/presentation/view/home_driver_view.dart
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
 import 'package:driver_app/features/order_details/presentation/view/delivery_success_view.dart';
 import 'package:driver_app/features/order_details/presentation/view/order_details_view.dart';
+import 'package:driver_app/features/pickup_location/presentation/view/pickup_location_view.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -70,6 +71,14 @@ abstract final class AppRoutes {
             ),
           ),
         );
+      case Routes.pickupLocation:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => BlocProvider<OrderDetailsCubit>(
+            create: (_) => getIt<OrderDetailsCubit>(),
+            child: const PickupLocationView(),
+          ),
+        );
       case Routes.orders:
         return MaterialPageRoute(
           settings: settings,
@@ -122,6 +131,10 @@ abstract final class AppRoutes {
         );
     }
   }
+
+  static List<Route<dynamic>> onGenerateInitialRoutes(String initialRoute) => [
+    onGenerateRoute(RouteSettings(name: initialRoute)),
+  ];
 }
 
 class _StubScreen extends StatelessWidget {
