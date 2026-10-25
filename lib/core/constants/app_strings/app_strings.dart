@@ -58,7 +58,7 @@ abstract final class AppStrings {
   static const String dontHaveAccount = "Don't have an account? Sign up";
   static const String alreadyHaveAccount = 'Already have an account? Login';
   static const String termsConditions = 'Terms & conditions';
-  
+
   static const String agreeToTerms =
       'Creating an account, you agree to our Terms&Conditions';
   static const String thisEmailIsNotValid = 'This Email is not valid';
@@ -69,7 +69,7 @@ abstract final class AppStrings {
       'You want to be a delivery man? Join our team';
   static const String vehicleInfo = 'Vehicle info';
   static const String vehicleType = 'Vehicle type';
-static const String unknown = 'Unknown';
+  static const String unknown = 'Unknown';
   static const String vehicleNumber = 'Vehicle number';
   static const String vehicleLicense = 'Vehicle license';
   static const String enterVehicleNumber = 'Enter vehicle number';

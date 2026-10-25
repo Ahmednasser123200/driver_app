@@ -26,16 +26,16 @@ void main() {
 
   group('toJson', () {
     test('emits the expected keys', () {
-      expect(
-        buildTimelineDto().toJson().keys.toSet(),
-        {'status', 'timestamp'},
-      );
+      expect(buildTimelineDto().toJson().keys.toSet(), {'status', 'timestamp'});
     });
 
     test('round-trips through fromJson', () {
       final original = buildTimelineDto();
 
-      expect(TimelineDto.fromJson(original.toJson()).toJson(), original.toJson());
+      expect(
+        TimelineDto.fromJson(original.toJson()).toJson(),
+        original.toJson(),
+      );
     });
   });
 

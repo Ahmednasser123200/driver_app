@@ -16,7 +16,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class PickupLocationView extends StatelessWidget {
   const PickupLocationView({super.key});
 
-  
   static const LatLng fallbackPickupLocation = LatLng(30.0444, 31.2357);
   static const LatLng fallbackCustomerLocation = LatLng(30.0398, 31.2302);
 

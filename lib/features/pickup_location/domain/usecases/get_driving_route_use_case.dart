@@ -11,7 +11,6 @@ class GetDrivingRouteUseCase {
 
   final PickupLocationRepo _repository;
 
- 
   Future<BaseResponse<DrivingRoute>> execute(DrivingRouteParams params) {
     if (!params.origin.isValid || !params.destination.isValid) {
       return Future<BaseResponse<DrivingRoute>>.value(

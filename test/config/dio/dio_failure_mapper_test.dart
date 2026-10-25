@@ -113,9 +113,7 @@ void main() {
         buildException(
           type: DioExceptionType.badResponse,
           statusCode: 409,
-          data: {
-            'message': 'You already have an active delivery in progress.',
-          },
+          data: {'message': 'You already have an active delivery in progress.'},
         ),
       );
 
@@ -145,10 +143,7 @@ void main() {
     test('maps 429 to TooManyRequestsFailure', () {
       expect(
         mapDioExceptionToAppFailure(
-          buildException(
-            type: DioExceptionType.badResponse,
-            statusCode: 429,
-          ),
+          buildException(type: DioExceptionType.badResponse, statusCode: 429),
         ),
         isA<TooManyRequestsFailure>(),
       );
@@ -179,13 +174,14 @@ void main() {
         buildException(
           type: DioExceptionType.badResponse,
           statusCode: 400,
-          data: {
-            'error': 'Something went wrong',
-          },
+          data: {'error': 'Something went wrong'},
         ),
       );
 
-      expect((result as BadRequestFailure).serverMessage, 'Something went wrong');
+      expect(
+        (result as BadRequestFailure).serverMessage,
+        'Something went wrong',
+      );
     });
 
     test('falls back to the detail key when message and error are absent', () {
@@ -197,10 +193,7 @@ void main() {
         ),
       );
 
-      expect(
-        (result as BadRequestFailure).serverMessage,
-        'Detailed reason',
-      );
+      expect((result as BadRequestFailure).serverMessage, 'Detailed reason');
     });
 
     test('returns null when the message candidate is not a String', () {

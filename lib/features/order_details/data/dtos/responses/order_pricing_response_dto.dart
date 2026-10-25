@@ -37,9 +37,8 @@ class OrderPricingDto {
       items: (source['items'] as List<dynamic>?)
           ?.whereType<Map>()
           .map(
-            (item) => OrderPricingItemDto.fromJson(
-              Map<String, dynamic>.from(item),
-            ),
+            (item) =>
+                OrderPricingItemDto.fromJson(Map<String, dynamic>.from(item)),
           )
           .toList(),
     );

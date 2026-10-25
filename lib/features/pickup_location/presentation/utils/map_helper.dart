@@ -11,7 +11,6 @@ extension LatLngMapLocationExtension on LatLng {
       MapLocation(latitude: latitude, longitude: longitude);
 }
 
-
 LatLng resolvePickupLocation(
   DriverOrderDetailsEntity? orderDetails, {
   required LatLng fallback,
@@ -23,7 +22,6 @@ LatLng resolvePickupLocation(
     orderDetails.pickupAddress.longitude,
   );
 }
-
 
 LatLng resolveCustomerLocation(
   DriverOrderDetailsEntity? orderDetails, {

@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 
 /// The prices the driver details payload does not carry. They come from the

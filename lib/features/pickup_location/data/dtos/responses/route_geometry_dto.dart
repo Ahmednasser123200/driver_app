@@ -18,7 +18,6 @@ class RouteGeometryDto {
 
   Map<String, dynamic> toJson() => _$RouteGeometryDtoToJson(this);
 
-  
   List<MapLocation> toDomainPoints() => (coordinates ?? const <List<double>>[])
       .where((coordinate) => coordinate.length >= 2)
       .map(

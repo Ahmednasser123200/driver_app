@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 
 class RecipientInfoEntity extends Equatable {
@@ -13,9 +12,5 @@ class RecipientInfoEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-        isGift,
-        recipientName,
-        recipientPhone,
-      ];
+  List<Object?> get props => [isGift, recipientName, recipientPhone];
 }

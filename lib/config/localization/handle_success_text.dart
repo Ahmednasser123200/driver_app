@@ -1,6 +1,6 @@
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 
-enum AppSuccessEnum { orderAccepted , orderUpdated }
+enum AppSuccessEnum { orderAccepted, orderUpdated }
 
 String handleSuccessText(AppLocalizations local, AppSuccessEnum message) {
   switch (message) {

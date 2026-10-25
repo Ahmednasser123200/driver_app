@@ -49,6 +49,20 @@ void main() {
       expect(result.data, 'payload');
     });
 
+    test('explicitly passing null errorMessage clears it', () {
+      const state = BaseState<String>(
+        isLoading: true,
+        errorMessage: ServerFailure(),
+        data: 'payload',
+      );
+
+      final result = state.copyWith(errorMessage: null);
+
+      expect(result.errorMessage, isNull);
+      expect(result.isLoading, isTrue);
+      expect(result.data, 'payload');
+    });
+
     test('replaces data with a new value', () {
       const state = BaseState<String>(data: 'old');
 

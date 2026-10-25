@@ -34,10 +34,11 @@ void main() {
 
   group('toJson', () {
     test('emits the expected keys', () {
-      expect(
-        buildRecipientInfoDto().toJson().keys.toSet(),
-        {'isGift', 'recipientName', 'recipientPhone'},
-      );
+      expect(buildRecipientInfoDto().toJson().keys.toSet(), {
+        'isGift',
+        'recipientName',
+        'recipientPhone',
+      });
     });
 
     test('round-trips through fromJson', () {
@@ -60,8 +61,9 @@ void main() {
     });
 
     test('keeps a false gift flag', () {
-      final entity = RecipientInfoDto.fromJson(json()..['isGift'] = false)
-          .toDomain();
+      final entity = RecipientInfoDto.fromJson(
+        json()..['isGift'] = false,
+      ).toDomain();
 
       expect(entity.isGift, isFalse);
     });

@@ -13,11 +13,11 @@ void main() {
     });
 
     test('returns emailInvalid for malformed addresses', () {
-      expect(AuthValidators.email('not-an-email'), ValidationError.emailInvalid);
       expect(
-        AuthValidators.email('missing@tld'),
+        AuthValidators.email('not-an-email'),
         ValidationError.emailInvalid,
       );
+      expect(AuthValidators.email('missing@tld'), ValidationError.emailInvalid);
       expect(
         AuthValidators.email('@nodomain.com'),
         ValidationError.emailInvalid,
@@ -40,7 +40,10 @@ void main() {
     });
 
     test('returns passwordMinLength when shorter than 8 characters', () {
-      expect(AuthValidators.password('abc123'), ValidationError.passwordMinLength);
+      expect(
+        AuthValidators.password('abc123'),
+        ValidationError.passwordMinLength,
+      );
     });
 
     test('accepts exactly 8 characters', () {

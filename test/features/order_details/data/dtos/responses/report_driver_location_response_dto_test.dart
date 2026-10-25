@@ -19,8 +19,9 @@ void main() {
 
     test('parses a false success flag', () {
       expect(
-        ReportDriverLocationResponseDto.fromJson(json()..['success'] = false)
-            .success,
+        ReportDriverLocationResponseDto.fromJson(
+          json()..['success'] = false,
+        ).success,
         isFalse,
       );
     });
@@ -28,10 +29,10 @@ void main() {
 
   group('toJson', () {
     test('emits the expected keys', () {
-      expect(
-        buildReportDriverLocationResponseDto().toJson().keys.toSet(),
-        {'success', 'recordedAt'},
-      );
+      expect(buildReportDriverLocationResponseDto().toJson().keys.toSet(), {
+        'success',
+        'recordedAt',
+      });
     });
 
     test('round-trips through fromJson', () {

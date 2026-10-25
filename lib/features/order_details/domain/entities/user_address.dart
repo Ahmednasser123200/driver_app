@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 
 class UserAddressEntity extends Equatable {
@@ -18,10 +17,10 @@ class UserAddressEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        recipientName,
-        phone,
-        addressLine,
-        latitude,
-        longitude,
-      ];
+    recipientName,
+    phone,
+    addressLine,
+    latitude,
+    longitude,
+  ];
 }
