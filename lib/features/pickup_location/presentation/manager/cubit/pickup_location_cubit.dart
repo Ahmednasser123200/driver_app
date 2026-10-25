@@ -20,7 +20,7 @@ class PickupLocationCubit extends BaseCubit<PickupLocationState, BaseUiEvent> {
       state.copyWith(
         drivingRoute: state.drivingRoute.copyWith(
           isLoading: true,
-          clearFailure: true,
+          errorMessage: null,
         ),
       ),
     );
@@ -34,7 +34,7 @@ class PickupLocationCubit extends BaseCubit<PickupLocationState, BaseUiEvent> {
             drivingRoute: state.drivingRoute.copyWith(
               isLoading: false,
               data: result.data,
-              clearFailure: true,
+              errorMessage: null,
             ),
           ),
         );
@@ -44,7 +44,7 @@ class PickupLocationCubit extends BaseCubit<PickupLocationState, BaseUiEvent> {
           state.copyWith(
             drivingRoute: state.drivingRoute.copyWith(
               isLoading: false,
-              failure: result.failure,
+              errorMessage: result.failure,
             ),
           ),
         );

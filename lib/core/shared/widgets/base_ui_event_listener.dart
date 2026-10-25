@@ -64,7 +64,6 @@ class _BaseUiEventListenerState<
   void _handleEvent(BuildContext context, E event) {
     final local = AppLocalizations.of(context)!;
 
-    
     switch (event) {
       case ShowSuccessMessage():
         ScaffoldMessenger.of(context).showSnackBar(
@@ -90,14 +89,10 @@ class _BaseUiEventListenerState<
         Navigator.of(
           context,
         ).pushReplacementNamed(event.routeName, arguments: event.arguments);
-        widget.onCustomEvent?.call(context, event);
-        widget.onEvent?.call(context, event);
-        return;
-      default:
-        widget.onCustomEvent?.call(context, event);
-        widget.onEvent?.call(context, event);
-        return;
     }
+
+    widget.onCustomEvent?.call(context, event);
+    widget.onEvent?.call(context, event);
   }
 
   void _unsubscribe() {

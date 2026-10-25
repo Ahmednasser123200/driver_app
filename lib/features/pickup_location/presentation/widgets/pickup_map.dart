@@ -81,20 +81,20 @@ class _PickupMapState extends State<PickupMap> {
       Marker(
         markerId: const MarkerId('pickup'),
         position: widget.pickupLocation,
-        infoWindow: InfoWindow(title: l10n.pickupLocationTitle),
+        infoWindow: InfoWindow(title: l10n.pickupAddress),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
       ),
       Marker(
         markerId: const MarkerId('user'),
         position: widget.userLocation,
-        infoWindow: InfoWindow(title: l10n.userLocationTitle),
+        infoWindow: InfoWindow(title: l10n.userAddress),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
       ),
       if (widget.driverLocation != null)
         Marker(
           markerId: const MarkerId('driver'),
           position: widget.driverLocation!,
-          infoWindow: InfoWindow(title: l10n.driverLocationTitle),
+          infoWindow: InfoWindow(title: l10n.yourLocation),
           icon: BitmapDescriptor.defaultMarkerWithHue(
             BitmapDescriptor.hueGreen,
           ),
