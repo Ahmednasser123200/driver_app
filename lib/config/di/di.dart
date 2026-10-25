@@ -1,4 +1,3 @@
-
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
@@ -36,35 +35,27 @@ void configureDependencies() {
   // Remote data source.
   if (!getIt.isRegistered<OrderDetailsRemoteDataSource>()) {
     getIt.registerFactory<OrderDetailsRemoteDataSource>(
-      () => OrderDetailsRemoteDataSourceImpl(
-        getIt<OrderDetailsApiClient>(),
-      ),
+      () => OrderDetailsRemoteDataSourceImpl(getIt<OrderDetailsApiClient>()),
     );
   }
 
   // Repository.
   if (!getIt.isRegistered<OrderDetailsRepo>()) {
     getIt.registerFactory<OrderDetailsRepo>(
-      () => OrderDetailsRepoImpl(
-        getIt<OrderDetailsRemoteDataSource>(),
-      ),
+      () => OrderDetailsRepoImpl(getIt<OrderDetailsRemoteDataSource>()),
     );
   }
 
   // Use cases.
   if (!getIt.isRegistered<GetDriverOrderDetailsUseCase>()) {
     getIt.registerFactory<GetDriverOrderDetailsUseCase>(
-      () => GetDriverOrderDetailsUseCase(
-        getIt<OrderDetailsRepo>(),
-      ),
+      () => GetDriverOrderDetailsUseCase(getIt<OrderDetailsRepo>()),
     );
   }
 
   if (!getIt.isRegistered<UpdateOrderStatusUseCase>()) {
     getIt.registerFactory<UpdateOrderStatusUseCase>(
-      () => UpdateOrderStatusUseCase(
-        getIt<OrderDetailsRepo>(),
-      ),
+      () => UpdateOrderStatusUseCase(getIt<OrderDetailsRepo>()),
     );
   }
 
@@ -79,10 +70,8 @@ void configureDependencies() {
   if (!getIt.isRegistered<OrderDetailsCubit>()) {
     getIt.registerFactory<OrderDetailsCubit>(
       () => OrderDetailsCubit(
-        getDriverOrderDetailsUseCase:
-            getIt<GetDriverOrderDetailsUseCase>(),
-        updateOrderStatusUseCase:
-            getIt<UpdateOrderStatusUseCase>(),
+        getDriverOrderDetailsUseCase: getIt<GetDriverOrderDetailsUseCase>(),
+        updateOrderStatusUseCase: getIt<UpdateOrderStatusUseCase>(),
         contactLauncher: getIt<ContactLauncher>(),
       ),
     );

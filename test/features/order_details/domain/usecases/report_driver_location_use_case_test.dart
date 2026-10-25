@@ -35,26 +35,31 @@ void main() {
   group('success path', () {
     test('returns the entity produced by the repository', () async {
       final entity = buildReportDriverLocationEntity();
-      when(() => repository.reportDriverLocation(any()))
-          .thenAnswer((_) async => Success(entity));
+      when(
+        () => repository.reportDriverLocation(any()),
+      ).thenAnswer((_) async => Success(entity));
 
       final result = await useCase.execute(params);
 
       expect(result, isA<Success<ReportDriverLocationEntity>>());
-      expect((result as Success<ReportDriverLocationEntity>).data, same(entity));
+      expect(
+        (result as Success<ReportDriverLocationEntity>).data,
+        same(entity),
+      );
     });
 
     test('forwards lat, lng and recordedAt to the repository', () async {
-      when(() => repository.reportDriverLocation(any())).thenAnswer(
-        (_) async => Success(buildReportDriverLocationEntity()),
-      );
+      when(
+        () => repository.reportDriverLocation(any()),
+      ).thenAnswer((_) async => Success(buildReportDriverLocationEntity()));
 
       await useCase.execute(params);
 
       final captured =
-          verify(() => repository.reportDriverLocation(captureAny()))
-              .captured
-              .single as ReportDriverLocationParams;
+          verify(
+                () => repository.reportDriverLocation(captureAny()),
+              ).captured.single
+              as ReportDriverLocationParams;
 
       expect(captured.lat, 30.0444);
       expect(captured.lng, 31.2357);
@@ -80,9 +85,9 @@ void main() {
     });
 
     test('propagates thrown exceptions', () async {
-      when(() => repository.reportDriverLocation(any())).thenThrow(
-        StateError('boom'),
-      );
+      when(
+        () => repository.reportDriverLocation(any()),
+      ).thenThrow(StateError('boom'));
 
       await expectLater(
         () => useCase.execute(params),

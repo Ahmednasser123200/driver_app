@@ -11,21 +11,19 @@ class BaseState<T> extends Equatable {
   static const _clearValue = Object();
 
   BaseState<T> copyWith({
-    AppFailure? errorMessage,
+    Object? errorMessage = _clearValue,
     bool? isLoading,
     Object? data = _clearValue,
   }) {
     return BaseState<T>(
       isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: identical(errorMessage, _clearValue)
+          ? this.errorMessage
+          : errorMessage as AppFailure?,
       data: identical(data, _clearValue) ? this.data : data as T?,
     );
   }
 
   @override
-  List<Object?> get props => [
-        isLoading,
-        errorMessage,
-        data,
-      ];
+  List<Object?> get props => [isLoading, errorMessage, data];
 }

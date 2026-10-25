@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 import 'package:driver_app/features/order_details/domain/entities/order_item.dart';
 import 'package:driver_app/features/order_details/domain/entities/order_pricing.dart';
@@ -83,17 +82,17 @@ class DriverOrderDetailsEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        orderId,
-        orderNumber,
-        status,
-        totalPrice,
-        currency,
-        paymentMethod,
-        notes,
-        pickupAddress,
-        userAddress,
-        recipientInfo,
-        items,
-        timeline,
-      ];
+    orderId,
+    orderNumber,
+    status,
+    totalPrice,
+    currency,
+    paymentMethod,
+    notes,
+    pickupAddress,
+    userAddress,
+    recipientInfo,
+    items,
+    timeline,
+  ];
 }

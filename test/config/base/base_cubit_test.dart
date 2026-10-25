@@ -45,30 +45,35 @@ void main() {
       cubit.emitEvent(const ShowSuccessMessage(AppSuccessEnum.orderAccepted));
       await Future<void>.delayed(Duration.zero);
 
-      expect(received, [const ShowSuccessMessage(AppSuccessEnum.orderAccepted)]);
+      expect(received, [
+        const ShowSuccessMessage(AppSuccessEnum.orderAccepted),
+      ]);
 
       await subscription.cancel();
       await cubit.close();
     });
 
-    test('is a broadcast stream so several listeners receive the event', () async {
-      final cubit = _TestCubit();
-      final first = <BaseUiEvent>[];
-      final second = <BaseUiEvent>[];
+    test(
+      'is a broadcast stream so several listeners receive the event',
+      () async {
+        final cubit = _TestCubit();
+        final first = <BaseUiEvent>[];
+        final second = <BaseUiEvent>[];
 
-      final firstSub = cubit.uiEventStream.listen(first.add);
-      final secondSub = cubit.uiEventStream.listen(second.add);
+        final firstSub = cubit.uiEventStream.listen(first.add);
+        final secondSub = cubit.uiEventStream.listen(second.add);
 
-      cubit.emitEvent(const ShowFailureMessage(ServerFailure()));
-      await Future<void>.delayed(Duration.zero);
+        cubit.emitEvent(const ShowFailureMessage(ServerFailure()));
+        await Future<void>.delayed(Duration.zero);
 
-      expect(first, hasLength(1));
-      expect(second, hasLength(1));
+        expect(first, hasLength(1));
+        expect(second, hasLength(1));
 
-      await firstSub.cancel();
-      await secondSub.cancel();
-      await cubit.close();
-    });
+        await firstSub.cancel();
+        await secondSub.cancel();
+        await cubit.close();
+      },
+    );
 
     test('carries the payload of each event type', () async {
       final cubit = _TestCubit();
@@ -95,34 +100,42 @@ void main() {
       await cubit.close();
     });
 
-    test('does not replay previously emitted events to new listeners', () async {
-      final cubit = _TestCubit();
+    test(
+      'does not replay previously emitted events to new listeners',
+      () async {
+        final cubit = _TestCubit();
 
-      cubit.emitEvent(const ShowSuccessMessage(AppSuccessEnum.orderAccepted));
-      await Future<void>.delayed(Duration.zero);
+        cubit.emitEvent(const ShowSuccessMessage(AppSuccessEnum.orderAccepted));
+        await Future<void>.delayed(Duration.zero);
 
-      final received = <BaseUiEvent>[];
-      final subscription = cubit.uiEventStream.listen(received.add);
-      await Future<void>.delayed(Duration.zero);
+        final received = <BaseUiEvent>[];
+        final subscription = cubit.uiEventStream.listen(received.add);
+        await Future<void>.delayed(Duration.zero);
 
-      expect(received, isEmpty);
+        expect(received, isEmpty);
 
-      await subscription.cancel();
-      await cubit.close();
-    });
+        await subscription.cancel();
+        await cubit.close();
+      },
+    );
   });
 
   group('BaseCubit.close', () {
-    test('closing the stream does not throw when emitting afterwards', () async {
-      final cubit = _TestCubit();
+    test(
+      'closing the stream does not throw when emitting afterwards',
+      () async {
+        final cubit = _TestCubit();
 
-      await cubit.close();
+        await cubit.close();
 
-      expect(
-        () => cubit.emitEvent(const ShowSuccessMessage(AppSuccessEnum.orderAccepted)),
-        returnsNormally,
-      );
-    });
+        expect(
+          () => cubit.emitEvent(
+            const ShowSuccessMessage(AppSuccessEnum.orderAccepted),
+          ),
+          returnsNormally,
+        );
+      },
+    );
 
     test('is idempotent enough that a second close does not throw', () async {
       final cubit = _TestCubit();

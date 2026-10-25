@@ -23,6 +23,14 @@ void main() {
     });
   });
 
+  group('driver location', () {
+    test('defaults to null while no live driver position is available', () {
+      const state = OrderDetailsState();
+
+      expect(state.driverLocation, isNull);
+    });
+  });
+
   group('copyWith', () {
     test('returns a new instance rather than mutating', () {
       const original = OrderDetailsState();

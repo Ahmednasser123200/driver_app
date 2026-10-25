@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 
 class ReportDriverLocationEntity extends Equatable {
@@ -11,8 +10,5 @@ class ReportDriverLocationEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-        success,
-        recordedAt,
-      ];
+  List<Object?> get props => [success, recordedAt];
 }
