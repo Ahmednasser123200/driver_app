@@ -37,7 +37,7 @@ class UserAddressCard extends StatelessWidget {
       child: Row(
         children: [
           Padding(
-            padding: const EdgeInsets.all(3.0),
+            padding: EdgeInsets.all(3.w),
             child: Container(
               width: 80.w,
               height: 80.h,
@@ -65,11 +65,15 @@ class UserAddressCard extends StatelessWidget {
               children: [
                 Text(
                   displayName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 14.sp, color: AppColors.grey[800]),
                 ),
                 SizedBox(height: 4.h),
                 Text(
                   displayAddress,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.bold,

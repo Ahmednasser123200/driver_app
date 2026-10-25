@@ -3,6 +3,7 @@ import 'package:driver_app/config/localization/app_failure_message_mapper.dart';
 import 'package:driver_app/config/localization/handle_success_text.dart';
 import 'package:driver_app/core/shared/widgets/base_ui_event_listener.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
+import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_event.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_state.dart';
@@ -71,6 +72,38 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
       ),
     );
   }
+<<<<<<< HEAD
+=======
+
+  void _handleUiEvent(BuildContext context, OrderDetailsUiEvent event) {
+    final l10n = AppLocalizations.of(context)!;
+
+    switch (event) {
+      case ShowOrderStatusUpdated():
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.orderStatusUpdatedSuccessfully),
+            backgroundColor: AppColors.success,
+          ),
+        );
+
+      case ShowOrderDetailsFailure():
+        final message = mapAppFailureToMessage(event.failure, l10n);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: AppColors.error),
+        );
+
+      case ShowLocationPermissionDenied():
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.locationPermissionToTrackDelivery),
+            backgroundColor: AppColors.amber,
+          ),
+        );
+    }
+  }
+>>>>>>> background-reporting
 }
 
 class OrderStatusAction extends StatelessWidget {
@@ -93,7 +126,9 @@ class OrderStatusAction extends StatelessWidget {
 
         return Container(
           decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: Colors.grey[300]!, width: 3)),
+            border: Border(
+              top: BorderSide(color: AppColors.grey[300]!, width: 3),
+            ),
           ),
           padding: EdgeInsets.all(16.w),
           child: CustomButton(

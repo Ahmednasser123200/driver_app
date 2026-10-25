@@ -195,12 +195,19 @@ void main() {
         'orderId',
         'orderNumber',
         'status',
+<<<<<<< HEAD
         'isGift',
+=======
+>>>>>>> background-reporting
         'totalPrice',
         'currency',
         'paymentMethod',
         'notes',
+<<<<<<< HEAD
         'pickup',
+=======
+        'pickupAddress',
+>>>>>>> background-reporting
         'userAddress',
         'recipientInfo',
         'items',

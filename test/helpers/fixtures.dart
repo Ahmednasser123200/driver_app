@@ -1,5 +1,9 @@
 import 'package:driver_app/features/order_details/data/dtos/responses/driver_order_details_response_dto.dart';
+<<<<<<< HEAD
 import 'package:driver_app/features/order_details/data/dtos/responses/location_dto.dart';
+=======
+import 'package:geolocator/geolocator.dart';
+>>>>>>> background-reporting
 import 'package:driver_app/features/order_details/data/dtos/responses/order_item_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/pickup_address_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/recipient_info_dto.dart';
@@ -324,3 +328,40 @@ ReportDriverLocationEntity buildReportDriverLocationEntity() =>
       success: true,
       recordedAt: '2026-09-19T18:00:00Z',
     );
+<<<<<<< HEAD
+=======
+
+Map<String, dynamic> driverOrderDetailsJson() {
+  final dto = buildDriverOrderDetailsDto();
+  final json = dto.toJson()
+    ..['pickupAddress'] = dto.pickupAddress.toJson()
+    ..['userAddress'] = dto.userAddress.toJson()
+    ..['recipientInfo'] = dto.recipientInfo.toJson()
+    ..['items'] = dto.items.map((item) => item.toJson()).toList()
+    ..['timeline'] = dto.timeline.map((entry) => entry.toJson()).toList();
+
+  return json;
+}
+
+Position buildPositionFixture({
+  double latitude = 30.0444,
+  double longitude = 31.2357,
+  DateTime? timestamp,
+  double accuracy = 5.0,
+  double altitude = 0.0,
+  double heading = 0.0,
+  double speed = 0.0,
+  double speedAccuracy = 0.0,
+}) => Position(
+  latitude: latitude,
+  longitude: longitude,
+  timestamp: timestamp ?? DateTime(2026, 9, 19, 18, 0, 0),
+  accuracy: accuracy,
+  altitude: altitude,
+  altitudeAccuracy: 0.0,
+  heading: heading,
+  headingAccuracy: 0.0,
+  speed: speed,
+  speedAccuracy: speedAccuracy,
+);
+>>>>>>> background-reporting

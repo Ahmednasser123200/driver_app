@@ -3,12 +3,14 @@ import 'package:driver_app/config/localization/app_failure_message_mapper.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
 import 'package:driver_app/core/shared/widgets/order_item_card.dart';
 import 'package:driver_app/core/shared/widgets/user_address_card.dart';
+import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
 import 'package:driver_app/features/order_details/presentation/extensions/currency_extension.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_event.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_state.dart';
+import 'package:driver_app/features/order_details/presentation/utils/location_reporting_status.dart';
 import 'package:driver_app/features/order_details/presentation/utils/order_status_helper.dart';
 import 'package:driver_app/features/order_details/presentation/widgets/order_status_header.dart';
 import 'package:driver_app/features/order_details/presentation/widgets/order_total.dart';
@@ -40,10 +42,14 @@ class OrderDetailsBody extends StatelessWidget {
         }
 
         if (data == null) {
+<<<<<<< HEAD
           return OrderDetailsError(
             orderId: orderId,
             failure: state.errorMessage,
           );
+=======
+          return OrderDetailsError(orderId: orderId, failure: state.failure);
+>>>>>>> background-reporting
         }
 
         return OrderDetailsContent(orderId: orderId, data: data);
@@ -114,7 +120,7 @@ class OrderDetailsContent extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(10),
+      padding: EdgeInsets.all(10.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -132,7 +138,13 @@ class OrderDetailsContent extends StatelessWidget {
           SizedBox(height: 13.h),
           PaymentMethodCard(
             title: l10n.paymentMethod,
+<<<<<<< HEAD
             method: data.paymentMethod,
+=======
+            method: data.paymentMethod.isNotEmpty
+                ? data.paymentMethod
+                : l10n.cashOnDelivery,
+>>>>>>> background-reporting
           ),
           SizedBox(height: 13.h),
         ],
@@ -162,8 +174,8 @@ class OrderStatusSection extends StatelessWidget {
         StepProgressIndicator(
           totalSteps: 5,
           currentStep: status.step,
-          selectedColor: Colors.green,
-          unselectedColor: Colors.grey,
+          selectedColor: AppColors.success,
+          unselectedColor: AppColors.grey,
           size: 4,
           roundedEdges: const Radius.circular(2),
         ),
@@ -172,6 +184,76 @@ class OrderStatusSection extends StatelessWidget {
           status: status.getLocalizedStatus(l10n),
           orderId: orderId,
           date: timeline.isNotEmpty ? timeline.last.timestamp : l10n.orderDate,
+<<<<<<< HEAD
+=======
+        ),
+
+        BlocSelector<
+          OrderDetailsCubit,
+          OrderDetailsState,
+          LocationReportingStatus
+        >(
+          selector: (state) => state.locationReportingStatus,
+          builder: (context, status) {
+            final (statusColor, statusText) = switch (status) {
+              LocationReportingStatus.active => (
+                AppColors.success,
+                l10n.liveGpsTrackingActive,
+              ),
+              LocationReportingStatus.inactive => (null, null),
+              LocationReportingStatus.permissionDenied => (
+                AppColors.amber,
+                l10n.locationPermissionRequired,
+              ),
+              LocationReportingStatus.gpsDisabled => (
+                AppColors.amber,
+                l10n.enableGps,
+              ),
+              LocationReportingStatus.error => (
+                AppColors.error,
+                l10n.locationTrackingUnavailable,
+              ),
+            };
+
+            if (statusColor == null || statusText == null) {
+              return const SizedBox.shrink();
+            }
+
+            return Padding(
+              padding: EdgeInsets.only(top: 8.h),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 8.w,
+                      height: 8.w,
+                      decoration: BoxDecoration(
+                        color: statusColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    SizedBox(width: 6.w),
+                    Text(
+                      statusText,
+                      style: TextStyle(
+                        color: statusColor,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+>>>>>>> background-reporting
         ),
       ],
     );
@@ -212,6 +294,7 @@ class OrderAddressesSection extends StatelessWidget {
         SizedBox(height: 10.h),
         UserAddressCard(
           address: data.userAddress.addressLine,
+<<<<<<< HEAD
           userName: data.userAddress.recipientName,
           onCallPressed: () => context.read<OrderDetailsCubit>().doEvent(
             const CallRecipientEvent(),
@@ -219,6 +302,13 @@ class OrderAddressesSection extends StatelessWidget {
           onWhatsAppPressed: () => context.read<OrderDetailsCubit>().doEvent(
             const WhatsAppRecipientEvent(),
           ),
+=======
+          userName: data.userAddress.recipientName.isNotEmpty
+              ? data.userAddress.recipientName
+              : (data.recipientInfo.recipientName.isNotEmpty
+                    ? data.recipientInfo.recipientName
+                    : l10n.customerName),
+>>>>>>> background-reporting
         ),
       ],
     );
@@ -266,7 +356,11 @@ class OrderItemsSection extends StatelessWidget {
         ),
         if (data.items.isEmpty)
           Padding(
+<<<<<<< HEAD
             padding: const EdgeInsets.only(bottom: 8),
+=======
+            padding: EdgeInsets.only(bottom: 8.h),
+>>>>>>> background-reporting
             child: OrderItemCard(
               productName: l10n.unknown,
               price: l10n.unknown,

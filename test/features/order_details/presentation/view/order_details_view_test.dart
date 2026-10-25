@@ -1,9 +1,18 @@
+<<<<<<< HEAD
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/config/routing/routes.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
 import 'package:driver_app/core/shared/widgets/user_address_card.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/driver_order_details_response_dto.dart';
+=======
+import 'dart:async';
+
+import 'package:driver_app/config/base/base_response.dart';
+import 'package:driver_app/config/base/base_ui_event.dart';
+import 'package:driver_app/config/errors/app_failure.dart';
+import 'package:driver_app/features/order_details/domain/entities/driver_location.dart';
+>>>>>>> background-reporting
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_status_update.dart';
 import 'package:driver_app/features/order_details/domain/entities/order_item.dart';
@@ -12,6 +21,7 @@ import 'package:driver_app/features/order_details/domain/entities/order_status.d
 import 'package:driver_app/features/order_details/domain/params/update_order_status_params.dart';
 import 'package:driver_app/features/order_details/domain/services/contact_launcher.dart';
 import 'package:driver_app/features/order_details/domain/usecases/get_driver_order_details_use_case.dart';
+import 'package:driver_app/features/order_details/domain/usecases/report_driver_location_use_case.dart';
 import 'package:driver_app/features/order_details/domain/usecases/update_order_status_use_case.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
 import 'package:driver_app/features/order_details/presentation/view/order_details_view.dart';
@@ -32,12 +42,24 @@ class MockGetDriverOrderDetailsUseCase extends Mock
 class MockUpdateOrderStatusUseCase extends Mock
     implements UpdateOrderStatusUseCase {}
 
+<<<<<<< HEAD
 class MockContactLauncher extends Mock implements ContactLauncher {}
+=======
+class MockReportDriverLocationUseCase extends Mock
+    implements ReportDriverLocationUseCase {}
+
+class MockStreamSubscription extends Mock
+    implements StreamSubscription<BaseResponse<DriverLocation>> {}
+>>>>>>> background-reporting
 
 void main() {
   late MockGetDriverOrderDetailsUseCase getOrderDetails;
   late MockUpdateOrderStatusUseCase updateOrderStatus;
+<<<<<<< HEAD
   late MockContactLauncher contactLauncher;
+=======
+  late MockReportDriverLocationUseCase reportDriverLocation;
+>>>>>>> background-reporting
   late OrderDetailsCubit cubit;
 
   setUpAll(() {
@@ -52,11 +74,32 @@ void main() {
   setUp(() {
     getOrderDetails = MockGetDriverOrderDetailsUseCase();
     updateOrderStatus = MockUpdateOrderStatusUseCase();
+<<<<<<< HEAD
     contactLauncher = MockContactLauncher();
     cubit = OrderDetailsCubit(
       getDriverOrderDetailsUseCase: getOrderDetails,
       updateOrderStatusUseCase: updateOrderStatus,
       contactLauncher: contactLauncher,
+=======
+    reportDriverLocation = MockReportDriverLocationUseCase();
+
+    when(
+      () => reportDriverLocation.start(
+        onReportResult: any(named: 'onReportResult'),
+        onLocationError: any(named: 'onLocationError'),
+        minDisplacementMeters: any(named: 'minDisplacementMeters'),
+      ),
+    ).thenAnswer((_) {
+      final sub = MockStreamSubscription();
+      when(() => sub.cancel()).thenAnswer((_) async {});
+      return sub;
+    });
+
+    cubit = OrderDetailsCubit(
+      getDriverOrderDetailsUseCase: getOrderDetails,
+      updateOrderStatusUseCase: updateOrderStatus,
+      reportDriverLocationUseCase: reportDriverLocation,
+>>>>>>> background-reporting
     );
   });
 
@@ -64,8 +107,11 @@ void main() {
     if (!cubit.isClosed) return cubit.close();
   });
 
+<<<<<<< HEAD
   const deliverySuccessStub = 'Delivery succeeded';
 
+=======
+>>>>>>> background-reporting
   Future<void> pumpView(
     WidgetTester tester, {
     String orderId = kOrderId,
@@ -103,10 +149,17 @@ void main() {
     );
   }
 
+<<<<<<< HEAD
   void mockSuccess([DriverOrderDetailsEntity? entity]) {
     when(() => getOrderDetails.execute(any())).thenAnswer(
       (_) async => Success(entity ?? buildDriverOrderDetailsEntity()),
     );
+=======
+  void mockSuccess() {
+    when(
+      () => getOrderDetails.execute(any()),
+    ).thenAnswer((_) async => Success(buildDriverOrderDetailsEntity()));
+>>>>>>> background-reporting
   }
 
   void mockFailure() {
@@ -183,6 +236,7 @@ void main() {
     expect(find.text('Picked'), findsOneWidget);
   });
 
+<<<<<<< HEAD
   testWidgets(
     'renders the payload the live driver endpoint returns instead of an error',
     (tester) async {
@@ -211,6 +265,19 @@ void main() {
       expect(find.byIcon(Icons.error_outline), findsNothing);
     },
   );
+=======
+  testWidgets('renders live GPS tracking badge when tracking is active', (
+    tester,
+  ) async {
+    mockSuccess();
+
+    await pumpView(tester);
+    await tester.pumpAndSettle();
+
+    // Since pickedUp starts tracking, verify live tracking badge is shown
+    expect(find.text('Live GPS Tracking Active'), findsOneWidget);
+  });
+>>>>>>> background-reporting
 
   testWidgets('shows a failure message when the load fails', (tester) async {
     mockFailure();
@@ -222,6 +289,7 @@ void main() {
     expect(find.text('The requested resource was not found.'), findsWidgets);
   });
 
+<<<<<<< HEAD
   testWidgets('retries the request from the error state', (tester) async {
     mockFailure();
 
@@ -239,10 +307,17 @@ void main() {
     tester,
   ) async {
     mockSuccess(buildDriverOrderDetailsEntity(status: OrderStatus.pickedUp));
+=======
+  testWidgets('shows warning SnackBar on ShowLocationPermissionDenied event', (
+    tester,
+  ) async {
+    mockSuccess();
+>>>>>>> background-reporting
 
     await pumpView(tester);
     await tester.pumpAndSettle();
 
+<<<<<<< HEAD
     expect(find.byType(CustomButton), findsOneWidget);
     expect(find.text('Out for delivery'), findsOneWidget);
   });
@@ -363,6 +438,15 @@ void main() {
           unitPriceByProductId: {'3fa85f64-5717-4562-b3fc-2c963f66afa6': 117.5},
         ),
       ),
+=======
+    cubit.emitEvent(const ShowLocationPermissionDenied());
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SnackBar), findsOneWidget);
+    expect(
+      find.text('Location permission is required for live delivery tracking.'),
+      findsOneWidget,
+>>>>>>> background-reporting
     );
 
     await pumpView(tester);
