@@ -1,8 +1,41 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import 'api_envelope.dart';
+part 'api_envelopes.g.dart';
 
-part 'catalog_api_response_dto.g.dart';
+abstract interface class ApiEnvelope<T> {
+  bool get isOk;
+  String get message;
+  T? get data;
+}
+
+@JsonSerializable(genericArgumentFactories: true)
+class OrderApiResponseDto<T> implements ApiEnvelope<T> {
+  final bool success;
+  @override
+  final String message;
+  @override
+  final T? data;
+  final Object? error;
+
+  const OrderApiResponseDto({
+    required this.success,
+    required this.message,
+    this.data,
+    this.error,
+  });
+
+  @override
+  bool get isOk => success;
+
+  factory OrderApiResponseDto.fromJson(
+      Map<String, dynamic> json,
+      T Function(Object? json) fromJsonT,
+      ) =>
+      _$OrderApiResponseDtoFromJson(json, fromJsonT);
+
+  Map<String, dynamic> toJson(Object? Function(T value) toJsonT) =>
+      _$OrderApiResponseDtoToJson(this, toJsonT);
+}
 
 @JsonSerializable(genericArgumentFactories: true)
 class CatalogApiResponseDto<T> implements ApiEnvelope<T> {

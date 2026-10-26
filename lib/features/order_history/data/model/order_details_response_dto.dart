@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import '../../domain/entities/order_history_entities.dart';
-import 'order_status_api.dart';
+import 'order_history_list_response_dto.dart' show orderStatusFromApi;
 
 part 'order_details_response_dto.g.dart';
 

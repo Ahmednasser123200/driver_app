@@ -1,5 +1,4 @@
-import 'package:driver_app/features/order_history/data/model/catalog_api_response_dto.dart';
-import 'package:driver_app/features/order_history/data/model/order_api_response_dto.dart';
+import 'package:driver_app/features/order_history/data/model/api_envelopes.dart';
 import 'package:driver_app/features/order_history/data/model/order_details_response_dto.dart';
 import 'package:driver_app/features/order_history/data/model/order_history_list_response_dto.dart';
 import 'package:driver_app/features/order_history/data/model/order_history_request_dto.dart';

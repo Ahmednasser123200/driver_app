@@ -1,7 +1,6 @@
 import 'dart:convert';
 
-import 'package:driver_app/features/order_history/data/model/catalog_api_response_dto.dart';
-import 'package:driver_app/features/order_history/data/model/order_api_response_dto.dart';
+import 'package:driver_app/features/order_history/data/model/api_envelopes.dart';
 import 'package:driver_app/features/order_history/data/model/order_details_response_dto.dart';
 import 'package:driver_app/features/order_history/data/model/order_history_list_response_dto.dart';
 import 'package:driver_app/features/order_history/data/model/order_history_request_dto.dart';
@@ -163,6 +162,28 @@ void main() {
       expect(entity.name, 'Rose');
       expect(entity.price, 50.0);
       expect(entity.currency, 'EGP');
+    });
+  });
+
+  group('orderStatusFromApi', () {
+    test('returns OrderStatus.completed when status is delivered (case insensitive)', () {
+      expect(orderStatusFromApi('delivered'), OrderStatus.completed);
+      expect(orderStatusFromApi('DELIVERED'), OrderStatus.completed);
+      expect(orderStatusFromApi('Delivered'), OrderStatus.completed);
+    });
+
+    test('returns OrderStatus.cancelled when status is cancelled (case insensitive)', () {
+      expect(orderStatusFromApi('cancelled'), OrderStatus.cancelled);
+      expect(orderStatusFromApi('CANCELLED'), OrderStatus.cancelled);
+      expect(orderStatusFromApi('Cancelled'), OrderStatus.cancelled);
+    });
+
+    test('returns null for active or unknown statuses', () {
+      expect(orderStatusFromApi('pending'), isNull);
+      expect(orderStatusFromApi('accepted'), isNull);
+      expect(orderStatusFromApi('out_for_delivery'), isNull);
+      expect(orderStatusFromApi('unknown'), isNull);
+      expect(orderStatusFromApi(''), isNull);
     });
   });
 }

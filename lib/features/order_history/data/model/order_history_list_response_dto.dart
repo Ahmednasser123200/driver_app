@@ -1,9 +1,19 @@
 import 'package:json_annotation/json_annotation.dart';
 import '../../domain/entities/order_history_entities.dart';
 import '../../domain/entities/pagination_entities.dart';
-import 'order_status_api.dart';
 
 part 'order_history_list_response_dto.g.dart';
+
+OrderStatus? orderStatusFromApi(String status) {
+  switch (status.toLowerCase()) {
+    case 'delivered':
+      return OrderStatus.completed;
+    case 'cancelled':
+      return OrderStatus.cancelled;
+    default:
+      return null;
+  }
+}
 
 @JsonSerializable()
 class OrderHistoryResponseDto {

@@ -5,7 +5,7 @@ import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../data/data_source/order_history_remote_data_source.dart';
-import '../../data/model/api_envelope.dart';
+import '../../data/model/api_envelopes.dart';
 import '../../data/model/order_details_response_dto.dart';
 import '../../data/model/order_history_list_response_dto.dart';
 import '../../data/model/order_history_request_dto.dart';
