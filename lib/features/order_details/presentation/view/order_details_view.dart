@@ -54,13 +54,14 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
 
   void _handleUiEvent(BuildContext context, OrderDetailsUiEvent event) {
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     switch (event) {
       case ShowOrderStatusUpdated():
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.orderStatusUpdatedSuccessfully),
-            backgroundColor: Colors.green,
+            backgroundColor: colorScheme.primary,
           ),
         );
 
@@ -68,16 +69,17 @@ class _OrderDetailsViewState extends State<OrderDetailsView> {
         final message = mapAppFailureToMessage(event.failure, l10n);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(message),
+            backgroundColor: colorScheme.error,
+          ),
         );
 
       case ShowLocationPermissionDenied():
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Location permission is required for live delivery tracking.',
-            ),
-            backgroundColor: Colors.orange,
+          SnackBar(
+            content: Text(l10n.locationPermissionRequired),
+            backgroundColor: colorScheme.error,
           ),
         );
     }
@@ -92,6 +94,7 @@ class OrderStatusAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return BlocBuilder<OrderDetailsCubit, OrderDetailsState>(
       builder: (context, state) {
@@ -100,7 +103,9 @@ class OrderStatusAction extends StatelessWidget {
 
         return Container(
           decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: Colors.grey[300]!, width: 3)),
+            border: Border(
+              top: BorderSide(color: colorScheme.outlineVariant, width: 1),
+            ),
           ),
           padding: EdgeInsets.all(16.w),
           child: CustomButton(

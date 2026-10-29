@@ -23,6 +23,8 @@ String mapAppFailureToMessage(AppFailure failure, AppLocalizations l10n) {
           : l10n.failureUnprocessableEntity,
     TooManyRequestsFailure() => l10n.failureTooManyRequests,
     ServerFailure() => l10n.failureServerError,
+    LocationPermissionFailure() => l10n.failureLocationPermission,
+    LocationServiceDisabledFailure() => l10n.failureLocationServiceDisabled,
     UnknownFailure() => l10n.failureUnknown,
   };
 }

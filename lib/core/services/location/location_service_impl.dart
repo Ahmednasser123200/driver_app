@@ -53,10 +53,6 @@ class LocationServiceImpl implements LocationService {
       return false;
     }
 
-    if (_locationController.hasListener && _geolocatorSubscription == null) {
-      await _startListening();
-    }
-
     return true;
   }
 
@@ -90,14 +86,28 @@ class LocationServiceImpl implements LocationService {
     if (_geolocatorSubscription != null) return;
 
     final serviceEnabled = await isLocationServiceEnabled();
-    if (!serviceEnabled) return;
+    if (!_locationController.hasListener || _locationController.isClosed) return;
+
+    if (!serviceEnabled) {
+      _locationController.addError(const LocationServiceDisabledException());
+      return;
+    }
 
     final permission = await checkPermission();
+    if (!_locationController.hasListener || _locationController.isClosed) return;
+
     final isAllowed =
         permission == LocationPermission.always ||
         permission == LocationPermission.whileInUse;
 
-    if (!isAllowed) return;
+    if (!isAllowed) {
+      _locationController.addError(
+        const PermissionDeniedException('Location permission not granted'),
+      );
+      return;
+    }
+
+    if (!_locationController.hasListener || _locationController.isClosed) return;
 
     _geolocatorSubscription = _geolocatorWrapper
         .getPositionStream(
@@ -115,6 +125,7 @@ class LocationServiceImpl implements LocationService {
   }
 
   @override
+  @disposeMethod
   Future<void> dispose() async {
     _stopListening();
     if (!_locationController.isClosed) {

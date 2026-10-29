@@ -1,3 +1,4 @@
+import 'package:driver_app/features/order_details/domain/entities/user_location_entity.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/driver_order_details_response_dto.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:driver_app/features/order_details/data/dtos/responses/order_item_dto.dart';
@@ -250,4 +251,23 @@ Position buildPositionFixture({
   headingAccuracy: 0.0,
   speed: speed,
   speedAccuracy: speedAccuracy,
+);
+
+
+UserLocationEntity buildUserLocationEntity({
+  double latitude = 30.0444,
+  double longitude = 31.2357,
+  DateTime? timestamp,
+  double accuracy = 5.0,
+  double altitude = 0.0,
+  double heading = 0.0,
+  double speed = 0.0,
+}) => UserLocationEntity(
+  latitude: latitude,
+  longitude: longitude,
+  timestamp: timestamp ?? DateTime(2026, 9, 19, 18, 0, 0),
+  accuracy: accuracy,
+  altitude: altitude,
+  heading: heading,
+  speed: speed,
 );

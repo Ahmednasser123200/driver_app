@@ -162,6 +162,29 @@ void main() {
         verifyNever(() => wrapper.requestPermission());
       },
     );
+
+    test(
+      'does NOT trigger _startListening / getPositionStream (SRP compliance)',
+      () async {
+        when(
+          () => wrapper.isLocationServiceEnabled(),
+        ).thenAnswer((_) async => true);
+        when(
+          () => wrapper.checkPermission(),
+        ).thenAnswer((_) async => LocationPermission.always);
+
+        // Even with a listener attached to locationStream, calling checkAndRequestPermission
+        // must not manually invoke _startListening
+        final result = await service.checkAndRequestPermission();
+
+        expect(result, isTrue);
+        verifyNever(
+          () => wrapper.getPositionStream(
+            locationSettings: any(named: 'locationSettings'),
+          ),
+        );
+      },
+    );
   });
 
   group('getCurrentPosition', () {
@@ -248,6 +271,87 @@ void main() {
       await pumpEventQueue();
 
       expect(errors, contains('Location error'));
+      await subscription.cancel();
+    });
+
+    test(
+      'emits LocationServiceDisabledException when location service is disabled',
+      () async {
+        when(
+          () => wrapper.isLocationServiceEnabled(),
+        ).thenAnswer((_) async => false);
+
+        final errors = <dynamic>[];
+        final subscription = service.locationStream.listen(
+          (_) {},
+          onError: errors.add,
+        );
+
+        await pumpEventQueue();
+
+        expect(errors, hasLength(1));
+        expect(errors.first, isA<LocationServiceDisabledException>());
+
+        await subscription.cancel();
+      },
+    );
+
+    test(
+      'emits PermissionDeniedException when permission is not granted',
+      () async {
+        when(
+          () => wrapper.isLocationServiceEnabled(),
+        ).thenAnswer((_) async => true);
+        when(
+          () => wrapper.checkPermission(),
+        ).thenAnswer((_) async => LocationPermission.denied);
+
+        final errors = <dynamic>[];
+        final subscription = service.locationStream.listen(
+          (_) {},
+          onError: errors.add,
+        );
+
+        await pumpEventQueue();
+
+        expect(errors, hasLength(1));
+        expect(errors.first, isA<PermissionDeniedException>());
+
+        await subscription.cancel();
+      },
+    );
+
+    test(
+      'race condition guard: does not attach getPositionStream if listener cancels during async check',
+      () async {
+        final completer = Completer<bool>();
+        when(
+          () => wrapper.isLocationServiceEnabled(),
+        ).thenAnswer((_) => completer.future);
+
+        final subscription = service.locationStream.listen((_) {});
+
+        // Cancel while async check is pending
+        await subscription.cancel();
+        completer.complete(true);
+        await pumpEventQueue();
+
+        // getPositionStream should NOT be called because listener was removed
+        verifyNever(
+          () => wrapper.getPositionStream(
+            locationSettings: any(named: 'locationSettings'),
+          ),
+        );
+      },
+    );
+  });
+
+  group('dispose', () {
+    test('cleans up stream controller and cancels active subscription', () async {
+      final subscription = service.locationStream.listen((_) {});
+      await pumpEventQueue();
+
+      await service.dispose();
       await subscription.cancel();
     });
   });

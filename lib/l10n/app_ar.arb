@@ -174,5 +174,9 @@
   "unknown": "غير معروف",
   "invalidOrderId": "رقم الطلب غير صالح",
   "orderStatusUpdatedSuccessfully": "تم تحديث حالة الطلب بنجاح",
-  "retry": "إعادة المحاولة"
+  "retry": "إعادة المحاولة",
+  "liveGpsTrackingActive": "تتبع نظام تحديد المواقع مباشر نشط",
+  "locationPermissionRequired": "إذن تحديد الموقع مطلوب لتتبع التوصيل المباشر.",
+  "failureLocationPermission": "إذن تحديد الموقع مطلوب لتتبع التوصيل المباشر.",
+  "failureLocationServiceDisabled": "خدمات الموقع غير مفعلة على جهازك. يرجى تفعيل نظام GPS."
 }

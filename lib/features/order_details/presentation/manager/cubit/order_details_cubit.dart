@@ -5,16 +5,16 @@ import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
-import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
+import 'package:driver_app/features/order_details/domain/entities/user_location_entity.dart';
 import 'package:driver_app/features/order_details/domain/params/update_order_status_params.dart';
 import 'package:driver_app/features/order_details/domain/usecases/get_driver_order_details_use_case.dart';
 import 'package:driver_app/features/order_details/domain/usecases/report_driver_location_use_case.dart';
 import 'package:driver_app/features/order_details/domain/usecases/update_order_status_use_case.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_event.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_state.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:driver_app/features/order_details/presentation/utils/order_status_helper.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
@@ -30,7 +30,7 @@ class OrderDetailsCubit
   final UpdateOrderStatusUseCase updateOrderStatusUseCase;
   final ReportDriverLocationUseCase reportDriverLocationUseCase;
 
-  StreamSubscription<Position>? _locationSubscription;
+  StreamSubscription<BaseResponse<UserLocationEntity>>? _locationSubscription;
 
   Future<void> doEvent(OrderDetailsEvent event) async {
     switch (event) {
@@ -72,7 +72,7 @@ class OrderDetailsCubit
           ),
         );
 
-        if (_shouldTrackLocation(result.data.status)) {
+        if (result.data.status.shouldTrackLocation) {
           await _startLocationReporting();
         }
 
@@ -118,13 +118,9 @@ class OrderDetailsCubit
 
         emitEvent(const ShowOrderStatusUpdated());
 
-        final normalized = newStatus
-            .replaceAll(RegExp(r'[\s_-]+'), '')
-            .toLowerCase();
-
-        if (_isTerminalStatus(normalized)) {
+        if (newStatus.isTerminalStatus) {
           await _stopLocationReporting();
-        } else if (_isInTransitStatus(normalized)) {
+        } else if (newStatus.isInTransitStatus) {
           await _startLocationReporting();
         }
 
@@ -179,8 +175,7 @@ class OrderDetailsCubit
                 ),
               ),
             );
-
-            _reportFailure(result.failure);
+            // Silent background tracking: do not emit error snackbar
         }
       },
     );
@@ -198,37 +193,6 @@ class OrderDetailsCubit
         ),
       ),
     );
-  }
-
-  bool _shouldTrackLocation(OrderStatus? status) {
-    if (status == null) return false;
-    switch (status) {
-      case OrderStatus.pickedUp:
-      case OrderStatus.picked:
-      case OrderStatus.onTheWay:
-      case OrderStatus.outForDelivery:
-      case OrderStatus.inProgress:
-        return true;
-      case OrderStatus.pending:
-      case OrderStatus.accepted:
-      case OrderStatus.assigned:
-      case OrderStatus.arrived:
-        return false;
-    }
-  }
-
-  bool _isTerminalStatus(String normalizedStatus) {
-    return normalizedStatus == 'arrived' ||
-        normalizedStatus == 'delivered' ||
-        normalizedStatus == 'awaitingdeliveryconfirmation' ||
-        normalizedStatus == 'cancelled';
-  }
-
-  bool _isInTransitStatus(String normalizedStatus) {
-    return normalizedStatus == 'ontheway' ||
-        normalizedStatus == 'outfordelivery' ||
-        normalizedStatus == 'pickedup' ||
-        normalizedStatus == 'inprogress';
   }
 
   void _reportFailure(AppFailure failure) {

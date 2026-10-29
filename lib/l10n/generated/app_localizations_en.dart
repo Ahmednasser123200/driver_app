@@ -495,4 +495,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get retry => 'Retry';
+
+  @override
+  String get liveGpsTrackingActive => 'Live GPS Tracking Active';
+
+  @override
+  String get locationPermissionRequired =>
+      'Location permission is required for live delivery tracking.';
+
+  @override
+  String get failureLocationPermission =>
+      'Location permission is required for live delivery tracking.';
+
+  @override
+  String get failureLocationServiceDisabled =>
+      'Location services are disabled on your device. Please enable GPS.';
 }

@@ -4,11 +4,11 @@ import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/core/services/location/geolocator_wrapper.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
+import 'package:driver_app/features/order_details/domain/entities/user_location_entity.dart';
 import 'package:driver_app/features/order_details/domain/params/report_driver_location_params.dart';
 import 'package:driver_app/features/order_details/domain/repo/order_details_repo.dart';
 import 'package:driver_app/features/order_details/domain/usecases/report_driver_location_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../helpers/fixtures.dart';
@@ -103,10 +103,12 @@ void main() {
   });
 
   group('start (streaming & displacement throttling)', () {
-    late StreamController<Position> locationStreamController;
+    late StreamController<BaseResponse<UserLocationEntity>>
+    locationStreamController;
 
     setUp(() {
-      locationStreamController = StreamController<Position>.broadcast();
+      locationStreamController =
+          StreamController<BaseResponse<UserLocationEntity>>.broadcast();
       when(
         () => repository.driverLocationStream,
       ).thenAnswer((_) => locationStreamController.stream);
@@ -125,11 +127,11 @@ void main() {
       final results = <BaseResponse<ReportDriverLocationEntity>>[];
       final subscription = useCase.start(onReportResult: results.add);
 
-      final firstPos = buildPositionFixture(
+      final firstPos = buildUserLocationEntity(
         latitude: 30.0444,
         longitude: 31.2357,
       );
-      locationStreamController.add(firstPos);
+      locationStreamController.add(Success(firstPos));
       await pumpEventQueue();
 
       expect(results, hasLength(1));
@@ -157,11 +159,11 @@ void main() {
         final results = <BaseResponse<ReportDriverLocationEntity>>[];
         final subscription = useCase.start(onReportResult: results.add);
 
-        final pos1 = buildPositionFixture(
+        final pos1 = buildUserLocationEntity(
           latitude: 30.0444,
           longitude: 31.2357,
         );
-        final pos2 = buildPositionFixture(
+        final pos2 = buildUserLocationEntity(
           latitude: 30.0445,
           longitude: 31.2358,
         );
@@ -175,10 +177,10 @@ void main() {
           ),
         ).thenReturn(15.0); // 15 meters < 50 meters
 
-        locationStreamController.add(pos1);
+        locationStreamController.add(Success(pos1));
         await pumpEventQueue();
 
-        locationStreamController.add(pos2);
+        locationStreamController.add(Success(pos2));
         await pumpEventQueue();
 
         // Only 1 report should have fired (for pos1)
@@ -199,11 +201,11 @@ void main() {
         final results = <BaseResponse<ReportDriverLocationEntity>>[];
         final subscription = useCase.start(onReportResult: results.add);
 
-        final pos1 = buildPositionFixture(
+        final pos1 = buildUserLocationEntity(
           latitude: 30.0444,
           longitude: 31.2357,
         );
-        final pos2 = buildPositionFixture(
+        final pos2 = buildUserLocationEntity(
           latitude: 30.0450,
           longitude: 31.2365,
         );
@@ -217,10 +219,10 @@ void main() {
           ),
         ).thenReturn(75.0); // 75 meters >= 50 meters
 
-        locationStreamController.add(pos1);
+        locationStreamController.add(Success(pos1));
         await pumpEventQueue();
 
-        locationStreamController.add(pos2);
+        locationStreamController.add(Success(pos2));
         await pumpEventQueue();
 
         expect(results, hasLength(2));
@@ -240,8 +242,8 @@ void main() {
       final results = <BaseResponse<ReportDriverLocationEntity>>[];
       final subscription = useCase.start(onReportResult: results.add);
 
-      final pos = buildPositionFixture();
-      locationStreamController.add(pos);
+      final pos = buildUserLocationEntity();
+      locationStreamController.add(Success(pos));
       await pumpEventQueue();
 
       expect(results, hasLength(1));
@@ -249,6 +251,27 @@ void main() {
 
       await subscription.cancel();
     });
+
+    test(
+      'forwards stream error response to onReportResult callback',
+      () async {
+        final results = <BaseResponse<ReportDriverLocationEntity>>[];
+        final subscription = useCase.start(onReportResult: results.add);
+
+        locationStreamController.add(
+          const Error(LocationPermissionFailure()),
+        );
+        await pumpEventQueue();
+
+        expect(results, hasLength(1));
+        expect(results.first, isA<Error<ReportDriverLocationEntity>>());
+        final failure =
+            (results.first as Error<ReportDriverLocationEntity>).failure;
+        expect(failure, isA<LocationPermissionFailure>());
+
+        await subscription.cancel();
+      },
+    );
 
     test('canceling subscription stops location reporting', () async {
       when(
@@ -260,7 +283,7 @@ void main() {
 
       await subscription.cancel();
 
-      locationStreamController.add(buildPositionFixture());
+      locationStreamController.add(Success(buildUserLocationEntity()));
       await pumpEventQueue();
 
       expect(results, isEmpty);

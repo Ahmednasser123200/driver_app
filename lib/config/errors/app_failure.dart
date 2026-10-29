@@ -62,6 +62,14 @@ class ServerFailure extends AppFailure {
   final int? statusCode;
 }
 
+class LocationPermissionFailure extends AppFailure {
+  const LocationPermissionFailure();
+}
+
+class LocationServiceDisabledFailure extends AppFailure {
+  const LocationServiceDisabledFailure();
+}
+
 class UnknownFailure extends AppFailure {
   const UnknownFailure();
 }

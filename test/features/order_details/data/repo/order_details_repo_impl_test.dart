@@ -10,6 +10,7 @@ import 'package:driver_app/features/order_details/domain/entities/driver_order_d
 import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
+import 'package:driver_app/features/order_details/domain/entities/user_location_entity.dart';
 import 'package:driver_app/features/order_details/domain/params/report_driver_location_params.dart';
 import 'package:driver_app/features/order_details/domain/params/update_order_status_params.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -44,20 +45,97 @@ void main() {
   });
 
   group('driverLocationStream', () {
-    test('forwards the stream from LocationService', () async {
+    test('transforms Position to Success(UserLocationEntity)', () async {
       final controller = StreamController<Position>();
       when(
         () => locationService.locationStream,
       ).thenAnswer((_) => controller.stream);
 
-      final received = <Position>[];
+      final received = <BaseResponse<UserLocationEntity>>[];
       final subscription = repository.driverLocationStream.listen(received.add);
 
       final pos = buildPositionFixture();
       controller.add(pos);
       await pumpEventQueue();
 
-      expect(received, [pos]);
+      expect(received, hasLength(1));
+      expect(received.first, isA<Success<UserLocationEntity>>());
+      final entity = (received.first as Success<UserLocationEntity>).data;
+      expect(entity.latitude, pos.latitude);
+      expect(entity.longitude, pos.longitude);
+      expect(entity.timestamp, pos.timestamp);
+      await subscription.cancel();
+      await controller.close();
+    });
+
+    test(
+      'transforms PermissionDeniedException to Error(LocationPermissionFailure)',
+      () async {
+        final controller = StreamController<Position>();
+        when(
+          () => locationService.locationStream,
+        ).thenAnswer((_) => controller.stream);
+
+        final received = <BaseResponse<UserLocationEntity>>[];
+        final subscription = repository.driverLocationStream.listen(
+          received.add,
+        );
+
+        controller.addError(
+          const PermissionDeniedException('Location permission not granted'),
+        );
+        await pumpEventQueue();
+
+        expect(received, hasLength(1));
+        expect(received.first, isA<Error<UserLocationEntity>>());
+        final failure = (received.first as Error<UserLocationEntity>).failure;
+        expect(failure, isA<LocationPermissionFailure>());
+        await subscription.cancel();
+        await controller.close();
+      },
+    );
+
+    test(
+      'transforms LocationServiceDisabledException to Error(LocationServiceDisabledFailure)',
+      () async {
+        final controller = StreamController<Position>();
+        when(
+          () => locationService.locationStream,
+        ).thenAnswer((_) => controller.stream);
+
+        final received = <BaseResponse<UserLocationEntity>>[];
+        final subscription = repository.driverLocationStream.listen(
+          received.add,
+        );
+
+        controller.addError(const LocationServiceDisabledException());
+        await pumpEventQueue();
+
+        expect(received, hasLength(1));
+        expect(received.first, isA<Error<UserLocationEntity>>());
+        final failure = (received.first as Error<UserLocationEntity>).failure;
+        expect(failure, isA<LocationServiceDisabledFailure>());
+        await subscription.cancel();
+        await controller.close();
+      },
+    );
+
+    test('transforms unknown errors to Error(UnknownFailure)', () async {
+      final controller = StreamController<Position>();
+      when(
+        () => locationService.locationStream,
+      ).thenAnswer((_) => controller.stream);
+
+      final received = <BaseResponse<UserLocationEntity>>[];
+      final subscription = repository.driverLocationStream.listen(received.add);
+
+      controller.addError(Exception('something unexpected'));
+      await pumpEventQueue();
+
+      expect(received, hasLength(1));
+      expect(received.first, isA<Error<UserLocationEntity>>());
+      final failure = (received.first as Error<UserLocationEntity>).failure;
+      expect(failure, isA<UnknownFailure>());
       await subscription.cancel();
       await controller.close();
     });

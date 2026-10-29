@@ -155,14 +155,16 @@ class OrderStatusSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Column(
       children: [
         StepProgressIndicator(
           totalSteps: 5,
           currentStep: status.step,
-          selectedColor: Colors.green,
-          unselectedColor: Colors.grey,
+          selectedColor: colorScheme.primary,
+          unselectedColor: colorScheme.surfaceContainerHighest,
           size: 4,
           roundedEdges: const Radius.circular(2),
         ),
@@ -182,10 +184,10 @@ class OrderStatusSection extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
+                  color: colorScheme.primaryContainer.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(12.r),
                   border: Border.all(
-                    color: Colors.green.withValues(alpha: 0.3),
+                    color: colorScheme.outlineVariant,
                   ),
                 ),
                 child: Row(
@@ -194,18 +196,20 @@ class OrderStatusSection extends StatelessWidget {
                     Container(
                       width: 8.w,
                       height: 8.w,
-                      decoration: const BoxDecoration(
-                        color: Colors.green,
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary,
                         shape: BoxShape.circle,
                       ),
                     ),
                     SizedBox(width: 6.w),
-                    Text(
-                      'Live GPS Tracking Active',
-                      style: TextStyle(
-                        color: Colors.green[800],
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
+                    Flexible(
+                      child: Text(
+                        l10n.liveGpsTrackingActive,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],

@@ -489,4 +489,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get retry => 'إعادة المحاولة';
+
+  @override
+  String get liveGpsTrackingActive => 'تتبع نظام تحديد المواقع مباشر نشط';
+
+  @override
+  String get locationPermissionRequired =>
+      'إذن تحديد الموقع مطلوب لتتبع التوصيل المباشر.';
+
+  @override
+  String get failureLocationPermission =>
+      'إذن تحديد الموقع مطلوب لتتبع التوصيل المباشر.';
+
+  @override
+  String get failureLocationServiceDisabled =>
+      'خدمات الموقع غير مفعلة على جهازك. يرجى تفعيل نظام GPS.';
 }

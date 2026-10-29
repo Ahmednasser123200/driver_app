@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:driver_app/config/base/base_response.dart';
+import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/core/services/location/location_service.dart';
 import 'package:driver_app/features/order_details/data/datasources/order_details_remote_data_source.dart';
 import 'package:driver_app/features/order_details/data/dtos/requests/report_driver_location_request_dto.dart';
@@ -6,6 +9,7 @@ import 'package:driver_app/features/order_details/data/dtos/requests/update_orde
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
+import 'package:driver_app/features/order_details/domain/entities/user_location_entity.dart';
 import 'package:driver_app/features/order_details/domain/params/report_driver_location_params.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:injectable/injectable.dart';
@@ -21,7 +25,23 @@ class OrderDetailsRepoImpl implements OrderDetailsRepo {
   final LocationService _locationService;
 
   @override
-  Stream<Position> get driverLocationStream => _locationService.locationStream;
+  Stream<BaseResponse<UserLocationEntity>> get driverLocationStream =>
+      _locationService.locationStream.transform(
+        StreamTransformer<Position, BaseResponse<UserLocationEntity>>.fromHandlers(
+          handleData: (position, sink) {
+            sink.add(Success(position.toDomain()));
+          },
+          handleError: (error, stackTrace, sink) {
+            if (error is PermissionDeniedException) {
+              sink.add(const Error(LocationPermissionFailure()));
+            } else if (error is LocationServiceDisabledException) {
+              sink.add(const Error(LocationServiceDisabledFailure()));
+            } else {
+              sink.add(const Error(UnknownFailure()));
+            }
+          },
+        ),
+      );
 
   @override
   Future<BaseResponse<DriverOrderDetailsEntity>> getOrderDetails(
@@ -66,4 +86,16 @@ class OrderDetailsRepoImpl implements OrderDetailsRepo {
       Error<TResponse>(failure: final failure) => Error<TDomain>(failure),
     };
   }
+}
+
+extension on Position {
+  UserLocationEntity toDomain() => UserLocationEntity(
+    latitude: latitude,
+    longitude: longitude,
+    timestamp: timestamp,
+    accuracy: accuracy,
+    altitude: altitude,
+    speed: speed,
+    heading: heading,
+  );
 }

@@ -174,5 +174,9 @@
   "whatsApp": "WhatsApp",
   "invalidOrderId": "Invalid order ID",
   "orderStatusUpdatedSuccessfully": "Order status updated successfully",
-  "retry": "Retry"
+  "retry": "Retry",
+  "liveGpsTrackingActive": "Live GPS Tracking Active",
+  "locationPermissionRequired": "Location permission is required for live delivery tracking.",
+  "failureLocationPermission": "Location permission is required for live delivery tracking.",
+  "failureLocationServiceDisabled": "Location services are disabled on your device. Please enable GPS."
 }

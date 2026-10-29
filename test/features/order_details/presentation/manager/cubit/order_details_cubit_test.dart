@@ -8,6 +8,7 @@ import 'package:driver_app/features/order_details/domain/entities/driver_order_d
 import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
 import 'package:driver_app/features/order_details/domain/entities/report_driver_location.dart';
 import 'package:driver_app/features/order_details/domain/entities/update_order_status.dart';
+import 'package:driver_app/features/order_details/domain/entities/user_location_entity.dart';
 import 'package:driver_app/features/order_details/domain/params/update_order_status_params.dart';
 import 'package:driver_app/features/order_details/domain/usecases/get_driver_order_details_use_case.dart';
 import 'package:driver_app/features/order_details/domain/usecases/report_driver_location_use_case.dart';
@@ -16,7 +17,6 @@ import 'package:driver_app/features/order_details/presentation/manager/cubit/ord
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_event.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../../helpers/fixtures.dart';
@@ -31,7 +31,7 @@ class MockReportDriverLocationUseCase extends Mock
     implements ReportDriverLocationUseCase {}
 
 class MockStreamSubscription extends Mock
-    implements StreamSubscription<Position> {}
+    implements StreamSubscription<BaseResponse<UserLocationEntity>> {}
 
 void main() {
   late MockGetDriverOrderDetailsUseCase getOrderDetails;
@@ -297,41 +297,45 @@ void main() {
       },
     );
 
-    test('StartLocationReportingEvent handles report errors', () async {
-      void Function(BaseResponse<ReportDriverLocationEntity>)? capturedCallback;
+    test(
+      'StartLocationReportingEvent handles report errors silently without emitting ShowOrderDetailsFailure',
+      () async {
+        void Function(BaseResponse<ReportDriverLocationEntity>)?
+        capturedCallback;
 
-      when(
-        () => reportDriverLocation.start(
-          onReportResult: any(named: 'onReportResult'),
-          minDisplacementMeters: any(named: 'minDisplacementMeters'),
-        ),
-      ).thenAnswer((invocation) {
-        capturedCallback =
-            invocation.namedArguments[#onReportResult]
-                as void Function(BaseResponse<ReportDriverLocationEntity>);
-        final sub = MockStreamSubscription();
-        when(() => sub.cancel()).thenAnswer((_) async {});
-        return sub;
-      });
+        when(
+          () => reportDriverLocation.start(
+            onReportResult: any(named: 'onReportResult'),
+            minDisplacementMeters: any(named: 'minDisplacementMeters'),
+          ),
+        ).thenAnswer((invocation) {
+          capturedCallback =
+              invocation.namedArguments[#onReportResult]
+                  as void Function(BaseResponse<ReportDriverLocationEntity>);
+          final sub = MockStreamSubscription();
+          when(() => sub.cancel()).thenAnswer((_) async {});
+          return sub;
+        });
 
-      final events = <BaseUiEvent>[];
-      final subscription = cubit.uiEventStream.listen(events.add);
+        final events = <BaseUiEvent>[];
+        final subscription = cubit.uiEventStream.listen(events.add);
 
-      await cubit.doEvent(const StartLocationReportingEvent());
+        await cubit.doEvent(const StartLocationReportingEvent());
 
-      capturedCallback!(const Error(InternetConnectionFailure()));
-      await pumpEventQueue();
+        capturedCallback!(const Error(InternetConnectionFailure()));
+        await pumpEventQueue();
 
-      expect(cubit.state.reportDriverLocation.isLoading, isFalse);
-      expect(
-        cubit.state.reportDriverLocation.failure,
-        isA<InternetConnectionFailure>(),
-      );
-      expect(events, hasLength(1));
-      expect(events.single, isA<ShowOrderDetailsFailure>());
+        expect(cubit.state.reportDriverLocation.isLoading, isFalse);
+        expect(
+          cubit.state.reportDriverLocation.failure,
+          isA<InternetConnectionFailure>(),
+        );
+        // SILENT BACKGROUND UX: no ShowOrderDetailsFailure should be emitted!
+        expect(events, isEmpty);
 
-      await subscription.cancel();
-    });
+        await subscription.cancel();
+      },
+    );
 
     test(
       'StopLocationReportingEvent cancels subscription and sets active to false',

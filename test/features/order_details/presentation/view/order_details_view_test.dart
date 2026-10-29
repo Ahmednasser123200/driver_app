@@ -4,6 +4,7 @@ import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
+import 'package:driver_app/features/order_details/domain/entities/user_location_entity.dart';
 import 'package:driver_app/features/order_details/domain/usecases/get_driver_order_details_use_case.dart';
 import 'package:driver_app/features/order_details/domain/usecases/report_driver_location_use_case.dart';
 import 'package:driver_app/features/order_details/domain/usecases/update_order_status_use_case.dart';
@@ -15,7 +16,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../helpers/fixtures.dart';
@@ -30,7 +30,7 @@ class MockReportDriverLocationUseCase extends Mock
     implements ReportDriverLocationUseCase {}
 
 class MockStreamSubscription extends Mock
-    implements StreamSubscription<Position> {}
+    implements StreamSubscription<BaseResponse<UserLocationEntity>> {}
 
 void main() {
   late MockGetDriverOrderDetailsUseCase getOrderDetails;
@@ -92,10 +92,10 @@ void main() {
     );
   }
 
-  void mockSuccess() {
-    when(
-      () => getOrderDetails.execute(any()),
-    ).thenAnswer((_) async => Success(buildDriverOrderDetailsEntity()));
+  void mockSuccess({DriverOrderDetailsEntity? entity}) {
+    when(() => getOrderDetails.execute(any())).thenAnswer(
+      (_) async => Success(entity ?? buildDriverOrderDetailsEntity()),
+    );
   }
 
   void mockFailure() {

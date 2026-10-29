@@ -1039,6 +1039,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
+
+  /// No description provided for @liveGpsTrackingActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live GPS Tracking Active'**
+  String get liveGpsTrackingActive;
+
+  /// No description provided for @locationPermissionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is required for live delivery tracking.'**
+  String get locationPermissionRequired;
+
+  /// No description provided for @failureLocationPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is required for live delivery tracking.'**
+  String get failureLocationPermission;
+
+  /// No description provided for @failureLocationServiceDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services are disabled on your device. Please enable GPS.'**
+  String get failureLocationServiceDisabled;
 }
 
 class _AppLocalizationsDelegate
