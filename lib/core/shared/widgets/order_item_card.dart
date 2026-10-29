@@ -1,5 +1,5 @@
-import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
+import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
@@ -19,10 +19,12 @@ class OrderItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     final displayProductName = productName.trim().isEmpty
-        ? AppStrings.unknown
+        ? l10n.unknown
         : productName;
-    final displayPrice = price.trim().isEmpty ? 'Unknown' : price;
+    final displayPrice = price.trim().isEmpty ? l10n.unknown : price;
     final displayQuantity = quantity <= 0 ? 0 : quantity;
 
     return Container(
@@ -35,7 +37,7 @@ class OrderItemCard extends StatelessWidget {
       child: Row(
         children: [
           Padding(
-            padding: const EdgeInsets.all(3.0),
+            padding: EdgeInsets.all(3.w),
             child: Container(
               width: 80.w,
               height: 80.h,

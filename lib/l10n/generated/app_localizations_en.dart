@@ -244,6 +244,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userAddress => 'User address';
 
   @override
+  String get pickupLocationTitle => 'Pickup location';
+
+  @override
+  String get userLocationTitle => 'User location';
+
+  @override
+  String get driverLocationTitle => 'Driver location';
+
+  @override
   String get unknown => 'Unknown';
 
   @override
@@ -293,6 +302,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cashOnDelivery => 'Cash on delivery';
+
+  @override
+  String get liveGpsTrackingActive => 'Live GPS Tracking Active';
+
+  @override
+  String get locationPermissionRequired =>
+      'Location permission is required for live delivery tracking.';
+
+  @override
+  String get locationPermissionToTrackDelivery =>
+      'Location permission is required for live delivery tracking.';
+
+  @override
+  String get enableGps => 'Please enable GPS';
+
+  @override
+  String get locationTrackingUnavailable => 'Location tracking unavailable';
 
   @override
   String get arrivedAtPickupPoint => 'Arrived at Pickup point';
@@ -495,13 +521,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get retry => 'Retry';
-
-  @override
-  String get liveGpsTrackingActive => 'Live GPS Tracking Active';
-
-  @override
-  String get locationPermissionRequired =>
-      'Location permission is required for live delivery tracking.';
 
   @override
   String get failureLocationPermission =>

@@ -560,6 +560,24 @@ abstract class AppLocalizations {
   /// **'User address'**
   String get userAddress;
 
+  /// No description provided for @pickupLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup location'**
+  String get pickupLocationTitle;
+
+  /// No description provided for @userLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'User location'**
+  String get userLocationTitle;
+
+  /// No description provided for @driverLocationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver location'**
+  String get driverLocationTitle;
+
   /// No description provided for @unknown.
   ///
   /// In en, this message translates to:
@@ -661,6 +679,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cash on delivery'**
   String get cashOnDelivery;
+
+  /// No description provided for @liveGpsTrackingActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live GPS Tracking Active'**
+  String get liveGpsTrackingActive;
+
+  /// No description provided for @locationPermissionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is required for live delivery tracking.'**
+  String get locationPermissionRequired;
+
+  /// No description provided for @locationPermissionToTrackDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is required for live delivery tracking.'**
+  String get locationPermissionToTrackDelivery;
+
+  /// No description provided for @enableGps.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enable GPS'**
+  String get enableGps;
+
+  /// No description provided for @locationTrackingUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Location tracking unavailable'**
+  String get locationTrackingUnavailable;
 
   /// No description provided for @arrivedAtPickupPoint.
   ///
@@ -1039,18 +1087,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
-
-  /// No description provided for @liveGpsTrackingActive.
-  ///
-  /// In en, this message translates to:
-  /// **'Live GPS Tracking Active'**
-  String get liveGpsTrackingActive;
-
-  /// No description provided for @locationPermissionRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Location permission is required for live delivery tracking.'**
-  String get locationPermissionRequired;
 
   /// No description provided for @failureLocationPermission.
   ///
