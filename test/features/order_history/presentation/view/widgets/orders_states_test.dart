@@ -1,15 +1,18 @@
-import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
 import 'package:driver_app/features/order_history/presentation/manager/orders_state.dart';
-import 'package:driver_app/features/order_history/presentation/view/widgets/orders_stats.dart';
+import 'package:driver_app/features/order_history/presentation/utils/order_status_ui.dart';
+import 'package:driver_app/features/order_history/presentation/view/widgets/orders_states.dart';
+import 'package:driver_app/l10n/generated/app_localizations_en.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/pump_app.dart';
 
 void main() {
-  group('OrdersStatsRow', () {
+  final l10n = AppLocalizationsEn();
+
+  group('OrdersStatesRow', () {
     testWidgets('displays counts for cancelled and completed and handles tap',
         (tester) async {
       OrderStatus? toggledStatus;
@@ -17,7 +20,7 @@ void main() {
 
       await pumpApp(
         tester,
-        OrdersStatsRow(
+        OrdersStatesRow(
           data: data,
           selected: OrderStatus.completed,
           onToggle: (status) => toggledStatus = status,
@@ -102,7 +105,7 @@ void main() {
       );
 
       expect(find.text('7'), findsOneWidget);
-      expect(find.text(AppStrings.statusCancelled), findsOneWidget);
+      expect(find.text(OrderStatus.cancelled.label(l10n)), findsOneWidget);
       expect(find.byIcon(Icons.cancel_outlined), findsOneWidget);
     });
 
@@ -116,7 +119,7 @@ void main() {
       );
 
       expect(find.text('2'), findsOneWidget);
-      expect(find.text(AppStrings.statusCompleted), findsOneWidget);
+      expect(find.text(OrderStatus.completed.label(l10n)), findsOneWidget);
       expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
     });
   });

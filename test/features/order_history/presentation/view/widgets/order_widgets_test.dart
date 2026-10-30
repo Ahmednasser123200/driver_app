@@ -1,5 +1,4 @@
 import 'package:driver_app/config/errors/app_failure.dart';
-import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
 import 'package:driver_app/features/order_history/presentation/utils/order_formatters.dart';
 import 'package:driver_app/features/order_history/presentation/utils/order_status_ui.dart';
@@ -15,14 +14,15 @@ class _Launcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizationsEn();
     return Scaffold(
       body: Center(
         child: ElevatedButton(
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute<void>(
-                builder: (_) => const Scaffold(
-                  appBar: OrderHistoryAppBar(title: AppStrings.orderDetails),
+                builder: (_) => Scaffold(
+                  appBar: OrderHistoryAppBar(title: l10n.orderDetails),
                 ),
               ),
             );
@@ -35,20 +35,22 @@ class _Launcher extends StatelessWidget {
 }
 
 void main() {
+  final l10n = AppLocalizationsEn();
+
   group('OrderHistoryAppBar', () {
     testWidgets('hides the back button when showBack is false', (tester) async {
       await pumpApp(
         tester,
-        const Scaffold(
+        Scaffold(
           appBar: OrderHistoryAppBar(
-            title: AppStrings.myOrders,
+            title: l10n.myOrders,
             showBack: false,
           ),
         ),
       );
 
       expect(find.byIcon(Icons.arrow_back_ios_new), findsNothing);
-      expect(find.text(AppStrings.myOrders), findsOneWidget);
+      expect(find.text(l10n.myOrders), findsOneWidget);
     });
 
     testWidgets('tapping the back button pops the route', (tester) async {
@@ -58,7 +60,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.arrow_back_ios_new), findsOneWidget);
-      expect(find.text(AppStrings.orderDetails), findsOneWidget);
+      expect(find.text(l10n.orderDetails), findsOneWidget);
 
       await tester.tap(find.byIcon(Icons.arrow_back_ios_new));
       await tester.pumpAndSettle();
@@ -86,7 +88,7 @@ void main() {
       expect(iconFinder, findsOneWidget);
       final iconWidget = tester.widget<Icon>(iconFinder);
       expect(iconWidget.color, status.color);
-      expect(find.text(status.label), findsOneWidget);
+      expect(find.text(status.label(l10n)), findsOneWidget);
     });
 
     testWidgets('cancelled status shows right icon, color, and label',
@@ -106,7 +108,7 @@ void main() {
       expect(iconFinder, findsOneWidget);
       final iconWidget = tester.widget<Icon>(iconFinder);
       expect(iconWidget.color, status.color);
-      expect(find.text(status.label), findsOneWidget);
+      expect(find.text(status.label(l10n)), findsOneWidget);
     });
   });
 
@@ -125,7 +127,7 @@ void main() {
       );
 
       expect(find.text(formatOrderId(orderId)), findsOneWidget);
-      expect(find.text(status.label), findsOneWidget);
+      expect(find.text(status.label(l10n)), findsOneWidget);
 
       final iconFinder = find.byIcon(status.icon);
       expect(iconFinder, findsOneWidget);
@@ -147,7 +149,7 @@ void main() {
       );
 
       expect(find.text(formatOrderId(orderId)), findsOneWidget);
-      expect(find.text(status.label), findsOneWidget);
+      expect(find.text(status.label(l10n)), findsOneWidget);
 
       final iconFinder = find.byIcon(status.icon);
       expect(iconFinder, findsOneWidget);
@@ -174,8 +176,6 @@ void main() {
   });
 
   group('ErrorMessageView', () {
-    final l10n = AppLocalizationsEn();
-
     testWidgets('shows localized timeout message', (tester) async {
       await pumpApp(tester, const ErrorMessageView(failure: TimeoutFailure()));
 
@@ -196,6 +196,15 @@ void main() {
           tester, const ErrorMessageView(failure: NotFoundFailure()));
 
       expect(find.text(l10n.failureNotFound), findsOneWidget);
+    });
+
+    testWidgets('shows localized unexpected status message for UnexpectedStatusFailure', (tester) async {
+      await pumpApp(
+        tester,
+        const ErrorMessageView(failure: UnexpectedStatusFailure()),
+      );
+
+      expect(find.text(l10n.failureUnexpectedStatus), findsOneWidget);
     });
 
     testWidgets('shows server message for BadRequestFailure', (tester) async {

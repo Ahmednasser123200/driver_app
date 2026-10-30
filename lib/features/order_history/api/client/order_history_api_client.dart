@@ -23,11 +23,11 @@ abstract class OrderHistoryApiClient {
 
   @GET(ApiStrings.driverOrderDetails)
   Future<OrderApiResponseDto<OrderDetailsResponseDto>> getOrderDetails(
-      @Path('orderId') String orderId,
+      @Path(ApiStrings.orderIdKey) String orderId,
       );
 
   @GET(ApiStrings.catalogProduct)
   Future<CatalogApiResponseDto<ProductResponseDto>> getProduct(
-      @Path('productId') String productId,
+      @Path(ApiStrings.productIdKey) String productId,
       );
 }

@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
 import 'package:driver_app/features/order_history/presentation/constants/order_history_dimens.dart';
@@ -7,6 +6,9 @@ import 'package:driver_app/features/order_history/presentation/utils/order_forma
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
+import '../../../../../config/errors/app_failure.dart';
+import '../../../../../config/localization/app_failure_message_mapper.dart';
+import '../../../../../l10n/generated/app_localizations.dart';
 import 'common_widgets.dart';
 import 'order_widgets.dart';
 
@@ -19,7 +21,7 @@ class PickupSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionTitle(text: AppStrings.pickupAddress),
+        SectionTitle(text: AppLocalizations.of(context)!.pickupAddress),
         SizedBox(height: OrderHistoryDimens.paddingL.h),
         AddressCard(
           name: store.name,
@@ -40,7 +42,7 @@ class UserSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionTitle(text: AppStrings.userAddress),
+        SectionTitle(text: AppLocalizations.of(context)!.userAddress),
         SizedBox(height: OrderHistoryDimens.paddingL.h),
         AddressCard(
           name: user.name,
@@ -61,13 +63,21 @@ class ItemsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionTitle(text: AppStrings.orderDetails),
+        SectionTitle(text: AppLocalizations.of(context)!.orderDetails),
         SizedBox(height: OrderHistoryDimens.paddingL.h),
-        for (final item in items)
-          Padding(
-            padding: EdgeInsets.only(bottom: OrderHistoryDimens.paddingL.h),
-            child: OrderItemCard(item: item),
-          ),
+        if (items.isEmpty)
+          Text(
+            mapAppFailureToMessage(
+              const NotFoundFailure(),
+              AppLocalizations.of(context)!,
+            ),
+          )
+        else
+          for (final item in items)
+            Padding(
+              padding: EdgeInsets.only(bottom: OrderHistoryDimens.paddingL.h),
+              child: OrderItemCard(item: item),
+            ),
       ],
     );
   }
@@ -79,24 +89,24 @@ class SummarySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         SummaryRow(
-          label: AppStrings.total,
+          label: l10n.total,
           value: formatPrice(details.totalPrice, details.currency),
         ),
-        if (details.isCashOnDelivery) ...[
-          SizedBox(height: OrderHistoryDimens.paddingL.h),
-          const SummaryRow(
-            label: AppStrings.paymentMethod,
-            value: AppStrings.cashOnDelivery,
-          ),
-        ],
+        SizedBox(height: OrderHistoryDimens.paddingL.h),
+        SummaryRow(
+          label: l10n.paymentMethod,
+          value: details.isCashOnDelivery
+              ? l10n.cashOnDelivery
+              : l10n.creditCard,
+        ),
       ],
     );
   }
 }
-
 class SummaryRow extends StatelessWidget {
   const SummaryRow({super.key, required this.label, required this.value});
 

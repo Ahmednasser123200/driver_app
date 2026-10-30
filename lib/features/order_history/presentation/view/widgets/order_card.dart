@@ -1,11 +1,11 @@
 import 'package:driver_app/config/routing/routes.dart';
-import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
 import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
 import 'package:driver_app/features/order_history/presentation/constants/order_history_dimens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
+import '../../../../../l10n/generated/app_localizations.dart';
 import 'common_widgets.dart';
 import 'order_widgets.dart';
 
@@ -35,7 +35,7 @@ class OrderCard extends StatelessWidget {
 
   void _openDetails(BuildContext context) {
     Navigator.of(context, rootNavigator: true).pushNamed(
-      Routes.orderDetails,
+      Routes.orderHistoryDetails,
       arguments: order.orderId,
     );
   }
@@ -53,7 +53,7 @@ class OrderCardBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppStrings.flowerOrder,
+            AppLocalizations.of(context)!.flowerOrder,
             style: Theme.of(context).textTheme.titleSmall,
           ),
           SizedBox(height: OrderHistoryDimens.paddingM.h),
@@ -76,14 +76,14 @@ class OrderCardAddresses extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _LabeledAddress(
-          label: AppStrings.pickupAddress,
+          label: AppLocalizations.of(context)!.pickupAddress,
           name: order.store.name,
           address: order.store.address,
           imageUrl: order.store.imageUrl,
         ),
         SizedBox(height: OrderHistoryDimens.paddingL.h),
         _LabeledAddress(
-          label: AppStrings.userAddress,
+          label: AppLocalizations.of(context)!.userAddress,
           name: order.user.name,
           address: order.user.address,
           imageUrl: order.user.imageUrl,

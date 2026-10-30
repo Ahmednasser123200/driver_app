@@ -2,7 +2,7 @@ import 'package:driver_app/features/onboarding/screen/onboarding_view.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/shared/widgets/bottom_navigation_bar.dart';
-import '../../features/order_history/presentation/view/order_details_view.dart';
+import '../../features/order_history/presentation/view/order_history_details_view.dart';
 import '../../features/order_history/presentation/view/orders_view.dart';
 import 'routes.dart';
 
@@ -54,17 +54,17 @@ abstract final class AppRoutes {
             profileScreen: _StubScreen('Profile'),
           ),
         );
-      case Routes.orders:
+      case Routes.ordersHistory:
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const _StubScreen('Orders'),
         );
-      case Routes.orderDetails:
+      case Routes.orderHistoryDetails:
         final args = settings.arguments;
         final orderId = args is String ? args : '';
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => OrderDetailsView(orderId: orderId),
+          builder: (_) => OrderHistoryDetailsView(orderId: orderId),
         );
       case Routes.tracking:
         return MaterialPageRoute(

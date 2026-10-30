@@ -8,8 +8,8 @@ abstract final class Routes {
   static const String apply = '/apply';
   static const String successApply = '/success-apply';
   static const String home = '/home';
-  static const String orders = '/orders';
-  static const String orderDetails = '/order-details';
+  static const String ordersHistory = '/orders-history';
+  static const String orderHistoryDetails = '/order-history-details';
   static const String tracking = '/tracking';
   static const String profile = '/profile';
   static const String editProfile = '/edit-profile';

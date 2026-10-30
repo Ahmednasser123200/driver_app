@@ -1,4 +1,3 @@
-import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
 import 'package:driver_app/features/order_history/presentation/constants/order_history_constants.dart';
 import 'package:driver_app/features/order_history/presentation/constants/order_history_dimens.dart';
@@ -9,10 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
+import '../../../../../l10n/generated/app_localizations.dart';
 import 'common_widgets.dart';
 import 'order_card.dart';
 import 'order_widgets.dart';
-import 'orders_stats.dart';
+import 'orders_states.dart';
 
 class OrdersBody extends StatelessWidget {
   const OrdersBody({super.key});
@@ -39,7 +39,10 @@ class OrdersStateView extends StatelessWidget {
     if (state.ordersListState.data != null) return OrdersContent(state: state);
     final failure = state.failure;
     if (failure != null) return ErrorMessageView(failure: failure);
-    return const Center(child: CircularProgressIndicator());
+    if (state.ordersListState.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return const OrdersEmpty(isLoading: false);
   }
 }
 
@@ -54,14 +57,13 @@ class OrdersContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          OrdersStatsRow(
+          OrdersStatesRow(
             data: state.ordersListState.data ?? const OrdersDataState(),
             selected: state.statusFilter,
             onToggle: (status) => _toggleFilter(context, status),
           ),
           SizedBox(height: OrderHistoryDimens.paddingXxl.h),
-          const SectionTitle(text: AppStrings.recentOrders),
-          SizedBox(height: OrderHistoryDimens.paddingL.h),
+          SectionTitle(text: AppLocalizations.of(context)!.recentOrders),          SizedBox(height: OrderHistoryDimens.paddingL.h),
           Expanded(child: OrdersListArea(state: state)),
         ],
       ),
@@ -103,7 +105,7 @@ class OrdersEmpty extends StatelessWidget {
     return CenteredScrollView(
       child: isLoading
           ? const CircularProgressIndicator()
-          : const Text(AppStrings.noOrdersYet),
+          : Text(AppLocalizations.of(context)!.noOrdersYet),
     );
   }
 }
@@ -145,7 +147,10 @@ class OrdersList extends StatelessWidget {
         itemCount: orders.length + (isLoadingMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index == orders.length) return const _LoadMoreIndicator();
-          return OrderCard(order: orders[index]);
+          return OrderCard(
+            key: ValueKey(orders[index].orderId),
+            order: orders[index],
+          );
         },
       ),
     );

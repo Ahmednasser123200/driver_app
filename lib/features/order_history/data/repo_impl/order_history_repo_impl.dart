@@ -10,7 +10,7 @@ import '../model/order_details_response_dto.dart';
 import '../model/order_history_request_dto.dart';
 import '../model/product_response_dto.dart';
 
-@LazySingleton(as: OrderHistoryRepo)
+@Injectable(as: OrderHistoryRepo)
 class OrderHistoryRepoImpl implements OrderHistoryRepo {
   final OrderHistoryRemoteDataSource _remoteDataSource;
 
@@ -44,29 +44,37 @@ class OrderHistoryRepoImpl implements OrderHistoryRepo {
   Future<BaseResponse<OrderHistoryDetailsEntity>> _buildDetails(
       OrderDetailsResponseDto order,
       ) async {
-    final items = await _loadItems(order.items);
-    final entity = order.toEntityOrNull(items);
-    if (entity == null) return Error(const NotFoundFailure());
+    final loaded = await _loadItems(order.items);
+    if (loaded is! Success<List<OrderItemEntity>>) {
+      return Error((loaded as Error<List<OrderItemEntity>>).failure);
+    }
+    final entity = order.toEntityOrNull(loaded.data);
+    if (entity == null) return Error(const UnexpectedStatusFailure());
     return Success(entity);
   }
 
-  Future<List<OrderItemEntity>> _loadItems(
+  Future<BaseResponse<List<OrderItemEntity>>> _loadItems(
       List<OrderDetailsItemDto> items,
       ) async {
     final responses = await Future.wait(
       items.map((item) => _remoteDataSource.getProduct(item.productId)),
     );
-    return [
-      for (var i = 0; i < items.length; i++)
-        if (responses[i] case Success<ProductResponseDto>(:final data))
-          OrderItemEntity(
-            productId: items[i].productId,
-            quantity: items[i].quantity,
-            product: data.toEntity(),
-          ),
-    ];
+    final loaded = <OrderItemEntity>[];
+    for (var i = 0; i < items.length; i++) {
+      final response = responses[i];
+      if (response is! Success<ProductResponseDto>) {
+        return Error((response as Error<ProductResponseDto>).failure);
+      }
+      loaded.add(
+        OrderItemEntity(
+          productId: items[i].productId,
+          quantity: items[i].quantity,
+          product: response.data.toEntity(),
+        ),
+      );
+    }
+    return Success(loaded);
   }
-
   @override
   Stream<BaseResponse<OrderHistoryEntity>> watchOrderUpdates() {
     return const Stream.empty();

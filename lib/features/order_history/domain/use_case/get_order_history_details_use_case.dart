@@ -7,10 +7,10 @@ import '../entities/order_history_entities.dart';
 import '../repo/order_history_repo.dart';
 
 @injectable
-class GetOrderDetailsUseCase {
+class GetOrderHistoryDetailsUseCase {
   final OrderHistoryRepo _repo;
 
-  GetOrderDetailsUseCase(this._repo);
+  GetOrderHistoryDetailsUseCase(this._repo);
 
   Future<BaseResponse<OrderHistoryDetailsEntity>> execute({
     required String orderId,

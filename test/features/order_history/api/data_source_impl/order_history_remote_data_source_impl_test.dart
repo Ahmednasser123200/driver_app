@@ -53,9 +53,10 @@ void main() {
       expect((failure as BadRequestFailure).serverMessage, 'Invalid parameters');
     });
 
-    test('returns Error(UnknownFailure) when data is null', () async {
+    test('returns Error(BadRequestFailure) with server message when isOk is true but data is null', () async {
       final envelope = createOrderApiResponseDto<OrderHistoryResponseDto>(
         success: true,
+        message: 'Server error msg',
         data: null,
       );
       when(() => mockClient.getOrders(any())).thenAnswer((_) async => envelope);
@@ -64,7 +65,24 @@ void main() {
 
       expect(result, isA<base.Error<OrderHistoryResponseDto>>());
       final failure = (result as base.Error<OrderHistoryResponseDto>).failure;
-      expect(failure, isA<UnknownFailure>());
+      expect(failure, isA<BadRequestFailure>());
+      expect((failure as BadRequestFailure).serverMessage, 'Server error msg');
+    });
+
+    test('returns Error(BadRequestFailure) with default "No data received" message when message is empty and data is null', () async {
+      final envelope = createOrderApiResponseDto<OrderHistoryResponseDto>(
+        success: true,
+        message: '',
+        data: null,
+      );
+      when(() => mockClient.getOrders(any())).thenAnswer((_) async => envelope);
+
+      final result = await dataSource.getOrders(request);
+
+      expect(result, isA<base.Error<OrderHistoryResponseDto>>());
+      final failure = (result as base.Error<OrderHistoryResponseDto>).failure;
+      expect(failure, isA<BadRequestFailure>());
+      expect((failure as BadRequestFailure).serverMessage, 'No data received');
     });
 
     test('returns matching AppFailure on DioException', () async {

@@ -4,11 +4,11 @@ import '../../../../config/base/base_state.dart';
 import '../../../../config/errors/app_failure.dart';
 import '../../domain/entities/order_history_entities.dart';
 
-class OrderDetailsState extends Equatable {
+class OrderHistoryDetailsState extends Equatable {
   final BaseState<OrderHistoryDetailsEntity> orderDetails;
   final AppFailure? failure;
 
-  const OrderDetailsState({
+  const OrderHistoryDetailsState({
     this.orderDetails = const BaseState(),
     this.failure,
   });

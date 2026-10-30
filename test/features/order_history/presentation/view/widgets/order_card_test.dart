@@ -1,7 +1,7 @@
 import 'package:driver_app/config/routing/routes.dart';
-import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/features/order_history/presentation/utils/order_formatters.dart';
 import 'package:driver_app/features/order_history/presentation/view/widgets/order_card.dart';
+import 'package:driver_app/l10n/generated/app_localizations_en.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -9,6 +9,8 @@ import '../../../helpers/pump_app.dart';
 import '../../../helpers/test_data.dart';
 
 void main() {
+  final l10n = AppLocalizationsEn();
+
   group('OrderCard', () {
     testWidgets('displays names and navigates to orderDetails on tap',
         (tester) async {
@@ -38,7 +40,7 @@ void main() {
       await tester.pump();
 
       expect(pushedRoute, isNotNull);
-      expect(pushedRoute?.settings.name, Routes.orderDetails);
+      expect(pushedRoute?.settings.name, Routes.orderHistoryDetails);
       expect(pushedRoute?.settings.arguments, 'order123');
     });
   });
@@ -53,10 +55,10 @@ void main() {
 
       await pumpApp(tester, OrderCardBody(order: order));
 
-      expect(find.text(AppStrings.flowerOrder), findsOneWidget);
+      expect(find.text(l10n.flowerOrder), findsOneWidget);
       expect(find.text(formatOrderId('order123')), findsOneWidget);
-      expect(find.text(AppStrings.pickupAddress), findsOneWidget);
-      expect(find.text(AppStrings.userAddress), findsOneWidget);
+      expect(find.text(l10n.pickupAddress), findsOneWidget);
+      expect(find.text(l10n.userAddress), findsOneWidget);
     });
   });
 
@@ -74,11 +76,11 @@ void main() {
         OrderCardAddresses(order: order),
       );
 
-      expect(find.text(AppStrings.pickupAddress), findsOneWidget);
+      expect(find.text(l10n.pickupAddress), findsOneWidget);
       expect(find.text('My Store'), findsOneWidget);
       expect(find.text('Store Address'), findsOneWidget);
 
-      expect(find.text(AppStrings.userAddress), findsOneWidget);
+      expect(find.text(l10n.userAddress), findsOneWidget);
       expect(find.text('My User'), findsOneWidget);
       expect(find.text('User Address'), findsOneWidget);
     });

@@ -7,12 +7,12 @@ import 'package:driver_app/features/order_history/data/data_source/order_history
 import 'package:driver_app/features/order_history/data/model/order_history_request_dto.dart';
 import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
 import 'package:driver_app/features/order_history/domain/repo/order_history_repo.dart';
-import 'package:driver_app/features/order_history/domain/use_case/get_order_details_use_case.dart';
+import 'package:driver_app/features/order_history/domain/use_case/get_order_history_details_use_case.dart';
 import 'package:driver_app/features/order_history/domain/use_case/get_orders_use_case.dart';
 import 'package:driver_app/features/order_history/domain/use_case/watch_order_updates_use_case.dart';
-import 'package:driver_app/features/order_history/presentation/manager/order_details_cubit.dart';
-import 'package:driver_app/features/order_history/presentation/manager/order_details_event.dart';
-import 'package:driver_app/features/order_history/presentation/manager/order_details_state.dart';
+import 'package:driver_app/features/order_history/presentation/manager/order_history_details_cubit.dart';
+import 'package:driver_app/features/order_history/presentation/manager/order_history_details_event.dart';
+import 'package:driver_app/features/order_history/presentation/manager/order_history_details_state.dart';
 import 'package:driver_app/features/order_history/presentation/manager/orders_cubit.dart';
 import 'package:driver_app/features/order_history/presentation/manager/orders_event.dart';
 import 'package:driver_app/features/order_history/presentation/manager/orders_state.dart';
@@ -27,21 +27,23 @@ class MockOrderHistoryRepo extends Mock implements OrderHistoryRepo {}
 
 class MockGetOrdersUseCase extends Mock implements GetOrdersUseCase {}
 
-class MockGetOrderDetailsUseCase extends Mock implements GetOrderDetailsUseCase {}
+class MockGetOrderHistoryDetailsUseCase extends Mock
+    implements GetOrderHistoryDetailsUseCase {}
 
 class MockWatchOrderUpdatesUseCase extends Mock
     implements WatchOrderUpdatesUseCase {}
 
 class MockOrdersCubit extends MockCubit<OrdersState> implements OrdersCubit {}
 
-class MockOrderDetailsCubit extends MockCubit<OrderDetailsState>
-    implements OrderDetailsCubit {}
+class MockOrderHistoryDetailsCubit
+    extends MockCubit<OrderHistoryDetailsState>
+    implements OrderHistoryDetailsCubit {}
 
 void setupFallbackValues() {
   registerFallbackValue(LoadOrdersEvent());
   registerFallbackValue(LoadMoreOrdersEvent());
   registerFallbackValue(ToggleStatusFilterEvent(OrderStatus.completed));
-  registerFallbackValue(GetOrderDetailsEvent(orderId: '123'));
+  registerFallbackValue(GetOrderHistoryDetailsEvent(orderId: '123'));
   registerFallbackValue(
     const OrderHistoryRequestDto(page: 1, pageSize: 10),
   );
@@ -60,9 +62,9 @@ void stubOrdersCubit({
   );
 }
 
-void stubOrderDetailsCubit({
-  required MockOrderDetailsCubit cubit,
-  OrderDetailsState state = const OrderDetailsState(),
+void stubOrderHistoryDetailsCubit({
+  required MockOrderHistoryDetailsCubit cubit,
+  OrderHistoryDetailsState state = const OrderHistoryDetailsState(),
   StreamController<BaseUiEvent>? uiEventController,
 }) {
   when(() => cubit.state).thenReturn(state);

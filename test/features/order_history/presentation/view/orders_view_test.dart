@@ -4,12 +4,11 @@ import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/di/di.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
-import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/features/order_history/presentation/manager/orders_cubit.dart';
 import 'package:driver_app/features/order_history/presentation/manager/orders_event.dart';
 import 'package:driver_app/features/order_history/presentation/manager/orders_state.dart';
 import 'package:driver_app/features/order_history/presentation/view/orders_view.dart';
-import 'package:driver_app/features/order_history/presentation/view/widgets/orders_stats.dart';
+import 'package:driver_app/features/order_history/presentation/view/widgets/orders_states.dart';
 import 'package:driver_app/l10n/generated/app_localizations_en.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,6 +21,7 @@ import '../../helpers/test_data.dart';
 void main() {
   late MockOrdersCubit cubit;
   late StreamController<BaseUiEvent> events;
+  final l10n = AppLocalizationsEn();
 
   setUpAll(setupFallbackValues);
 
@@ -62,7 +62,7 @@ void main() {
   });
 
   testWidgets(
-      'renders empty state with AppStrings.noOrdersYet when orders is empty',
+      'renders empty state with l10n.noOrdersYet when orders is empty',
       (tester) async {
     stubOrdersCubit(
       cubit: cubit,
@@ -77,7 +77,7 @@ void main() {
 
     await pumpApp(tester, const OrdersView());
 
-    expect(find.text(AppStrings.noOrdersYet), findsOneWidget);
+    expect(find.text(l10n.noOrdersYet), findsOneWidget);
   });
 
   testWidgets(
@@ -94,7 +94,7 @@ void main() {
 
     await pumpApp(tester, const OrdersView());
 
-    expect(find.text(AppLocalizationsEn().failureTimeout), findsOneWidget);
+    expect(find.text(l10n.failureTimeout), findsOneWidget);
   });
 
   testWidgets(
@@ -176,7 +176,7 @@ void main() {
     await tester.pump();
 
     expect(
-      find.text(AppLocalizationsEn().failureTimeout),
+      find.text(l10n.failureTimeout),
       findsOneWidget,
     );
   });

@@ -33,10 +33,7 @@ class OrderHistoryAppBar extends StatelessWidget
       centerTitle: false,
       titleSpacing: showBack ? 0 : OrderHistoryDimens.paddingXl.w,
       leading: showBack ? const _BackButton() : null,
-      title: Text(
-        title,
-        style: Theme.of(context).textTheme.headlineMedium,
-      ),
+      title: Text(title, style: Theme.of(context).textTheme.headlineMedium),
     );
   }
 }
@@ -61,6 +58,7 @@ class OrderStatusLabel extends StatelessWidget {
     required this.spacing,
     required this.textStyle,
   });
+
   final OrderStatus status;
   final double iconSize;
   final double spacing;
@@ -72,7 +70,7 @@ class OrderStatusLabel extends StatelessWidget {
       children: [
         Icon(status.icon, color: status.color, size: iconSize),
         SizedBox(width: spacing),
-        Text(status.label, style: textStyle),
+        Text(status.label(AppLocalizations.of(context)!), style: textStyle),
       ],
     );
   }
@@ -142,7 +140,9 @@ class AddressCard extends StatelessWidget {
         children: [
           AvatarImage(imageUrl: imageUrl),
           SizedBox(width: OrderHistoryDimens.paddingL.w),
-          Expanded(child: _AddressText(name: name, address: address)),
+          Expanded(
+            child: _AddressText(name: name, address: address),
+          ),
         ],
       ),
     );
@@ -184,10 +184,7 @@ class _AddressLine extends StatelessWidget {
         Icon(Icons.location_on_outlined, size: OrderHistoryDimens.iconS.w),
         SizedBox(width: OrderHistoryDimens.paddingS.w),
         Expanded(
-          child: Text(
-            address,
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
+          child: Text(address, style: Theme.of(context).textTheme.titleSmall),
         ),
       ],
     );

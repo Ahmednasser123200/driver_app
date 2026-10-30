@@ -7,20 +7,20 @@ import '../../../../config/base/base_state.dart';
 import '../../../../config/base/base_ui_event.dart';
 import '../../../../config/errors/app_failure.dart';
 import '../../domain/entities/order_history_entities.dart';
-import '../../domain/use_case/get_order_details_use_case.dart';
-import 'order_details_event.dart';
-import 'order_details_state.dart';
+import '../../domain/use_case/get_order_history_details_use_case.dart';
+import 'order_history_details_event.dart';
+import 'order_history_details_state.dart';
 
 @injectable
-class OrderDetailsCubit extends BaseCubit<OrderDetailsState, BaseUiEvent> {
-  final GetOrderDetailsUseCase _getOrderDetailsUseCase;
+class OrderHistoryDetailsCubit extends BaseCubit<OrderHistoryDetailsState, BaseUiEvent> {
+  final GetOrderHistoryDetailsUseCase _getOrderDetailsUseCase;
 
-  OrderDetailsCubit(this._getOrderDetailsUseCase)
-      : super(const OrderDetailsState());
+  OrderHistoryDetailsCubit(this._getOrderDetailsUseCase)
+      : super(const OrderHistoryDetailsState());
 
-  Future<void> doIntent(OrderDetailsEvent event) async {
+  Future<void> doIntent(OrderHistoryDetailsEvent event) async {
     switch (event) {
-      case GetOrderDetailsEvent():
+      case GetOrderHistoryDetailsEvent():
         await _getOrderDetails(event.orderId);
     }
   }
@@ -39,7 +39,7 @@ class OrderDetailsCubit extends BaseCubit<OrderDetailsState, BaseUiEvent> {
 
   void _emitLoading() {
     emit(
-      OrderDetailsState(
+      OrderHistoryDetailsState(
         orderDetails: BaseState(
           isLoading: true,
           data: state.orderDetails.data,
@@ -49,12 +49,12 @@ class OrderDetailsCubit extends BaseCubit<OrderDetailsState, BaseUiEvent> {
   }
 
   void _emitLoaded(OrderHistoryDetailsEntity details) {
-    emit(OrderDetailsState(orderDetails: BaseState(data: details)));
+    emit(OrderHistoryDetailsState(orderDetails: BaseState(data: details)));
   }
 
   void _emitFailure(AppFailure failure) {
     emit(
-      OrderDetailsState(
+      OrderHistoryDetailsState(
         orderDetails: BaseState(data: state.orderDetails.data),
         failure: failure,
       ),

@@ -7,8 +7,8 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 
 import 'order_widgets.dart';
 
-class OrdersStatsRow extends StatelessWidget {
-  const OrdersStatsRow({
+class OrdersStatesRow extends StatelessWidget {
+  const OrdersStatesRow({
     super.key,
     required this.data,
     required this.selected,

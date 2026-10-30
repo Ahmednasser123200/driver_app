@@ -87,7 +87,7 @@ void main() {
       expect(entity.items[1].quantity, 1);
     });
 
-    test('skips items whose product call fails', () async {
+    test('returns that product failure when any getProduct call fails', () async {
       final item1 = createOrderDetailsItemDto(productId: 'p1', quantity: 2);
       final item2 = createOrderDetailsItemDto(productId: 'p2', quantity: 1);
       final detailsDto = createOrderDetailsResponseDto(
@@ -108,13 +108,12 @@ void main() {
 
       final result = await repo.getOrderDetails(orderId: 'order123');
 
-      expect(result, isA<base.Success<OrderHistoryDetailsEntity>>());
-      final entity = (result as base.Success<OrderHistoryDetailsEntity>).data;
-      expect(entity.items.length, 1);
-      expect(entity.items[0].productId, 'p1');
+      expect(result, isA<base.Error<OrderHistoryDetailsEntity>>());
+      final failure = (result as base.Error<OrderHistoryDetailsEntity>).failure;
+      expect(failure, isA<NotFoundFailure>());
     });
 
-    test('returns Error(NotFoundFailure) when order status is non-history (active)', () async {
+    test('returns Error(UnexpectedStatusFailure) when order status is non-history (active)', () async {
       final detailsDto = createOrderDetailsResponseDto(
         status: 'pending',
         items: [],
@@ -126,7 +125,7 @@ void main() {
       final result = await repo.getOrderDetails(orderId: 'order123');
 
       expect(result, isA<base.Error<OrderHistoryDetailsEntity>>());
-      expect((result as base.Error<OrderHistoryDetailsEntity>).failure, isA<NotFoundFailure>());
+      expect((result as base.Error<OrderHistoryDetailsEntity>).failure, isA<UnexpectedStatusFailure>());
     });
 
     test('passes data source failure through', () async {

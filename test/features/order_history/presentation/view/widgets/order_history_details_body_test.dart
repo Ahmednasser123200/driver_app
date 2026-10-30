@@ -3,12 +3,11 @@ import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
-import 'package:driver_app/core/constants/app_strings/app_strings.dart';
-import 'package:driver_app/features/order_history/presentation/manager/order_details_cubit.dart';
-import 'package:driver_app/features/order_history/presentation/manager/order_details_event.dart';
-import 'package:driver_app/features/order_history/presentation/manager/order_details_state.dart';
+import 'package:driver_app/features/order_history/presentation/manager/order_history_details_cubit.dart';
+import 'package:driver_app/features/order_history/presentation/manager/order_history_details_event.dart';
+import 'package:driver_app/features/order_history/presentation/manager/order_history_details_state.dart';
 import 'package:driver_app/features/order_history/presentation/utils/order_formatters.dart';
-import 'package:driver_app/features/order_history/presentation/view/widgets/order_details_body.dart';
+import 'package:driver_app/features/order_history/presentation/view/widgets/order_history_details_body.dart';
 import 'package:driver_app/l10n/generated/app_localizations_en.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,27 +20,28 @@ import '../../../helpers/test_data.dart';
 
 void main() {
   setUpAll(setupFallbackValues);
+  final l10n = AppLocalizationsEn();
 
-  group('OrderDetailsBody', () {
-    late MockOrderDetailsCubit cubit;
+  group('OrderHistoryDetailsBody', () {
+    late MockOrderHistoryDetailsCubit cubit;
 
     setUp(() {
-      cubit = MockOrderDetailsCubit();
-      stubOrderDetailsCubit(
+      cubit = MockOrderHistoryDetailsCubit();
+      stubOrderHistoryDetailsCubit(
         cubit: cubit,
-        state: OrderDetailsState(
+        state: OrderHistoryDetailsState(
           orderDetails: BaseState(data: createOrderHistoryDetailsEntity()),
         ),
       );
     });
 
-    testWidgets('pull to refresh sends GetOrderDetailsEvent with orderId',
+    testWidgets('pull to refresh sends GetOrderHistoryDetailsEvent with orderId',
         (tester) async {
       await pumpApp(
         tester,
-        BlocProvider<OrderDetailsCubit>.value(
+        BlocProvider<OrderHistoryDetailsCubit>.value(
           value: cubit,
-          child: const OrderDetailsBody(orderId: 'order123'),
+          child: const OrderHistoryDetailsBody(orderId: 'order123'),
         ),
       );
 
@@ -52,7 +52,7 @@ void main() {
       verify(
         () => cubit.doIntent(
           any(
-            that: isA<GetOrderDetailsEvent>().having(
+            that: isA<GetOrderHistoryDetailsEvent>().having(
               (event) => event.orderId,
               'orderId',
               'order123',
@@ -65,12 +65,12 @@ void main() {
     testWidgets(
         'state transition loading -> loaded updates UI from spinner to content',
         (tester) async {
-      final controller = StreamController<OrderDetailsState>.broadcast();
+      final controller = StreamController<OrderHistoryDetailsState>.broadcast();
       addTearDown(controller.close);
 
       const loadingState =
-          OrderDetailsState(orderDetails: BaseState(isLoading: true));
-      final loadedState = OrderDetailsState(
+          OrderHistoryDetailsState(orderDetails: BaseState(isLoading: true));
+      final loadedState = OrderHistoryDetailsState(
         orderDetails: BaseState(
           isLoading: false,
           data: createOrderHistoryDetailsEntity(),
@@ -85,9 +85,9 @@ void main() {
 
       await pumpApp(
         tester,
-        BlocProvider<OrderDetailsCubit>.value(
+        BlocProvider<OrderHistoryDetailsCubit>.value(
           value: cubit,
-          child: const OrderDetailsBody(orderId: 'order123'),
+          child: const OrderHistoryDetailsBody(orderId: 'order123'),
         ),
       );
 
@@ -96,18 +96,18 @@ void main() {
       controller.add(loadedState);
       await tester.pump();
 
-      expect(find.byType(OrderDetailsContent), findsOneWidget);
+      expect(find.byType(OrderHistoryDetailsContent), findsOneWidget);
     });
 
     testWidgets(
         'state transition loading -> error updates UI to ErrorMessageView',
         (tester) async {
-      final controller = StreamController<OrderDetailsState>.broadcast();
+      final controller = StreamController<OrderHistoryDetailsState>.broadcast();
       addTearDown(controller.close);
 
       const loadingState =
-          OrderDetailsState(orderDetails: BaseState(isLoading: true));
-      const errorState = OrderDetailsState(
+          OrderHistoryDetailsState(orderDetails: BaseState(isLoading: true));
+      const errorState = OrderHistoryDetailsState(
         orderDetails: BaseState(isLoading: false),
         failure: NotFoundFailure(),
       );
@@ -120,9 +120,9 @@ void main() {
 
       await pumpApp(
         tester,
-        BlocProvider<OrderDetailsCubit>.value(
+        BlocProvider<OrderHistoryDetailsCubit>.value(
           value: cubit,
-          child: const OrderDetailsBody(orderId: 'order123'),
+          child: const OrderHistoryDetailsBody(orderId: 'order123'),
         ),
       );
 
@@ -131,21 +131,21 @@ void main() {
       controller.add(errorState);
       await tester.pump();
 
-      expect(find.text(AppLocalizationsEn().failureNotFound), findsOneWidget);
+      expect(find.text(l10n.failureNotFound), findsOneWidget);
     });
 
     testWidgets('state transition loaded -> error keeps old data on screen',
         (tester) async {
-      final controller = StreamController<OrderDetailsState>.broadcast();
+      final controller = StreamController<OrderHistoryDetailsState>.broadcast();
       addTearDown(controller.close);
 
       final details = createOrderHistoryDetailsEntity(
         store: createOrderStoreEntity(name: 'Existing Details Store'),
       );
-      final loadedState = OrderDetailsState(
+      final loadedState = OrderHistoryDetailsState(
         orderDetails: BaseState(isLoading: false, data: details),
       );
-      final errorState = OrderDetailsState(
+      final errorState = OrderHistoryDetailsState(
         orderDetails: BaseState(isLoading: false, data: details),
         failure: const TimeoutFailure(),
       );
@@ -158,9 +158,9 @@ void main() {
 
       await pumpApp(
         tester,
-        BlocProvider<OrderDetailsCubit>.value(
+        BlocProvider<OrderHistoryDetailsCubit>.value(
           value: cubit,
-          child: const OrderDetailsBody(orderId: 'order123'),
+          child: const OrderHistoryDetailsBody(orderId: 'order123'),
         ),
       );
 
@@ -173,12 +173,12 @@ void main() {
     });
   });
 
-  group('OrderDetailsStateView', () {
+  group('OrderHistoryDetailsStateView', () {
     testWidgets('shows a spinner while loading without data', (tester) async {
       await pumpApp(
         tester,
-        const OrderDetailsStateView(
-          state: OrderDetailsState(
+        const OrderHistoryDetailsStateView(
+          state: OrderHistoryDetailsState(
             orderDetails: BaseState(isLoading: true),
           ),
         ),
@@ -191,12 +191,28 @@ void main() {
         (tester) async {
       await pumpApp(
         tester,
-        const OrderDetailsStateView(
-          state: OrderDetailsState(failure: NotFoundFailure()),
+        const OrderHistoryDetailsStateView(
+          state: OrderHistoryDetailsState(failure: NotFoundFailure()),
         ),
       );
 
-      expect(find.text(AppLocalizationsEn().failureNotFound), findsOneWidget);
+      expect(find.text(l10n.failureNotFound), findsOneWidget);
+    });
+
+    testWidgets('shows NotFoundFailure ErrorMessageView when data == null, no failure, and not loading',
+        (tester) async {
+      await pumpApp(
+        tester,
+        const OrderHistoryDetailsStateView(
+          state: OrderHistoryDetailsState(
+            orderDetails: BaseState(isLoading: false, data: null),
+            failure: null,
+          ),
+        ),
+      );
+
+      expect(find.text(l10n.failureNotFound), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
     });
 
     testWidgets('shows content when details are available', (tester) async {
@@ -204,18 +220,18 @@ void main() {
 
       await pumpApp(
         tester,
-        OrderDetailsStateView(
-          state: OrderDetailsState(
+        OrderHistoryDetailsStateView(
+          state: OrderHistoryDetailsState(
             orderDetails: BaseState(data: details),
           ),
         ),
       );
 
-      expect(find.byType(OrderDetailsContent), findsOneWidget);
+      expect(find.byType(OrderHistoryDetailsContent), findsOneWidget);
     });
   });
 
-  group('OrderDetailsContent', () {
+  group('OrderHistoryDetailsContent', () {
     testWidgets('renders every section and the total', (tester) async {
       final details = createOrderHistoryDetailsEntity(
         isCashOnDelivery: true,
@@ -227,14 +243,14 @@ void main() {
         ],
       );
 
-      await pumpApp(tester, OrderDetailsContent(details: details));
+      await pumpApp(tester, OrderHistoryDetailsContent(details: details));
 
-      expect(find.text(AppStrings.pickupAddress), findsOneWidget);
-      expect(find.text(AppStrings.userAddress), findsOneWidget);
-      expect(find.text(AppStrings.orderDetails), findsOneWidget);
+      expect(find.text(l10n.pickupAddress), findsOneWidget);
+      expect(find.text(l10n.userAddress), findsOneWidget);
+      expect(find.text(l10n.orderDetails), findsOneWidget);
 
       await tester.scrollUntilVisible(
-        find.text(AppStrings.total),
+        find.text(l10n.total),
         200,
         scrollable: find.byType(Scrollable).first,
       );
@@ -243,23 +259,24 @@ void main() {
         find.text(formatPrice(details.totalPrice, details.currency)),
         findsOneWidget,
       );
-      expect(find.text(AppStrings.paymentMethod), findsOneWidget);
+      expect(find.text(l10n.paymentMethod), findsOneWidget);
+      expect(find.text(l10n.cashOnDelivery), findsOneWidget);
     });
 
-    testWidgets('does not show the payment method row for non cash orders',
+    testWidgets('shows creditCard payment method for non cash orders',
         (tester) async {
       final details = createOrderHistoryDetailsEntity(isCashOnDelivery: false);
 
-      await pumpApp(tester, OrderDetailsContent(details: details));
+      await pumpApp(tester, OrderHistoryDetailsContent(details: details));
 
       await tester.scrollUntilVisible(
-        find.text(AppStrings.total),
+        find.text(l10n.total),
         200,
         scrollable: find.byType(Scrollable).first,
       );
 
-      expect(find.text(AppStrings.paymentMethod), findsNothing);
-      expect(find.text(AppStrings.cashOnDelivery), findsNothing);
+      expect(find.text(l10n.paymentMethod), findsOneWidget);
+      expect(find.text(l10n.creditCard), findsOneWidget);
     });
   });
 }

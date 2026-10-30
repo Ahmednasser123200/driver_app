@@ -12,7 +12,7 @@ import '../../data/model/order_history_request_dto.dart';
 import '../../data/model/product_response_dto.dart';
 import '../client/order_history_api_client.dart';
 
-@LazySingleton(as: OrderHistoryRemoteDataSource)
+@Injectable(as: OrderHistoryRemoteDataSource)
 class OrderHistoryRemoteDataSourceImpl implements OrderHistoryRemoteDataSource {
   final OrderHistoryApiClient _client;
 
@@ -63,7 +63,14 @@ class OrderHistoryRemoteDataSourceImpl implements OrderHistoryRemoteDataSource {
       return Error(BadRequestFailure(serverMessage: response.message));
     }
     final data = response.data;
-    if (data == null) return Error(const UnknownFailure());
+    if (data == null) {
+      return Error(
+        BadRequestFailure(
+          serverMessage:
+          response.message.isNotEmpty ? response.message : 'No data received',
+        ),
+      );
+    }
     return Success(data);
   }
 }

@@ -3,14 +3,13 @@ import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
-import 'package:driver_app/core/constants/app_strings/app_strings.dart';
 import 'package:driver_app/features/order_history/domain/entities/order_history_entities.dart';
 import 'package:driver_app/features/order_history/presentation/manager/orders_cubit.dart';
 import 'package:driver_app/features/order_history/presentation/manager/orders_event.dart';
 import 'package:driver_app/features/order_history/presentation/manager/orders_state.dart';
 import 'package:driver_app/features/order_history/presentation/view/widgets/order_card.dart';
 import 'package:driver_app/features/order_history/presentation/view/widgets/orders_body.dart';
-import 'package:driver_app/features/order_history/presentation/view/widgets/orders_stats.dart';
+import 'package:driver_app/features/order_history/presentation/view/widgets/orders_states.dart';
 import 'package:driver_app/l10n/generated/app_localizations_en.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,6 +22,7 @@ import '../../../helpers/test_data.dart';
 
 void main() {
   setUpAll(setupFallbackValues);
+  final l10n = AppLocalizationsEn();
 
   group('OrdersBody', () {
     late MockOrdersCubit cubit;
@@ -132,7 +132,7 @@ void main() {
       controller.add(errorState);
       await tester.pump();
 
-      expect(find.text(AppLocalizationsEn().failureTimeout), findsOneWidget);
+      expect(find.text(l10n.failureTimeout), findsOneWidget);
     });
 
     testWidgets('state transition loaded -> error keeps old data on screen',
@@ -204,9 +204,25 @@ void main() {
       );
 
       expect(
-        find.text(AppLocalizationsEn().failureTimeout),
+        find.text(l10n.failureTimeout),
         findsOneWidget,
       );
+    });
+
+    testWidgets('shows empty state OrdersEmpty when data == null, failure == null, and isLoading is false',
+        (tester) async {
+      await pumpApp(
+        tester,
+        const OrdersStateView(
+          state: OrdersState(
+            ordersListState: BaseState(isLoading: false, data: null),
+            failure: null,
+          ),
+        ),
+      );
+
+      expect(find.text(l10n.noOrdersYet), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
     });
 
     testWidgets('shows content when data is available', (tester) async {
@@ -253,7 +269,7 @@ void main() {
         ),
       );
 
-      expect(find.text(AppStrings.recentOrders), findsOneWidget);
+      expect(find.text(l10n.recentOrders), findsOneWidget);
 
       final statCards = find.byType(OrdersStatCard);
       expect(statCards, findsNWidgets(2));
@@ -276,7 +292,7 @@ void main() {
 
       await pumpApp(tester, const OrdersListArea(state: state));
 
-      expect(find.text(AppStrings.noOrdersYet), findsOneWidget);
+      expect(find.text(l10n.noOrdersYet), findsOneWidget);
     });
 
     testWidgets('shows OrdersList when visibleOrders is non-empty',
@@ -340,13 +356,13 @@ void main() {
     testWidgets('displays spinner when isLoading is true', (tester) async {
       await pumpApp(tester, const OrdersEmpty(isLoading: true));
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      expect(find.text(AppStrings.noOrdersYet), findsNothing);
+      expect(find.text(l10n.noOrdersYet), findsNothing);
     });
 
     testWidgets('displays noOrdersYet text when isLoading is false',
         (tester) async {
       await pumpApp(tester, const OrdersEmpty(isLoading: false));
-      expect(find.text(AppStrings.noOrdersYet), findsOneWidget);
+      expect(find.text(l10n.noOrdersYet), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsNothing);
     });
   });
@@ -377,6 +393,33 @@ void main() {
 
       expect(find.byType(OrderCard), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
+
+    testWidgets('renders each OrderCard with key ValueKey(order.orderId)',
+        (tester) async {
+      final order1 = createOrderHistoryEntity(
+        orderId: 'id1',
+        store: createOrderStoreEntity(imageUrl: null),
+        user: createOrderUserEntity(imageUrl: null),
+      );
+      final order2 = createOrderHistoryEntity(
+        orderId: 'id2',
+        store: createOrderStoreEntity(imageUrl: null),
+        user: createOrderUserEntity(imageUrl: null),
+      );
+
+      await pumpApp(
+        tester,
+        OrdersList(
+          orders: [order1, order2],
+          isLoadingMore: false,
+          loadMoreFailed: false,
+          onLoadMore: () {},
+        ),
+      );
+
+      expect(find.byKey(ValueKey(order1.orderId)), findsOneWidget);
+      expect(find.byKey(ValueKey(order2.orderId)), findsOneWidget);
     });
 
     testWidgets(
