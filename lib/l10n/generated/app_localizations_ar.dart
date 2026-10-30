@@ -470,5 +470,15 @@ class AppLocalizationsAr extends AppLocalizations {
       'طلبات كثيرة جداً. يرجى المحاولة مرة أخرى لاحقاً.';
 
   @override
+  String get failureUnexpectedStatus =>
+      'حالة هذا الطلب غير مدعومة في سجل الطلبات.';
+
+  @override
+  String get creditCard => 'بطاقة ائتمان';
+
+  @override
+  String get noOrdersYet => 'لا توجد طلبات بعد';
+
+  @override
   String get failureUnknown => 'حدث خطأ ما. يرجى المحاولة مرة أخرى.';
 }

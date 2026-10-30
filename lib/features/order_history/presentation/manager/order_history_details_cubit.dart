@@ -1,0 +1,64 @@
+
+import 'package:injectable/injectable.dart';
+
+import '../../../../config/base/base_cubit.dart';
+import '../../../../config/base/base_response.dart';
+import '../../../../config/base/base_state.dart';
+import '../../../../config/base/base_ui_event.dart';
+import '../../../../config/errors/app_failure.dart';
+import '../../domain/entities/order_history_entities.dart';
+import '../../domain/use_case/get_order_history_details_use_case.dart';
+import 'order_history_details_event.dart';
+import 'order_history_details_state.dart';
+
+@injectable
+class OrderHistoryDetailsCubit extends BaseCubit<OrderHistoryDetailsState, BaseUiEvent> {
+  final GetOrderHistoryDetailsUseCase _getOrderDetailsUseCase;
+
+  OrderHistoryDetailsCubit(this._getOrderDetailsUseCase)
+      : super(const OrderHistoryDetailsState());
+
+  Future<void> doIntent(OrderHistoryDetailsEvent event) async {
+    switch (event) {
+      case GetOrderHistoryDetailsEvent():
+        await _getOrderDetails(event.orderId);
+    }
+  }
+
+  Future<void> _getOrderDetails(String orderId) async {
+    _emitLoading();
+    final result = await _getOrderDetailsUseCase.execute(orderId: orderId);
+    if (isClosed) return;
+    switch (result) {
+      case Success<OrderHistoryDetailsEntity>(:final data):
+        _emitLoaded(data);
+      case Error<OrderHistoryDetailsEntity>(:final failure):
+        _emitFailure(failure);
+    }
+  }
+
+  void _emitLoading() {
+    emit(
+      OrderHistoryDetailsState(
+        orderDetails: BaseState(
+          isLoading: true,
+          data: state.orderDetails.data,
+        ),
+      ),
+    );
+  }
+
+  void _emitLoaded(OrderHistoryDetailsEntity details) {
+    emit(OrderHistoryDetailsState(orderDetails: BaseState(data: details)));
+  }
+
+  void _emitFailure(AppFailure failure) {
+    emit(
+      OrderHistoryDetailsState(
+        orderDetails: BaseState(data: state.orderDetails.data),
+        failure: failure,
+      ),
+    );
+    emitEvent(ShowFailure(failure));
+  }
+}

@@ -201,4 +201,9 @@ abstract final class AppStrings {
   static const String graduation = 'Graduation';
   static const String birthday = 'Birthday';
   static const String wedding = 'Wedding';
+  static const String orderDetailsTitle = 'Order details';
+  static const String completed = 'Completed';
+  static const String cancelled = 'Cancelled';
+  static const String noOrdersYet = 'No orders yet';
+  static const String retry = 'Retry';
 }

@@ -998,6 +998,24 @@ abstract class AppLocalizations {
   /// **'Too many requests. Please try again later.'**
   String get failureTooManyRequests;
 
+  /// No description provided for @failureUnexpectedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'This order has a status that can\'t be shown in history.'**
+  String get failureUnexpectedStatus;
+
+  /// No description provided for @creditCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit card'**
+  String get creditCard;
+
+  /// No description provided for @noOrdersYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders yet'**
+  String get noOrdersYet;
+
   /// No description provided for @failureUnknown.
   ///
   /// In en, this message translates to:

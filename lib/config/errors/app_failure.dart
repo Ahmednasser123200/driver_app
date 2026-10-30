@@ -65,3 +65,6 @@ class ServerFailure extends AppFailure {
 class UnknownFailure extends AppFailure {
   const UnknownFailure();
 }
+class UnexpectedStatusFailure extends AppFailure {
+  const UnexpectedStatusFailure();
+}

@@ -475,5 +475,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'Too many requests. Please try again later.';
 
   @override
+  String get failureUnexpectedStatus =>
+      'This order has a status that can\'t be shown in history.';
+
+  @override
+  String get creditCard => 'Credit card';
+
+  @override
+  String get noOrdersYet => 'No orders yet';
+
+  @override
   String get failureUnknown => 'Something went wrong. Please try again.';
 }

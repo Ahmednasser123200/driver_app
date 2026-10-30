@@ -1,3 +1,5 @@
+import '../errors/app_failure.dart';
+
 sealed class BaseUiEvent {
   const BaseUiEvent();
 }
@@ -10,6 +12,11 @@ class ShowSuccessMessage extends BaseUiEvent {
 class ShowErrorMessage extends BaseUiEvent {
   final String message;
   const ShowErrorMessage(this.message);
+}
+
+class ShowFailure extends BaseUiEvent {
+  final AppFailure failure;
+  const ShowFailure(this.failure);
 }
 
 class NavigateTo extends BaseUiEvent {
