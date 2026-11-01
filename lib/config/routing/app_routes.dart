@@ -1,7 +1,11 @@
 import 'package:driver_app/config/di/di.dart';
+import 'package:driver_app/features/delivery_map/domain/models/address_model.dart';
+import 'package:driver_app/features/delivery_map/domain/models/delivery_map_target.dart';
+import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_cubit.dart';
+import 'package:driver_app/features/delivery_map/presentation/view/delivery_map_view.dart';
+import 'package:driver_app/features/order_details/presentation/extensions/address_model_extension.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
 import 'package:driver_app/features/order_details/presentation/view/order_details_view.dart';
-
 import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -58,50 +62,71 @@ abstract final class AppRoutes {
           builder: (_) => const _StubScreen('Orders'),
         );
       case Routes.pickupLocation:
-  final orderDetailsCubit = settings.arguments;
+        AddressModel? pickupAddress;
+        AddressModel? userAddress;
+        final args = settings.arguments;
+        if (args is OrderDetailsCubit) {
+          final data = args.state.orderDetails.data;
+          if (data != null) {
+            pickupAddress = data.pickupAddress.toAddressModel();
+            userAddress = data.userAddress.toAddressModel();
+          }
+        }
 
-  if (orderDetailsCubit is! OrderDetailsCubit) {
-    return MaterialPageRoute(
-      settings: settings,
-      builder: (_) => const _StubScreen(
-        'Order details context is missing',
-      ),
-    );
-  }
-
-  return MaterialPageRoute(
-    settings: settings,
-    builder: (_) => BlocProvider.value(
-      value: orderDetailsCubit,
-      child: const Placeholder(),
-    ),
-  );
-      case Routes.orderDetails:
-  final arguments = settings.arguments;
-
-  if (arguments is! String || arguments.isEmpty) {
-    return MaterialPageRoute(
-      settings: settings,
-      builder: (context) => _StubScreen(
-  AppLocalizations.of(context)!.invalidOrderId,
-),
-    );
-  }
-
-  final orderId = arguments;
-
-  return MaterialPageRoute(
-    settings: settings,
-    builder: (_) => BlocProvider(
-      create: (_) => getIt<OrderDetailsCubit>(),
-      child: OrderDetailsView(orderId: orderId),
-    ),
-  
-);
-      case Routes.tracking:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const _StubScreen('Tracking'),
+          builder: (_) => BlocProvider(
+            create: (_) => getIt<DeliveryMapCubit>(),
+            child: DeliveryMapView(
+              pickupAddress: pickupAddress,
+              userAddress: userAddress,
+              initialTarget: DeliveryMapTarget.pickup,
+            ),
+          ),
+        );
+      case Routes.orderDetails:
+        final arguments = settings.arguments;
+
+        if (arguments is! String || arguments.isEmpty) {
+          return MaterialPageRoute(
+            settings: settings,
+            builder: (context) => _StubScreen(
+              AppLocalizations.of(context)!.invalidOrderId,
+            ),
+          );
+        }
+
+        final orderId = arguments;
+
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => BlocProvider(
+            create: (_) => getIt<OrderDetailsCubit>(),
+            child: OrderDetailsView(orderId: orderId),
+          ),
+        );
+      case Routes.tracking:
+        AddressModel? pickupAddress;
+        AddressModel? userAddress;
+        final args = settings.arguments;
+        if (args is OrderDetailsCubit) {
+          final data = args.state.orderDetails.data;
+          if (data != null) {
+            pickupAddress = data.pickupAddress.toAddressModel();
+            userAddress = data.userAddress.toAddressModel();
+          }
+        }
+
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => BlocProvider(
+            create: (_) => getIt<DeliveryMapCubit>(),
+            child: DeliveryMapView(
+              pickupAddress: pickupAddress,
+              userAddress: userAddress,
+              initialTarget: DeliveryMapTarget.user,
+            ),
+          ),
         );
       case Routes.profile:
         return MaterialPageRoute(

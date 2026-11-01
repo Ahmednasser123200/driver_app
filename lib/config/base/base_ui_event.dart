@@ -1,7 +1,7 @@
-
 import 'package:driver_app/config/errors/app_failure.dart';
 
 part '../../features/order_details/presentation/manager/cubit/order_details_ui_event.dart';
+part '../../features/delivery_map/presentation/manager/cubit/delivery_map_ui_event.dart';
 
 sealed class BaseUiEvent {
   const BaseUiEvent();
