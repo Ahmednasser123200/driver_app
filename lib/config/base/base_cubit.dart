@@ -19,8 +19,8 @@ abstract class BaseCubit<State, UiEvent extends BaseUiEvent>
   }
 
   @override
-  Future<void> close() async {
-    await _uiEventController.close();
+  Future<void> close() {
+    _uiEventController.close();
     return super.close();
   }
 }

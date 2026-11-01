@@ -27,7 +27,11 @@ class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
       _BaseUiEventListenerState<C, S, E>();
 }
 
-class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
+class _BaseUiEventListenerState<
+  C extends BaseCubit<S, E>,
+  S,
+  E extends BaseUiEvent
+>
     extends State<BaseUiEventListener<C, S, E>> {
   StreamSubscription<E>? _subscription;
 
@@ -38,9 +42,7 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
   }
 
   @override
-  void didUpdateWidget(
-      covariant BaseUiEventListener<C, S, E> oldWidget,
-      ) {
+  void didUpdateWidget(covariant BaseUiEventListener<C, S, E> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.cubit != widget.cubit) {
       _unsubscribe();
@@ -58,8 +60,6 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
   }
 
   void _handleEvent(BuildContext context, E event) {
-    widget.onCustomEvent?.call(context, event);
-
     switch (event) {
       case ShowSuccessMessage():
         ScaffoldMessenger.of(context).showSnackBar(
@@ -68,32 +68,36 @@ class _BaseUiEventListenerState<C extends BaseCubit<S, E>, S, E extends BaseUiEv
             backgroundColor: AppColors.success,
           ),
         );
-      case ShowErrorMessage():
+      case ShowErrorMessage() || ShowFailure():
+        final l10n = AppLocalizations.of(context)!;
+        final errorMessage = switch (event) {
+          ShowErrorMessage(:final failure, :final message) =>
+            failure != null ? mapAppFailureToMessage(failure, l10n) : message,
+          ShowFailure(:final failure) => mapAppFailureToMessage(failure, l10n),
+          _ => null,
+        };
+        if (errorMessage == null || errorMessage.isEmpty) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(event.message),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      case ShowFailure():
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              mapAppFailureToMessage(
-                event.failure,
-                AppLocalizations.of(context)!,
-              ),
-            ),
+            content: Text(errorMessage),
             backgroundColor: AppColors.error,
           ),
         );
       case NavigateTo():
-        Navigator.of(context).pushNamed(
-          event.routeName,
-          arguments: event.arguments,
-        );
+        if (event.isReplacement) {
+          Navigator.of(
+            context,
+          ).pushReplacementNamed(event.routeName, arguments: event.arguments);
+        } else {
+          Navigator.of(
+            context,
+          ).pushNamed(event.routeName, arguments: event.arguments);
+        }
       case PopRoute():
         Navigator.of(context).pop(event.result);
+
+      default:
+        widget.onCustomEvent?.call(context, event);
     }
   }
 

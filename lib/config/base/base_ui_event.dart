@@ -1,6 +1,8 @@
 import '../errors/app_failure.dart';
 
-sealed class BaseUiEvent {
+part 'forget_password_ui_event.dart';
+
+abstract class BaseUiEvent {
   const BaseUiEvent();
 }
 
@@ -10,8 +12,10 @@ class ShowSuccessMessage extends BaseUiEvent {
 }
 
 class ShowErrorMessage extends BaseUiEvent {
-  final String message;
-  const ShowErrorMessage(this.message);
+  final String? message;
+  final AppFailure? failure;
+
+  const ShowErrorMessage({this.message, this.failure});
 }
 
 class ShowFailure extends BaseUiEvent {
@@ -22,7 +26,13 @@ class ShowFailure extends BaseUiEvent {
 class NavigateTo extends BaseUiEvent {
   final String routeName;
   final Object? arguments;
-  const NavigateTo(this.routeName, {this.arguments});
+  final bool isReplacement;
+
+  const NavigateTo(
+    this.routeName, {
+    this.arguments,
+    this.isReplacement = false,
+  });
 }
 
 class PopRoute extends BaseUiEvent {
