@@ -93,6 +93,7 @@
 
   "pickupAddress": "Pickup address",
   "userAddress": "User address",
+  "unknown": "Unknown",
   "flowery": "Flowery",
   "floweryStore": "Flowery store",
   "address": "20th st, Sheikh Zayed, Giza",
@@ -179,5 +180,10 @@
   "failureUnknown": "Something went wrong. Please try again.",
   "creditCard": "Credit card",
   "noOrdersYet": "No orders yet",
+  "call": "Call",
+  "whatsApp": "WhatsApp",
+  "invalidOrderId": "Invalid order ID",
+  "orderStatusUpdatedSuccessfully": "Order status updated successfully",
+  "retry": "Retry",
   "badResponse": "Invalid response received from the server."
 }

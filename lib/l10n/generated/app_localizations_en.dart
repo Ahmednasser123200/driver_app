@@ -269,6 +269,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userAddress => 'User address';
 
   @override
+  String get unknown => 'Unknown';
+
+  @override
   String get flowery => 'Flowery';
 
   @override
@@ -518,6 +521,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noOrdersYet => 'No orders yet';
+
+  @override
+  String get call => 'Call';
+
+  @override
+  String get whatsApp => 'WhatsApp';
+
+  @override
+  String get invalidOrderId => 'Invalid order ID';
+
+  @override
+  String get orderStatusUpdatedSuccessfully =>
+      'Order status updated successfully';
+
+  @override
+  String get retry => 'Retry';
 
   @override
   String get badResponse => 'Invalid response received from the server.';

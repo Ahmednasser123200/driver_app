@@ -1,6 +1,11 @@
 import 'package:driver_app/features/onboarding/screen/onboarding_view.dart';
 import 'package:flutter/material.dart';
 import '../../features/auth/presentation/login/view/login_view.dart';
+import 'package:driver_app/config/di/di.dart';
+import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
+import 'package:driver_app/features/order_details/presentation/view/order_details_view.dart';
+import 'package:driver_app/l10n/generated/app_localizations.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/shared/widgets/bottom_navigation_bar.dart';
 import '../../features/order_history/presentation/view/order_history_details_view.dart';
@@ -59,7 +64,6 @@ abstract final class AppRoutes {
           settings: settings,
           builder: (_) => const OrdersView(),
         );
-
       case Routes.orderHistoryDetails:
         final args = settings.arguments;
         final orderId = args is String ? args : '';
@@ -68,6 +72,22 @@ abstract final class AppRoutes {
           builder: (_) => OrderHistoryDetailsView(orderId: orderId),
         );
 
+      case Routes.orderDetails:
+        final arguments = settings.arguments;
+        if (arguments is! String || arguments.isEmpty) {
+          return MaterialPageRoute(
+            settings: settings,
+            builder: (context) =>
+                _StubScreen(AppLocalizations.of(context)!.invalidOrderId),
+          );
+        }
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => BlocProvider(
+            create: (_) => getIt<OrderDetailsCubit>(),
+            child: OrderDetailsView(orderId: arguments),
+          ),
+        );
       case Routes.tracking:
         return MaterialPageRoute(
           settings: settings,

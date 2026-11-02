@@ -590,6 +590,12 @@ abstract class AppLocalizations {
   /// **'User address'**
   String get userAddress;
 
+  /// No description provided for @unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get unknown;
+
   /// No description provided for @flowery.
   ///
   /// In en, this message translates to:
@@ -1063,6 +1069,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No orders yet'**
   String get noOrdersYet;
+
+  /// No description provided for @call.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get call;
+
+  /// No description provided for @whatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp'**
+  String get whatsApp;
+
+  /// No description provided for @invalidOrderId.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid order ID'**
+  String get invalidOrderId;
+
+  /// No description provided for @orderStatusUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Order status updated successfully'**
+  String get orderStatusUpdatedSuccessfully;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
 
   /// No description provided for @badResponse.
   ///

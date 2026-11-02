@@ -3,9 +3,9 @@ import 'package:equatable/equatable.dart';
 
 class BaseState<T> extends Equatable {
   final String errorMessage;
+  final AppFailure? failure;
   final bool isLoading;
   final T? data;
-  final AppFailure? failure;
 
   const BaseState({
     this.isLoading = false,
@@ -18,6 +18,7 @@ class BaseState<T> extends Equatable {
 
   BaseState<T> copyWith({
     String? errorMessage,
+    bool clearFailure = false,
     bool? isLoading,
     Object? data = _clearValue,
     Object? failure = _clearValue,
@@ -25,10 +26,12 @@ class BaseState<T> extends Equatable {
     return BaseState<T>(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
-      data: identical(data, _clearValue) ? this.data : data as T?,
-      failure: identical(failure, _clearValue)
+      failure: clearFailure
+          ? null
+          : identical(failure, _clearValue)
           ? this.failure
           : failure as AppFailure?,
+      data: identical(data, _clearValue) ? this.data : data as T?,
     );
   }
 

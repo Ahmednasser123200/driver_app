@@ -272,6 +272,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get userAddress => 'عنوان المستخدم';
 
   @override
+  String get unknown => 'غير معروف';
+
+  @override
   String get flowery => 'فلاوري';
 
   @override
@@ -514,6 +517,21 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get noOrdersYet => 'لا توجد طلبات بعد';
+
+  @override
+  String get call => 'اتصال';
+
+  @override
+  String get whatsApp => 'واتساب';
+
+  @override
+  String get invalidOrderId => 'رقم الطلب غير صالح';
+
+  @override
+  String get orderStatusUpdatedSuccessfully => 'تم تحديث حالة الطلب بنجاح';
+
+  @override
+  String get retry => 'إعادة المحاولة';
 
   @override
   String get badResponse => 'استجابة غير صالحة من الخادم.';

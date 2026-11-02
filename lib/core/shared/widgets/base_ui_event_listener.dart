@@ -44,6 +44,7 @@ class _BaseUiEventListenerState<
   @override
   void didUpdateWidget(covariant BaseUiEventListener<C, S, E> oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     if (oldWidget.cubit != widget.cubit) {
       _unsubscribe();
       _subscribe();
@@ -52,6 +53,7 @@ class _BaseUiEventListenerState<
 
   void _subscribe() {
     final targetCubit = widget.cubit ?? context.read<C>();
+
     _subscription = targetCubit.uiEventStream.listen((event) {
       if (mounted) {
         _handleEvent(context, event);
@@ -68,20 +70,27 @@ class _BaseUiEventListenerState<
             backgroundColor: AppColors.success,
           ),
         );
-      case ShowErrorMessage() || ShowFailure():
+      case ShowErrorMessage():
         final l10n = AppLocalizations.of(context)!;
-        final errorMessage = switch (event) {
-          ShowErrorMessage(:final failure, :final message) =>
-            failure != null ? mapAppFailureToMessage(failure, l10n) : message,
-          ShowFailure(:final failure) => mapAppFailureToMessage(failure, l10n),
-          _ => null,
-        };
-        if (errorMessage == null || errorMessage.isEmpty) return;
+        final message = event.failure != null
+            ? mapAppFailureToMessage(event.failure!, l10n)
+            : event.message ?? '';
+        if (message.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message), backgroundColor: AppColors.error),
+          );
+        }
+      case ShowFailure():
+        final l10n = AppLocalizations.of(context)!;
+        final message = mapAppFailureToMessage(event.failure, l10n);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: AppColors.error,
-          ),
+          SnackBar(content: Text(message), backgroundColor: AppColors.error),
+        );
+      case ShowFailureMessage():
+        final l10n = AppLocalizations.of(context)!;
+        final message = mapAppFailureToMessage(event.failure, l10n);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: AppColors.error),
         );
       case NavigateTo():
         if (event.isReplacement) {
@@ -95,7 +104,6 @@ class _BaseUiEventListenerState<
         }
       case PopRoute():
         Navigator.of(context).pop(event.result);
-
       default:
         widget.onCustomEvent?.call(context, event);
     }
@@ -113,5 +121,7 @@ class _BaseUiEventListenerState<
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
 }

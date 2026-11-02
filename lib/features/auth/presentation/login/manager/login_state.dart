@@ -34,6 +34,7 @@ class LoginState extends BaseState<LoginEntity> {
     bool? loginSuccess,
     bool? obscurePassword,
     bool? isLoading,
+    bool clearFailure = false,
     String? errorMessage,
     Object? data = _keep,
     Object? failure = _keep,       // <--Added: دي اللي كانت ناقصة
@@ -47,7 +48,11 @@ class LoginState extends BaseState<LoginEntity> {
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
       data: identical(data, _keep) ? this.data : data as LoginEntity?,
-      failure: identical(failure, _keep) ? this.failure : failure as AppFailure?,
+      failure: clearFailure
+          ? null
+          : identical(failure, _keep)
+          ? this.failure
+          : failure as AppFailure?,
     );
   }
 

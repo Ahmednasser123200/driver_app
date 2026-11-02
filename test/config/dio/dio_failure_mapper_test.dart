@@ -4,8 +4,12 @@ import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  DioException error(DioExceptionType type, {int? statusCode, Object? body}) {
-    final options = RequestOptions(path: '/test');
+  DioException exception({
+    required DioExceptionType type,
+    int? statusCode,
+    Object? data,
+  }) {
+    final options = RequestOptions(path: '/orders');
     return DioException(
       requestOptions: options,
       type: type,
@@ -14,223 +18,168 @@ void main() {
           : Response<dynamic>(
               requestOptions: options,
               statusCode: statusCode,
-              data: body,
+              data: data,
             ),
     );
   }
 
-  group('transport level errors', () {
-    test('connectionError maps to InternetConnectionFailure', () {
+  group('transport errors', () {
+    test('maps connection errors', () {
       expect(
-        mapDioExceptionToAppFailure(error(DioExceptionType.connectionError)),
+        mapDioExceptionToAppFailure(
+          exception(type: DioExceptionType.connectionError),
+        ),
         isA<InternetConnectionFailure>(),
       );
     });
 
-    test('connectionTimeout maps to TimeoutFailure', () {
-      expect(
-        mapDioExceptionToAppFailure(error(DioExceptionType.connectionTimeout)),
-        isA<TimeoutFailure>(),
-      );
+    test('maps all timeout types', () {
+      for (final type in [
+        DioExceptionType.connectionTimeout,
+        DioExceptionType.sendTimeout,
+        DioExceptionType.receiveTimeout,
+        DioExceptionType.transformTimeout,
+      ]) {
+        expect(
+          mapDioExceptionToAppFailure(exception(type: type)),
+          isA<TimeoutFailure>(),
+          reason: '$type',
+        );
+      }
     });
 
-    test('sendTimeout maps to TimeoutFailure', () {
+    test('maps cancel, certificate, and unknown errors', () {
       expect(
-        mapDioExceptionToAppFailure(error(DioExceptionType.sendTimeout)),
-        isA<TimeoutFailure>(),
-      );
-    });
-
-    test('receiveTimeout maps to TimeoutFailure', () {
-      expect(
-        mapDioExceptionToAppFailure(error(DioExceptionType.receiveTimeout)),
-        isA<TimeoutFailure>(),
-      );
-    });
-
-    test('transformTimeout maps to TimeoutFailure', () {
-      expect(
-        mapDioExceptionToAppFailure(error(DioExceptionType.transformTimeout)),
-        isA<TimeoutFailure>(),
-      );
-    });
-
-    test('cancel maps to CancelFailure', () {
-      expect(
-        mapDioExceptionToAppFailure(error(DioExceptionType.cancel)),
+        mapDioExceptionToAppFailure(exception(type: DioExceptionType.cancel)),
         isA<CancelFailure>(),
       );
-    });
-
-    test('badCertificate maps to BadCertificateFailure', () {
       expect(
-        mapDioExceptionToAppFailure(error(DioExceptionType.badCertificate)),
+        mapDioExceptionToAppFailure(
+          exception(type: DioExceptionType.badCertificate),
+        ),
         isA<BadCertificateFailure>(),
       );
-    });
-
-    test('unknown maps to UnknownFailure', () {
       expect(
-        mapDioExceptionToAppFailure(error(DioExceptionType.unknown)),
+        mapDioExceptionToAppFailure(exception(type: DioExceptionType.unknown)),
         isA<UnknownFailure>(),
       );
     });
   });
 
-  group('badResponse status codes', () {
-    test('400 maps to BadRequestFailure', () {
-      expect(
-        mapDioExceptionToAppFailure(
-          error(DioExceptionType.badResponse, statusCode: 400),
+  group('HTTP responses', () {
+    test('maps 400 and preserves the message', () {
+      final result = mapDioExceptionToAppFailure(
+        exception(
+          type: DioExceptionType.badResponse,
+          statusCode: 400,
+          data: {'message': 'Invalid order'},
         ),
-        isA<BadRequestFailure>(),
+      );
+
+      expect(result, isA<BadRequestFailure>());
+      expect((result as BadRequestFailure).serverMessage, 'Invalid order');
+    });
+
+    test('maps 401, 403, 404, and 405', () {
+      final expected = <int, Type>{
+        401: UnauthorizedFailure,
+        403: ForbiddenFailure,
+        404: NotFoundFailure,
+        405: MethodNotAllowedFailure,
+      };
+
+      for (final entry in expected.entries) {
+        final result = mapDioExceptionToAppFailure(
+          exception(type: DioExceptionType.badResponse, statusCode: entry.key),
+        );
+        expect(result.runtimeType, entry.value, reason: '${entry.key}');
+      }
+    });
+
+    test('maps conflict and validation responses with server messages', () {
+      final conflict = mapDioExceptionToAppFailure(
+        exception(
+          type: DioExceptionType.badResponse,
+          statusCode: 409,
+          data: {'message': 'Already delivering'},
+        ),
+      );
+      final invalid = mapDioExceptionToAppFailure(
+        exception(
+          type: DioExceptionType.badResponse,
+          statusCode: 422,
+          data: {'message': 'Invalid status'},
+        ),
+      );
+
+      expect((conflict as ConflictFailure).serverMessage, 'Already delivering');
+      expect(
+        (invalid as UnprocessableEntityFailure).serverMessage,
+        'Invalid status',
       );
     });
 
-    test('401 maps to UnauthorizedFailure', () {
+    test('maps 429 and server errors', () {
       expect(
         mapDioExceptionToAppFailure(
-          error(DioExceptionType.badResponse, statusCode: 401),
-        ),
-        isA<UnauthorizedFailure>(),
-      );
-    });
-
-    test('403 maps to ForbiddenFailure', () {
-      expect(
-        mapDioExceptionToAppFailure(
-          error(DioExceptionType.badResponse, statusCode: 403),
-        ),
-        isA<ForbiddenFailure>(),
-      );
-    });
-
-    test('404 maps to NotFoundFailure', () {
-      expect(
-        mapDioExceptionToAppFailure(
-          error(DioExceptionType.badResponse, statusCode: 404),
-        ),
-        isA<NotFoundFailure>(),
-      );
-    });
-
-    test('405 maps to MethodNotAllowedFailure', () {
-      expect(
-        mapDioExceptionToAppFailure(
-          error(DioExceptionType.badResponse, statusCode: 405),
-        ),
-        isA<MethodNotAllowedFailure>(),
-      );
-    });
-
-    test('409 maps to ConflictFailure', () {
-      expect(
-        mapDioExceptionToAppFailure(
-          error(DioExceptionType.badResponse, statusCode: 409),
-        ),
-        isA<ConflictFailure>(),
-      );
-    });
-
-    test('422 maps to UnprocessableEntityFailure', () {
-      expect(
-        mapDioExceptionToAppFailure(
-          error(DioExceptionType.badResponse, statusCode: 422),
-        ),
-        isA<UnprocessableEntityFailure>(),
-      );
-    });
-
-    test('429 maps to TooManyRequestsFailure', () {
-      expect(
-        mapDioExceptionToAppFailure(
-          error(DioExceptionType.badResponse, statusCode: 429),
+          exception(type: DioExceptionType.badResponse, statusCode: 429),
         ),
         isA<TooManyRequestsFailure>(),
       );
+
+      final result = mapDioExceptionToAppFailure(
+        exception(type: DioExceptionType.badResponse, statusCode: 500),
+      );
+      expect((result as ServerFailure).statusCode, 500);
     });
 
-    test('an unmapped status code falls back to ServerFailure', () {
-      expect(
-        mapDioExceptionToAppFailure(
-          error(DioExceptionType.badResponse, statusCode: 503),
-        ),
-        isA<ServerFailure>(),
+    test('maps a response without a status code to ServerFailure', () {
+      final result = mapDioExceptionToAppFailure(
+        exception(type: DioExceptionType.badResponse),
       );
+      expect((result as ServerFailure).statusCode, isNull);
     });
   });
 
   group('server message extraction', () {
-    test('reads "message" from a map body', () {
-      final failure = mapDioExceptionToAppFailure(
-        error(
-          DioExceptionType.badResponse,
+    test('uses error and detail when message is absent', () {
+      final error = mapDioExceptionToAppFailure(
+        exception(
+          type: DioExceptionType.badResponse,
           statusCode: 400,
-          body: {'message': 'Email already in use'},
+          data: {'error': 'Error message'},
+        ),
+      );
+      final detail = mapDioExceptionToAppFailure(
+        exception(
+          type: DioExceptionType.badResponse,
+          statusCode: 400,
+          data: {'detail': 'Detailed message'},
         ),
       );
 
-      expect(
-        (failure as BadRequestFailure).serverMessage,
-        'Email already in use',
-      );
+      expect((error as BadRequestFailure).serverMessage, 'Error message');
+      expect((detail as BadRequestFailure).serverMessage, 'Detailed message');
     });
 
-    test('falls back to "error" then "detail"', () {
-      expect(
-        (mapDioExceptionToAppFailure(
-                  error(
-                    DioExceptionType.badResponse,
-                    statusCode: 400,
-                    body: {'error': 'bad otp'},
-                  ),
-                )
-                as BadRequestFailure)
-            .serverMessage,
-        'bad otp',
-      );
-      expect(
-        (mapDioExceptionToAppFailure(
-                  error(
-                    DioExceptionType.badResponse,
-                    statusCode: 400,
-                    body: {'detail': 'too many attempts'},
-                  ),
-                )
-                as BadRequestFailure)
-            .serverMessage,
-        'too many attempts',
-      );
-    });
-
-    test('returns null when the body carries no known key', () {
-      expect(
-        (mapDioExceptionToAppFailure(
-                  error(
-                    DioExceptionType.badResponse,
-                    statusCode: 400,
-                    body: {'unrelated': 'value'},
-                  ),
-                )
-                as BadRequestFailure)
-            .serverMessage,
-        isNull,
-      );
-    });
-
-    test('ignores a non-string message value', () {
-      expect(
-        (mapDioExceptionToAppFailure(
-                  error(
-                    DioExceptionType.badResponse,
-                    statusCode: 400,
-                    body: {'message': 42},
-                  ),
-                )
-                as BadRequestFailure)
-            .serverMessage,
-        isNull,
-      );
+    test('ignores non-string, empty, and non-map response bodies', () {
+      for (final data in [
+        {
+          'message': null,
+          'error': <String, Object>{'code': 'Conflict'},
+        },
+        {'message': ''},
+        'plain text',
+      ]) {
+        final result = mapDioExceptionToAppFailure(
+          exception(
+            type: DioExceptionType.badResponse,
+            statusCode: 400,
+            data: data,
+          ),
+        );
+        expect((result as BadRequestFailure).serverMessage, isNull);
+      }
     });
   });
 }

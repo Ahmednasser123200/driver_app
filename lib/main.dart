@@ -26,10 +26,7 @@ Future<void> main() async {
 class DriverApp extends StatelessWidget {
   final String initialRoute;
 
-  const DriverApp({
-    super.key,
-    this.initialRoute = Routes.login,
-  });
+  const DriverApp({super.key, this.initialRoute = Routes.login});
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +44,7 @@ class DriverApp extends StatelessWidget {
           locale: const Locale('en'),
           initialRoute: initialRoute,
           onGenerateRoute: AppRoutes.onGenerateRoute,
-          );
+        );
       },
     );
   }

@@ -51,6 +51,24 @@ import '../../features/auth/presentation/forget_password/manager/cubit/forget_pa
     as _i667;
 import '../../features/auth/presentation/login/manager/login_cubit.dart'
     as _i889;
+import '../../features/order_details/api/client/order_details_api_client.dart'
+    as _i329;
+import '../../features/order_details/api/data_source_impl/remote/order_details_remote_data_source_impl.dart'
+    as _i537;
+import '../../features/order_details/data/datasources/order_details_remote_data_source.dart'
+    as _i702;
+import '../../features/order_details/data/repo/order_details_repo_impl.dart'
+    as _i692;
+import '../../features/order_details/domain/repo/order_details_repo.dart'
+    as _i788;
+import '../../features/order_details/domain/usecases/get_driver_order_details_use_case.dart'
+    as _i837;
+import '../../features/order_details/domain/usecases/report_driver_location_use_case.dart'
+    as _i59;
+import '../../features/order_details/domain/usecases/update_order_status_use_case.dart'
+    as _i591;
+import '../../features/order_details/presentation/manager/cubit/order_details_cubit.dart'
+    as _i841;
 import '../../features/order_history/api/client/order_history_api_client.dart'
     as _i380;
 import '../../features/order_history/api/data_source_impl/order_history_remote_data_source_impl.dart'
@@ -108,8 +126,20 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i213.AuthApiClient>(
       () => _i213.AuthApiClient(gh<_i361.Dio>()),
     );
+    gh.singleton<_i329.OrderDetailsApiClient>(
+      () => _i329.OrderDetailsApiClient(gh<_i361.Dio>()),
+    );
     gh.singleton<_i380.OrderHistoryApiClient>(
       () => _i380.OrderHistoryApiClient(gh<_i361.Dio>()),
+    );
+    gh.factory<_i702.OrderDetailsRemoteDataSource>(
+      () => _i537.OrderDetailsRemoteDataSourceImpl(
+        gh<_i329.OrderDetailsApiClient>(),
+      ),
+    );
+    gh.factory<_i788.OrderDetailsRepo>(
+      () =>
+          _i692.OrderDetailsRepoImpl(gh<_i702.OrderDetailsRemoteDataSource>()),
     );
     gh.factory<_i885.AuthRemoteDataSource>(
       () => _i319.AuthRemoteDataSourceImpl(gh<_i213.AuthApiClient>()),
@@ -122,6 +152,21 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i184.OrderHistoryRepo>(
       () =>
           _i325.OrderHistoryRepoImpl(gh<_i794.OrderHistoryRemoteDataSource>()),
+    );
+    gh.factory<_i837.GetDriverOrderDetailsUseCase>(
+      () => _i837.GetDriverOrderDetailsUseCase(gh<_i788.OrderDetailsRepo>()),
+    );
+    gh.factory<_i59.ReportDriverLocationUseCase>(
+      () => _i59.ReportDriverLocationUseCase(gh<_i788.OrderDetailsRepo>()),
+    );
+    gh.factory<_i591.UpdateOrderStatusUseCase>(
+      () => _i591.UpdateOrderStatusUseCase(gh<_i788.OrderDetailsRepo>()),
+    );
+    gh.factory<_i841.OrderDetailsCubit>(
+      () => _i841.OrderDetailsCubit(
+        getDriverOrderDetailsUseCase: gh<_i837.GetDriverOrderDetailsUseCase>(),
+        updateOrderStatusUseCase: gh<_i591.UpdateOrderStatusUseCase>(),
+      ),
     );
     gh.factory<_i170.AuthRepo>(
       () => _i279.AuthRepoImpl(

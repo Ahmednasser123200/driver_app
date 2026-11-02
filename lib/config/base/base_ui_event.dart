@@ -1,6 +1,7 @@
 import '../errors/app_failure.dart';
 
 part 'forget_password_ui_event.dart';
+part '../../features/order_details/presentation/manager/cubit/order_details_ui_event.dart';
 
 abstract class BaseUiEvent {
   const BaseUiEvent();
@@ -8,6 +9,7 @@ abstract class BaseUiEvent {
 
 class ShowSuccessMessage extends BaseUiEvent {
   final String message;
+
   const ShowSuccessMessage(this.message);
 }
 
@@ -20,6 +22,7 @@ class ShowErrorMessage extends BaseUiEvent {
 
 class ShowFailure extends BaseUiEvent {
   final AppFailure failure;
+
   const ShowFailure(this.failure);
 }
 
@@ -37,5 +40,12 @@ class NavigateTo extends BaseUiEvent {
 
 class PopRoute extends BaseUiEvent {
   final Object? result;
+
   const PopRoute([this.result]);
+}
+
+class ShowFailureMessage extends BaseUiEvent {
+  final AppFailure failure;
+
+  const ShowFailureMessage(this.failure);
 }
