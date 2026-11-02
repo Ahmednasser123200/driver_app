@@ -11,18 +11,12 @@ class StoreDto {
   @JsonKey(name: 'address')
   final String address;
 
-  StoreDto({
-    required this.name,
-    required this.address,
-  });
+  StoreDto({required this.name, required this.address});
 
   factory StoreDto.fromJson(Map<String, dynamic> json) =>
       _$StoreDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$StoreDtoToJson(this);
 
-  Store toDomain() => Store(
-    name: name,
-    address: address,
-  );
+  Store toDomain() => Store(name: name, address: address);
 }

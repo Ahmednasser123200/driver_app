@@ -154,7 +154,7 @@ void main() {
     );
 
     test(
-      'does not persist tokens and deletes remembered email when rememberMe is false',
+      'persists tokens and deletes remembered email when rememberMe is false',
       () async {
         when(
           () => mockRemoteDataSource.login(any()),
@@ -181,13 +181,13 @@ void main() {
         verify(
           () => mockTokenStorageService.saveAccessToken(
             'mock_access_token',
-            persist: false,
+            persist: true,
           ),
         ).called(1);
         verify(
           () => mockTokenStorageService.saveRefreshToken(
             'mock_refresh_token',
-            persist: false,
+            persist: true,
           ),
         ).called(1);
         verify(() => mockTokenStorageService.deleteRememberedEmail()).called(1);

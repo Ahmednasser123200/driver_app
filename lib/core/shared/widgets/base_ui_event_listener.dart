@@ -1,12 +1,13 @@
 import 'dart:async';
 
+import 'package:driver_app/config/localization/app_failure_message_mapper.dart';
+import 'package:driver_app/config/localization/handle_success_text.dart';
+import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../config/base/base_cubit.dart';
 import '../../../config/base/base_ui_event.dart';
-import '../../../config/localization/app_failure_message_mapper.dart';
-import '../../../l10n/generated/app_localizations.dart';
 import '../../themes/app_colors/app_colors.dart';
 
 class BaseUiEventListener<C extends BaseCubit<S, E>, S, E extends BaseUiEvent>
@@ -44,7 +45,6 @@ class _BaseUiEventListenerState<
   @override
   void didUpdateWidget(covariant BaseUiEventListener<C, S, E> oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     if (oldWidget.cubit != widget.cubit) {
       _unsubscribe();
       _subscribe();
@@ -53,7 +53,6 @@ class _BaseUiEventListenerState<
 
   void _subscribe() {
     final targetCubit = widget.cubit ?? context.read<C>();
-
     _subscription = targetCubit.uiEventStream.listen((event) {
       if (mounted) {
         _handleEvent(context, event);
@@ -64,16 +63,23 @@ class _BaseUiEventListenerState<
   void _handleEvent(BuildContext context, E event) {
     switch (event) {
       case ShowSuccessMessage():
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(event.message),
-            backgroundColor: AppColors.success,
+        final message = switch (event.message) {
+          AppSuccessEnum value => handleSuccessText(
+            AppLocalizations.of(context)!,
+            value,
           ),
+          String value => value,
+          _ => event.message.toString(),
+        };
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: AppColors.success),
         );
       case ShowErrorMessage():
-        final l10n = AppLocalizations.of(context)!;
         final message = event.failure != null
-            ? mapAppFailureToMessage(event.failure!, l10n)
+            ? mapAppFailureToMessage(
+                event.failure!,
+                AppLocalizations.of(context)!,
+              )
             : event.message ?? '';
         if (message.isNotEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -81,26 +87,30 @@ class _BaseUiEventListenerState<
           );
         }
       case ShowFailure():
-        final l10n = AppLocalizations.of(context)!;
-        final message = mapAppFailureToMessage(event.failure, l10n);
+        final message = mapAppFailureToMessage(
+          event.failure,
+          AppLocalizations.of(context)!,
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(message), backgroundColor: AppColors.error),
         );
       case ShowFailureMessage():
-        final l10n = AppLocalizations.of(context)!;
-        final message = mapAppFailureToMessage(event.failure, l10n);
+        final message = mapAppFailureToMessage(
+          event.failure,
+          AppLocalizations.of(context)!,
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(message), backgroundColor: AppColors.error),
         );
       case NavigateTo():
+        final navigator = Navigator.of(context);
         if (event.isReplacement) {
-          Navigator.of(
-            context,
-          ).pushReplacementNamed(event.routeName, arguments: event.arguments);
+          navigator.pushReplacementNamed(
+            event.routeName,
+            arguments: event.arguments,
+          );
         } else {
-          Navigator.of(
-            context,
-          ).pushNamed(event.routeName, arguments: event.arguments);
+          navigator.pushNamed(event.routeName, arguments: event.arguments);
         }
       case PopRoute():
         Navigator.of(context).pop(event.result);
@@ -121,7 +131,5 @@ class _BaseUiEventListenerState<
   }
 
   @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
+  Widget build(BuildContext context) => widget.child;
 }

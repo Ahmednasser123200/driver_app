@@ -76,7 +76,7 @@ abstract final class AppStrings {
       'You want to be a delivery man?\nJoin our team';
   static const String vehicleInfo = 'Vehicle info';
   static const String vehicleType = 'Vehicle type';
-static const String unknown = 'Unknown';
+  static const String unknown = 'Unknown';
   static const String vehicleNumber = 'Vehicle number';
   static const String vehicleLicense = 'Vehicle license';
   static const String enterVehicleNumber = 'Enter vehicle number';
@@ -389,4 +389,7 @@ static const String unknown = 'Unknown';
   static const String statusArrived = 'Status : Arrived';
   static const String statusPicked = 'Status : Picked';
   static const String statusActive = 'Active';
+  static const String page = 'page';
+  static const String pageSize = 'pageSize';
+  static const String noOrders = 'No orders available';
 }

@@ -50,7 +50,6 @@ class AvailableOrderDto {
       _$AvailableOrderDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$AvailableOrderDtoToJson(this);
-
   AvailableOrder toDomain() => AvailableOrder(
     orderId: orderId,
     status: status,

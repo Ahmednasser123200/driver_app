@@ -1,10 +1,16 @@
 import 'package:driver_app/features/onboarding/screen/onboarding_view.dart';
-import 'package:flutter/material.dart';
-import '../../features/auth/presentation/login/view/login_view.dart';
 import 'package:driver_app/config/di/di.dart';
+import 'package:driver_app/config/base/base_ui_event.dart';
+import 'package:driver_app/core/shared/widgets/base_ui_event_listener.dart';
+import 'package:driver_app/features/auth/presentation/login/view/login_view.dart';
+import 'package:driver_app/features/home/presentation/manager/cubit/home_cubit.dart';
+import 'package:driver_app/features/home/presentation/manager/cubit/home_event.dart';
+import 'package:driver_app/features/home/presentation/manager/cubit/home_state.dart';
+import 'package:driver_app/features/home/presentation/view/home_driver_view.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
 import 'package:driver_app/features/order_details/presentation/view/order_details_view.dart';
 import 'package:driver_app/l10n/generated/app_localizations.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/shared/widgets/bottom_navigation_bar.dart';
@@ -53,13 +59,20 @@ abstract final class AppRoutes {
       case Routes.home:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const AppBottomNavigationBar(
-            homeScreen: _StubScreen('Home'),
-            ordersScreen: OrdersView(),
-            profileScreen: _StubScreen('Profile'),
+          builder: (_) => BlocProvider<HomeCubit>(
+            create: (context) =>
+                getIt.get<HomeCubit>()..doEvent(GetAvailableOrdersEvent()),
+            child: BaseUiEventListener<HomeCubit, HomeState, BaseUiEvent>(
+              child: AppBottomNavigationBar(
+                homeScreen: const HomeDriverView(),
+                ordersScreen: const OrdersView(),
+                profileScreen: const _StubScreen('Profile'),
+              ),
+            ),
           ),
         );
       case Routes.ordersHistory:
+      case Routes.orders:
         return MaterialPageRoute(
           settings: settings,
           builder: (_) => const OrdersView(),

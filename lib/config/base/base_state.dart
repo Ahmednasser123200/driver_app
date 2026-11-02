@@ -26,12 +26,12 @@ class BaseState<T> extends Equatable {
     return BaseState<T>(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
+      data: identical(data, _clearValue) ? this.data : data as T?,
       failure: clearFailure
           ? null
           : identical(failure, _clearValue)
           ? this.failure
           : failure as AppFailure?,
-      data: identical(data, _clearValue) ? this.data : data as T?,
     );
   }
 

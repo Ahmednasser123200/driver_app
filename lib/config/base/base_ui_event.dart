@@ -8,7 +8,7 @@ abstract class BaseUiEvent {
 }
 
 class ShowSuccessMessage extends BaseUiEvent {
-  final String message;
+  final Object message;
 
   const ShowSuccessMessage(this.message);
 }

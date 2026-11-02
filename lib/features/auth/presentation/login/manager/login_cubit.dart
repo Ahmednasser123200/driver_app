@@ -19,10 +19,8 @@ class LoginCubit extends BaseCubit<LoginState, BaseUiEvent> {
   final LoginUseCase _loginUseCase;
   final GetRememberedEmailUseCase _getRememberedEmailUseCase;
 
-  LoginCubit(
-    this._loginUseCase,
-    this._getRememberedEmailUseCase,
-  ) : super(const LoginState());
+  LoginCubit(this._loginUseCase, this._getRememberedEmailUseCase)
+    : super(const LoginState());
 
   Future<void> handle(LoginIntent intent) async {
     switch (intent) {
@@ -62,13 +60,7 @@ class LoginCubit extends BaseCubit<LoginState, BaseUiEvent> {
       case Success<LoginEntity>(data: final login):
         emit(state.copyWith(isLoading: false, data: login, loginSuccess: true));
         emitEvent(const ShowSuccessMessage(AppStrings.loggedInSuccessfully));
-
-        if (login.driverStatus.toLowerCase() ==
-            AppStrings.statusPending.toLowerCase()) {
-          emitEvent(const ShowErrorMessage(message: AppStrings.loginFailed));
-        } else {
-          emitEvent(const NavigateTo(Routes.home, isReplacement: true));
-        }
+        emitEvent(const NavigateTo(Routes.home, isReplacement: true));
 
       case Error<LoginEntity>(:final failure):
         emit(state.copyWith(isLoading: false));

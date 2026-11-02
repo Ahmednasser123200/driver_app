@@ -66,6 +66,7 @@ flutter:
     - assets/lottie/
     - assets/splash/
     - assets/images/
+    - assets/
 
   generate: true
 

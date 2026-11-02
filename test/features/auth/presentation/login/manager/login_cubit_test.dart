@@ -25,9 +25,7 @@ void main() {
   late MockGetRememberedEmailUseCase mockGetRememberedEmailUseCase;
 
   setUpAll(() {
-    registerFallbackValue(
-      const LoginCredentials(email: '', password: ''),
-    );
+    registerFallbackValue(const LoginCredentials(email: '', password: ''));
   });
 
   setUp(() {
@@ -77,18 +75,14 @@ void main() {
       'emits updated rememberMe when RememberMeChanged intent is sent',
       build: createCubit,
       act: (cubit) => cubit.handle(RememberMeChanged(true)),
-      expect: () => [
-        const LoginState(rememberMe: true),
-      ],
+      expect: () => [const LoginState(rememberMe: true)],
     );
 
     blocTest<LoginCubit, LoginState>(
       'toggles obscurePassword when TogglePasswordVisibility intent is sent',
       build: createCubit,
       act: (cubit) => cubit.handle(TogglePasswordVisibility()),
-      expect: () => [
-        const LoginState(obscurePassword: false),
-      ],
+      expect: () => [const LoginState(obscurePassword: false)],
     );
   });
 
@@ -152,53 +146,63 @@ void main() {
       },
     );
 
-    test('emits ShowSuccessMessage and ShowErrorMessage when driverStatus is pending', () async {
-      when(
-        () => mockLoginUseCase(any(), rememberMe: any(named: 'rememberMe')),
-      ).thenAnswer((_) async => const Success(loginEntityPending));
+    test(
+      'routes to home after successful login when driverStatus is pending',
+      () async {
+        when(
+          () => mockLoginUseCase(any(), rememberMe: any(named: 'rememberMe')),
+        ).thenAnswer((_) async => const Success(loginEntityPending));
 
-      final loginCubit = createCubit();
-      final events = <BaseUiEvent>[];
-      final subscription = loginCubit.uiEventStream.listen(events.add);
+        final loginCubit = createCubit();
+        final events = <BaseUiEvent>[];
+        final subscription = loginCubit.uiEventStream.listen(events.add);
 
-      loginCubit.handle(EmailChanged('driver@example.com'));
-      loginCubit.handle(PasswordChanged('pass123'));
-      await loginCubit.handle(LoginSubmitted());
-      await Future.delayed(Duration.zero);
+        loginCubit.handle(EmailChanged('driver@example.com'));
+        loginCubit.handle(PasswordChanged('pass123'));
+        await loginCubit.handle(LoginSubmitted());
+        await Future.delayed(Duration.zero);
 
-      expect(events.length, equals(2));
-      expect(events[0], isA<ShowSuccessMessage>());
-      expect((events[0] as ShowSuccessMessage).message, equals(AppStrings.loggedInSuccessfully));
-      expect(events[1], isA<ShowErrorMessage>());
-      expect((events[1] as ShowErrorMessage).message, equals(AppStrings.loginFailed));
+        expect(events.length, equals(2));
+        expect(events[0], isA<ShowSuccessMessage>());
+        expect(
+          (events[0] as ShowSuccessMessage).message,
+          equals(AppStrings.loggedInSuccessfully),
+        );
+        expect(events[1], isA<NavigateTo>());
+        expect((events[1] as NavigateTo).routeName, equals(Routes.home));
+        expect((events[1] as NavigateTo).isReplacement, isTrue);
 
-      await subscription.cancel();
-      await loginCubit.close();
-    });
+        await subscription.cancel();
+        await loginCubit.close();
+      },
+    );
 
-    test('emits ShowSuccessMessage and NavigateTo home when driverStatus is approved', () async {
-      when(
-        () => mockLoginUseCase(any(), rememberMe: any(named: 'rememberMe')),
-      ).thenAnswer((_) async => const Success(loginEntityApproved));
+    test(
+      'emits ShowSuccessMessage and NavigateTo home when driverStatus is approved',
+      () async {
+        when(
+          () => mockLoginUseCase(any(), rememberMe: any(named: 'rememberMe')),
+        ).thenAnswer((_) async => const Success(loginEntityApproved));
 
-      final loginCubit = createCubit();
-      final events = <BaseUiEvent>[];
-      final subscription = loginCubit.uiEventStream.listen(events.add);
+        final loginCubit = createCubit();
+        final events = <BaseUiEvent>[];
+        final subscription = loginCubit.uiEventStream.listen(events.add);
 
-      loginCubit.handle(EmailChanged('driver@example.com'));
-      loginCubit.handle(PasswordChanged('pass123'));
-      await loginCubit.handle(LoginSubmitted());
-      await Future.delayed(Duration.zero);
+        loginCubit.handle(EmailChanged('driver@example.com'));
+        loginCubit.handle(PasswordChanged('pass123'));
+        await loginCubit.handle(LoginSubmitted());
+        await Future.delayed(Duration.zero);
 
-      expect(events.length, equals(2));
-      expect(events[0], isA<ShowSuccessMessage>());
-      expect(events[1], isA<NavigateTo>());
-      expect((events[1] as NavigateTo).routeName, equals(Routes.home));
-      expect((events[1] as NavigateTo).isReplacement, isTrue);
+        expect(events.length, equals(2));
+        expect(events[0], isA<ShowSuccessMessage>());
+        expect(events[1], isA<NavigateTo>());
+        expect((events[1] as NavigateTo).routeName, equals(Routes.home));
+        expect((events[1] as NavigateTo).isReplacement, isTrue);
 
-      await subscription.cancel();
-      await loginCubit.close();
-    });
+        await subscription.cancel();
+        await loginCubit.close();
+      },
+    );
   });
 
   group('LoginCubit LoginSubmitted Error Flows', () {
@@ -230,8 +234,9 @@ void main() {
     blocTest<LoginCubit, LoginState>(
       'emits email and rememberMe=true when remembered email exists',
       setUp: () {
-        when(() => mockGetRememberedEmailUseCase())
-            .thenAnswer((_) async => 'driver@example.com');
+        when(
+          () => mockGetRememberedEmailUseCase(),
+        ).thenAnswer((_) async => 'driver@example.com');
       },
       build: createCubit,
       act: (cubit) => cubit.handle(LoadRememberedCredentials()),
@@ -243,33 +248,39 @@ void main() {
     blocTest<LoginCubit, LoginState>(
       'does not emit state when remembered email is null or empty',
       setUp: () {
-        when(() => mockGetRememberedEmailUseCase()).thenAnswer((_) async => null);
+        when(
+          () => mockGetRememberedEmailUseCase(),
+        ).thenAnswer((_) async => null);
       },
       build: createCubit,
       act: (cubit) => cubit.handle(LoadRememberedCredentials()),
       expect: () => [],
     );
 
-    test('emits AutofillRememberedEmailEvent on uiEventStream when remembered email exists', () async {
-      when(() => mockGetRememberedEmailUseCase())
-          .thenAnswer((_) async => 'driver@example.com');
+    test(
+      'emits AutofillRememberedEmailEvent on uiEventStream when remembered email exists',
+      () async {
+        when(
+          () => mockGetRememberedEmailUseCase(),
+        ).thenAnswer((_) async => 'driver@example.com');
 
-      final loginCubit = createCubit();
-      final events = <BaseUiEvent>[];
-      final subscription = loginCubit.uiEventStream.listen(events.add);
+        final loginCubit = createCubit();
+        final events = <BaseUiEvent>[];
+        final subscription = loginCubit.uiEventStream.listen(events.add);
 
-      await loginCubit.handle(LoadRememberedCredentials());
-      await Future.delayed(Duration.zero);
+        await loginCubit.handle(LoadRememberedCredentials());
+        await Future.delayed(Duration.zero);
 
-      expect(events.length, equals(1));
-      expect(events[0], isA<AutofillRememberedEmailEvent>());
-      expect(
-        (events[0] as AutofillRememberedEmailEvent).email,
-        equals('driver@example.com'),
-      );
+        expect(events.length, equals(1));
+        expect(events[0], isA<AutofillRememberedEmailEvent>());
+        expect(
+          (events[0] as AutofillRememberedEmailEvent).email,
+          equals('driver@example.com'),
+        );
 
-      await subscription.cancel();
-      await loginCubit.close();
-    });
+        await subscription.cancel();
+        await loginCubit.close();
+      },
+    );
   });
 }

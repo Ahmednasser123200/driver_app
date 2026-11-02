@@ -2,7 +2,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 abstract class ApiStrings {
   static final String baseUrl = dotenv.env['BASE_URL'] ?? '';
-
   static const String login = '/auth/login';
   static const String register = '/auth/register';
   static const String adminLogin = '/auth/admin-login';
@@ -80,8 +79,7 @@ abstract class ApiStrings {
   static const String driverOrders = '/order/drivers/me/orders';
   static const String driverOrderHistory = driverOrders;
   static const String availableOrders = '/order/drivers/available-orders';
-  static String acceptOrder(String orderId) =>
-      '/order/drivers/me/orders/$orderId/accept';
+  static const String acceptOrder = '/order/drivers/me/orders/{orderId}/accept';
   static const String activeOrder = '/order/drivers/me/active-order';
   static const String driverOrderDetails =
       '/order/drivers/me/orders/{$orderIdKey}';

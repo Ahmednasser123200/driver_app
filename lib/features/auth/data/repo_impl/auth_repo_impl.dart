@@ -55,13 +55,10 @@ class AuthRepoImpl implements AuthRepo {
           return Error(NotDriverAccountFailure());
         }
 
-        await _tokenStorage.saveAccessToken(
-          entity.accessToken,
-          persist: rememberMe,
-        );
+        await _tokenStorage.saveAccessToken(entity.accessToken, persist: true);
         await _tokenStorage.saveRefreshToken(
           entity.refreshToken,
-          persist: rememberMe,
+          persist: true,
         );
 
         if (rememberMe) {
