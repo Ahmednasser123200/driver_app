@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:driver_app/config/base/base_cubit.dart';
+import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/core/services/location/location_service.dart';
 import 'package:driver_app/features/delivery_map/domain/models/delivery_map_target.dart';
 import 'package:driver_app/features/delivery_map/domain/use_case/get_driver_location_stream_use_case.dart';
+import 'package:driver_app/features/delivery_map/domain/use_case/get_route_use_case.dart';
 import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_event.dart';
 import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_state.dart';
 import 'package:driver_app/features/delivery_map/presentation/utils/map_marker_generator.dart';
@@ -19,12 +21,15 @@ class DeliveryMapCubit extends BaseCubit<DeliveryMapState, DeliveryMapUiEvent> {
   DeliveryMapCubit({
     required this.getDriverLocationStreamUseCase,
     required this.locationService,
+    required this.getRouteUseCase,
   }) : super(const DeliveryMapState());
 
   final GetDriverLocationStreamUseCase getDriverLocationStreamUseCase;
   final LocationService locationService;
+  final GetRouteUseCase getRouteUseCase;
 
   StreamSubscription<Position>? _driverLocationSubscription;
+  LatLng? _lastRoutedDriverPosition;
 
   Future<void> doEvent(DeliveryMapEvent event) async {
     switch (event) {
@@ -61,6 +66,7 @@ class DeliveryMapCubit extends BaseCubit<DeliveryMapState, DeliveryMapUiEvent> {
       ),
     );
 
+    await _fetchRoute(force: true);
     await _updateMapOverlays();
     await _startLocationTracking();
 
@@ -71,7 +77,38 @@ class DeliveryMapCubit extends BaseCubit<DeliveryMapState, DeliveryMapUiEvent> {
     if (state.target == target) return;
 
     emit(state.copyWith(target: target));
+    await _fetchRoute(force: true);
     await _updateMapOverlays();
+  }
+
+  Future<void> _fetchRoute({bool force = false}) async {
+    final origin = state.driverPosition;
+    final destination = state.destinationLatLng;
+
+    if (!force && _lastRoutedDriverPosition != null) {
+      final distance = PolylineHelper.calculateHaversineDistance(
+        _lastRoutedDriverPosition!,
+        origin,
+      );
+      if (distance < 40.0 && state.route != null) {
+        return;
+      }
+    }
+
+    emit(state.copyWith(isRouteLoading: true));
+
+    final result = await getRouteUseCase(
+      origin: origin,
+      destination: destination,
+    );
+
+    switch (result) {
+      case Success(:final data):
+        _lastRoutedDriverPosition = origin;
+        emit(state.copyWith(route: data, isRouteLoading: false));
+      case Error():
+        emit(state.copyWith(isRouteLoading: false));
+    }
   }
 
   Future<void> _startLocationTracking() async {
@@ -102,6 +139,7 @@ class DeliveryMapCubit extends BaseCubit<DeliveryMapState, DeliveryMapUiEvent> {
         currentPosition.longitude,
       );
       emit(state.copyWith(driverPosition: newDriverPosition));
+      await _fetchRoute(force: false);
       await _updateMapOverlays();
     }
 
@@ -127,13 +165,16 @@ class DeliveryMapCubit extends BaseCubit<DeliveryMapState, DeliveryMapUiEvent> {
   Future<void> _onDriverPositionUpdated(Position position) async {
     final newDriverPosition = LatLng(position.latitude, position.longitude);
     emit(state.copyWith(driverPosition: newDriverPosition));
+    await _fetchRoute(force: false);
     await _updateMapOverlays();
   }
 
   Future<void> _updateMapOverlays() async {
     final markers = await _buildMarkers();
     final polylines = _buildPolylines();
-    debugPrint('DeliveryMapCubit: Updated overlays with ${markers.length} markers and ${polylines.length} polylines');
+    debugPrint(
+      'DeliveryMapCubit: Updated overlays with ${markers.length} markers and ${polylines.length} polylines',
+    );
     emit(state.copyWith(markers: markers, polylines: polylines));
   }
 
@@ -172,8 +213,10 @@ class DeliveryMapCubit extends BaseCubit<DeliveryMapState, DeliveryMapUiEvent> {
   }
 
   Set<Polyline> _buildPolylines() {
+    final routePoints = state.route?.points;
     final polyline = PolylineHelper.buildRoutePolyline(
       id: 'active_delivery_route',
+      points: routePoints,
       start: state.driverPosition,
       end: state.destinationLatLng,
     );

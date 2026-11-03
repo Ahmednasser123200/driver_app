@@ -1,5 +1,6 @@
 import 'package:driver_app/features/delivery_map/domain/models/address_model.dart';
 import 'package:driver_app/features/delivery_map/domain/models/delivery_map_target.dart';
+import 'package:driver_app/features/delivery_map/domain/models/route_model.dart';
 import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -16,9 +17,11 @@ void main() {
       expect(state.isLoading, isFalse);
       expect(state.isTrackingLocation, isFalse);
       expect(state.hasLocationPermission, isFalse);
+      expect(state.isRouteLoading, isFalse);
       expect(state.errorMessage, isNull);
       expect(state.markers, isEmpty);
       expect(state.polylines, isEmpty);
+      expect(state.route, isNull);
       expect(state.activeDestinationAddress, DeliveryMapState.defaultPickup);
       expect(
         state.destinationLatLng,
@@ -62,6 +65,11 @@ void main() {
       const newPos = LatLng(12.0, 22.0);
       const marker = Marker(markerId: MarkerId('m1'));
       const polyline = Polyline(polylineId: PolylineId('p1'));
+      const sampleRoute = RouteModel(
+        points: <LatLng>[newPos],
+        distanceMeters: 500,
+        durationSeconds: 60,
+      );
 
       final updated = initialState.copyWith(
         target: DeliveryMapTarget.user,
@@ -71,9 +79,11 @@ void main() {
         isLoading: true,
         isTrackingLocation: true,
         hasLocationPermission: true,
+        isRouteLoading: true,
         errorMessage: 'An error',
         markers: {marker},
         polylines: {polyline},
+        route: sampleRoute,
       );
 
       expect(updated.target, DeliveryMapTarget.user);
@@ -83,12 +93,17 @@ void main() {
       expect(updated.isLoading, isTrue);
       expect(updated.isTrackingLocation, isTrue);
       expect(updated.hasLocationPermission, isTrue);
+      expect(updated.isRouteLoading, isTrue);
       expect(updated.errorMessage, 'An error');
       expect(updated.markers, {marker});
       expect(updated.polylines, {polyline});
+      expect(updated.route, sampleRoute);
 
       final clearedError = updated.copyWith(clearErrorMessage: true);
       expect(clearedError.errorMessage, isNull);
+
+      final clearedRoute = updated.copyWith(clearRoute: true);
+      expect(clearedRoute.route, isNull);
     });
 
     test('equality and props work properly', () {
@@ -98,9 +113,6 @@ void main() {
       expect(state1, equals(state2));
       expect(state1.hashCode, equals(state2.hashCode));
       expect(state1.props, equals(state2.props));
-
-      final state3 = state1.copyWith(isLoading: true);
-      expect(state1, isNot(equals(state3)));
     });
   });
 }

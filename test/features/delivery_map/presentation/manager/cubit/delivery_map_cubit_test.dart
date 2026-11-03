@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
+import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
+import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/core/services/location/location_service.dart';
 import 'package:driver_app/features/delivery_map/domain/models/address_model.dart';
 import 'package:driver_app/features/delivery_map/domain/models/delivery_map_target.dart';
+import 'package:driver_app/features/delivery_map/domain/models/route_model.dart';
 import 'package:driver_app/features/delivery_map/domain/use_case/get_driver_location_stream_use_case.dart';
+import 'package:driver_app/features/delivery_map/domain/use_case/get_route_use_case.dart';
 import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_cubit.dart';
 import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_event.dart';
 import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_state.dart';
@@ -18,13 +22,27 @@ class MockLocationService extends Mock implements LocationService {}
 class MockGetDriverLocationStreamUseCase extends Mock
     implements GetDriverLocationStreamUseCase {}
 
+class MockGetRouteUseCase extends Mock implements GetRouteUseCase {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late MockLocationService mockLocationService;
   late MockGetDriverLocationStreamUseCase mockLocationStreamUseCase;
+  late MockGetRouteUseCase mockGetRouteUseCase;
   late StreamController<Position> locationStreamController;
   late DeliveryMapCubit cubit;
+
+  const sampleRoute = RouteModel(
+    points: <LatLng>[
+      LatLng(30.0190, 31.2140),
+      LatLng(30.0210, 31.2160),
+      LatLng(30.0250, 31.2200),
+    ],
+    distanceMeters: 1400.0,
+    durationSeconds: 200.0,
+    encodedPolyline: 'sample_encoded',
+  );
 
   Position createPosition({
     double latitude = 30.0444,
@@ -44,9 +62,14 @@ void main() {
     );
   }
 
+  setUpAll(() {
+    registerFallbackValue(const LatLng(0, 0));
+  });
+
   setUp(() {
     mockLocationService = MockLocationService();
     mockLocationStreamUseCase = MockGetDriverLocationStreamUseCase();
+    mockGetRouteUseCase = MockGetRouteUseCase();
     locationStreamController = StreamController<Position>.broadcast();
 
     when(() => mockLocationStreamUseCase.call())
@@ -57,9 +80,17 @@ void main() {
     when(() => mockLocationService.getCurrentPosition())
         .thenAnswer((_) async => createPosition());
 
+    when(
+      () => mockGetRouteUseCase.call(
+        origin: any(named: 'origin'),
+        destination: any(named: 'destination'),
+      ),
+    ).thenAnswer((_) async => const Success(sampleRoute));
+
     cubit = DeliveryMapCubit(
       getDriverLocationStreamUseCase: mockLocationStreamUseCase,
       locationService: mockLocationService,
+      getRouteUseCase: mockGetRouteUseCase,
     );
   });
 
@@ -74,7 +105,7 @@ void main() {
     });
 
     blocTest<DeliveryMapCubit, DeliveryMapState>(
-      'InitDeliveryMapEvent initializes with custom addresses and starts tracking',
+      'InitDeliveryMapEvent initializes with custom addresses, fetches route, and starts tracking',
       build: () => cubit,
       act: (c) => c.doEvent(
         const InitDeliveryMapEvent(
@@ -102,11 +133,18 @@ void main() {
         expect(c.state.driverPosition, const LatLng(30.0444, 31.2357));
         expect(c.state.markers, isNotEmpty);
         expect(c.state.polylines, isNotEmpty);
+        expect(c.state.route, sampleRoute);
+        verify(
+          () => mockGetRouteUseCase.call(
+            origin: any(named: 'origin'),
+            destination: any(named: 'destination'),
+          ),
+        ).called(greaterThanOrEqualTo(1));
       },
     );
 
     blocTest<DeliveryMapCubit, DeliveryMapState>(
-      'SwitchTargetEvent updates active target and rebuilds overlays',
+      'SwitchTargetEvent updates active target and rebuilds overlays with new route',
       build: () => cubit,
       act: (c) async {
         await c.doEvent(const SwitchTargetEvent(DeliveryMapTarget.user));
@@ -117,6 +155,7 @@ void main() {
         expect(c.state.target, DeliveryMapTarget.user);
         expect(c.state.markers, isNotEmpty);
         expect(c.state.polylines, isNotEmpty);
+        expect(c.state.route, sampleRoute);
       },
     );
 
@@ -156,7 +195,7 @@ void main() {
       await sub.cancel();
     });
 
-    test('DriverPositionUpdatedEvent updates driver position and overlays', () async {
+    test('DriverPositionUpdatedEvent updates driver position and fetches route on major movement', () async {
       await cubit.doEvent(
         DriverPositionUpdatedEvent(
           createPosition(latitude: 30.5555, longitude: 31.6666),
@@ -168,6 +207,39 @@ void main() {
         const LatLng(30.5555, 31.6666),
       );
       expect(cubit.state.markers, isNotEmpty);
+      expect(cubit.state.polylines, isNotEmpty);
+      expect(cubit.state.route, sampleRoute);
+    });
+
+    test('DriverPositionUpdatedEvent debounces route fetch on minor movement (< 40m)', () async {
+      // First position update sets lastRoutedPosition
+      await cubit.doEvent(
+        DriverPositionUpdatedEvent(
+          createPosition(latitude: 30.01900, longitude: 31.21400),
+        ),
+      );
+
+      // Micro movement (~2 meters)
+      await cubit.doEvent(
+        DriverPositionUpdatedEvent(
+          createPosition(latitude: 30.01901, longitude: 31.21401),
+        ),
+      );
+
+      expect(cubit.state.driverPosition, const LatLng(30.01901, 31.21401));
+    });
+
+    test('route fetch failure handles Error gracefully without crashing', () async {
+      when(
+        () => mockGetRouteUseCase.call(
+          origin: any(named: 'origin'),
+          destination: any(named: 'destination'),
+        ),
+      ).thenAnswer((_) async => const Error(InternetConnectionFailure()));
+
+      await cubit.doEvent(const SwitchTargetEvent(DeliveryMapTarget.user));
+
+      expect(cubit.state.isRouteLoading, isFalse);
       expect(cubit.state.polylines, isNotEmpty);
     });
 

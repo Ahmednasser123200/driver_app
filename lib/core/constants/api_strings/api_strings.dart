@@ -2,6 +2,15 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 abstract class ApiStrings {
   static final String baseUrl = dotenv.env['BASE_URL'] ?? '';
+  static final String googleMapsApiKey =
+      dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
+  static String get defaultOrderId {
+    if (dotenv.isInitialized) {
+      return dotenv.env['DEFAULT_ORDER_ID'] ??
+          'bbbb2222-0002-0002-0002-000000000002';
+    }
+    return 'bbbb2222-0002-0002-0002-000000000002';
+  }
 
   // =========================
   // Authentication

@@ -1,4 +1,5 @@
 import 'package:driver_app/config/di/di.dart';
+import 'package:driver_app/core/constants/api_strings/api_strings.dart';
 import 'package:driver_app/features/delivery_map/domain/models/address_model.dart';
 import 'package:driver_app/features/delivery_map/domain/models/delivery_map_target.dart';
 import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_cubit.dart';
@@ -85,18 +86,52 @@ abstract final class AppRoutes {
           ),
         );
       case Routes.orderDetails:
-        final arguments = settings.arguments;
+        final orderId = _resolveOrderId(settings);
 
-        if (arguments is! String || arguments.isEmpty) {
+        if (orderId == null || orderId.isEmpty) {
           return MaterialPageRoute(
             settings: settings,
-            builder: (context) => _StubScreen(
-              AppLocalizations.of(context)!.invalidOrderId,
-            ),
+            builder: (context) {
+              final l10n = AppLocalizations.of(context)!;
+              final colorScheme = Theme.of(context).colorScheme;
+              return Scaffold(
+                appBar: AppBar(
+                  title: Text(l10n.orderDetails),
+                ),
+                body: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: colorScheme.error,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          l10n.invalidOrderId,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (Navigator.of(context).canPop()) {
+                              Navigator.of(context).pop();
+                            }
+                          },
+                          child: Text(l10n.retry),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
           );
         }
-
-        final orderId = arguments;
 
         return MaterialPageRoute(
           settings: settings,
@@ -149,6 +184,30 @@ abstract final class AppRoutes {
           builder: (_) => const _StubScreen('Not Found'),
         );
     }
+  }
+
+  static String? _resolveOrderId(RouteSettings settings) {
+    final arguments = settings.arguments;
+
+    if (arguments is String && arguments.trim().isNotEmpty) {
+      return arguments.trim();
+    }
+
+    if (arguments is Map) {
+      final orderId = arguments['orderId'] ?? arguments['id'];
+      if (orderId is String && orderId.trim().isNotEmpty) {
+        return orderId.trim();
+      }
+    }
+
+    if (arguments == null) {
+      final defaultId = ApiStrings.defaultOrderId.trim();
+      if (defaultId.isNotEmpty) {
+        return defaultId;
+      }
+    }
+
+    return null;
   }
 }
 

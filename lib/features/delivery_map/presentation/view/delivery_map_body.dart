@@ -21,17 +21,27 @@ class _DeliveryMapBodyState extends State<DeliveryMapBody> {
   void _fitBounds(DeliveryMapState state) {
     if (_mapController == null) return;
 
-    final driver = state.driverPosition;
-    final dest = state.destinationLatLng;
+    double minLat =
+        min(state.driverPosition.latitude, state.destinationLatLng.latitude);
+    double maxLat =
+        max(state.driverPosition.latitude, state.destinationLatLng.latitude);
+    double minLng =
+        min(state.driverPosition.longitude, state.destinationLatLng.longitude);
+    double maxLng =
+        max(state.driverPosition.longitude, state.destinationLatLng.longitude);
 
-    final southWest = LatLng(
-      min(driver.latitude, dest.latitude),
-      min(driver.longitude, dest.longitude),
-    );
-    final northEast = LatLng(
-      max(driver.latitude, dest.latitude),
-      max(driver.longitude, dest.longitude),
-    );
+    final points = state.route?.points;
+    if (points != null && points.isNotEmpty) {
+      for (final p in points) {
+        if (p.latitude < minLat) minLat = p.latitude;
+        if (p.latitude > maxLat) maxLat = p.latitude;
+        if (p.longitude < minLng) minLng = p.longitude;
+        if (p.longitude > maxLng) maxLng = p.longitude;
+      }
+    }
+
+    final southWest = LatLng(minLat, minLng);
+    final northEast = LatLng(maxLat, maxLng);
 
     final bounds = LatLngBounds(southwest: southWest, northeast: northEast);
 
@@ -49,13 +59,16 @@ class _DeliveryMapBodyState extends State<DeliveryMapBody> {
     return BlocConsumer<DeliveryMapCubit, DeliveryMapState>(
       listenWhen: (prev, curr) =>
           prev.target != curr.target ||
-          prev.driverPosition != curr.driverPosition,
+          prev.driverPosition != curr.driverPosition ||
+          prev.route != curr.route,
       listener: (context, state) {
-        debugPrint('DeliveryMapBody listener: fitting bounds for target=${state.target}');
+        debugPrint(
+            'DeliveryMapBody listener: fitting bounds for target=${state.target}');
         _fitBounds(state);
       },
       builder: (context, state) {
-        debugPrint('DeliveryMapBody builder: markers=${state.markers.length}, polylines=${state.polylines.length}, target=${state.target}');
+        debugPrint(
+            'DeliveryMapBody builder: markers=${state.markers.length}, polylines=${state.polylines.length}, target=${state.target}');
         return Stack(
           fit: StackFit.expand,
           children: [

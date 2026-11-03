@@ -107,6 +107,42 @@ class DeliveryBottomSheet extends StatelessWidget {
                   ),
                 ),
               ),
+              if (state.route != null) ...[
+                SizedBox(height: 12.h),
+                Center(
+                  child: Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.shade50,
+                      borderRadius: BorderRadius.circular(16.r),
+                      border: Border.all(
+                        color: AppColors.primary.shade100,
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.directions_car_rounded,
+                          size: 16.sp,
+                          color: AppColors.primary,
+                        ),
+                        SizedBox(width: 6.w),
+                        Text(
+                          '${state.route!.formattedDistance} • ${state.route!.formattedDuration}',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
               SizedBox(height: 16.h),
               if (isPickupActive) ...[
                 pickupSection,
