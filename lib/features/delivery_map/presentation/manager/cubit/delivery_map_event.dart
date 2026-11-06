@@ -1,6 +1,6 @@
 import 'package:driver_app/features/delivery_map/domain/models/address_model.dart';
 import 'package:driver_app/features/delivery_map/domain/models/delivery_map_target.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:driver_app/features/delivery_map/domain/models/geo_point.dart';
 
 sealed class DeliveryMapEvent {
   const DeliveryMapEvent();
@@ -10,11 +10,13 @@ class InitDeliveryMapEvent extends DeliveryMapEvent {
   final AddressModel? pickupAddress;
   final AddressModel? userAddress;
   final DeliveryMapTarget? initialTarget;
+  final GeoPoint? initialDriverPosition;
 
   const InitDeliveryMapEvent({
     this.pickupAddress,
     this.userAddress,
     this.initialTarget,
+    this.initialDriverPosition,
   });
 }
 
@@ -33,7 +35,7 @@ class StopDriverLocationTrackingEvent extends DeliveryMapEvent {
 }
 
 class DriverPositionUpdatedEvent extends DeliveryMapEvent {
-  final Position position;
+  final GeoPoint position;
 
   const DriverPositionUpdatedEvent(this.position);
 }

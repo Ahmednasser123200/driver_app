@@ -17,3 +17,7 @@ class DeliveryMapLaunchUrlFailed extends DeliveryMapUiEvent {
 
   const DeliveryMapLaunchUrlFailed(this.url);
 }
+
+class DeliveryMapFitBounds extends DeliveryMapUiEvent {
+  const DeliveryMapFitBounds();
+}

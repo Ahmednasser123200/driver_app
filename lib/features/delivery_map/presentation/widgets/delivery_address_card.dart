@@ -1,4 +1,5 @@
 import 'package:driver_app/core/themes/app_colors/app_colors.dart';
+import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -27,8 +28,10 @@ class DeliveryAddressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Material(
-      color: Colors.transparent,
+      color: AppColors.surface.withValues(alpha: 0),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12.r),
@@ -38,7 +41,7 @@ class DeliveryAddressCard extends StatelessWidget {
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(12.r),
             border: Border.all(
-              color: isSelected ? AppColors.primary : const Color(0xFFE5E7EB),
+              color: isSelected ? AppColors.primary : AppColors.divider,
               width: isSelected ? 1.5 : 1,
             ),
             boxShadow: isSelected
@@ -53,7 +56,10 @@ class DeliveryAddressCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              _buildAvatar(),
+              _DeliveryAddressAvatar(
+                isStore: isStore,
+                userImage: userImage,
+              ),
               SizedBox(width: 12.w),
               Expanded(
                 child: Column(
@@ -96,18 +102,18 @@ class DeliveryAddressCard extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 8.w),
-              _buildActionButton(
+              _DeliveryAddressActionButton(
                 icon: Icons.call_outlined,
-                tooltip: 'Call',
+                tooltip: l10n.call,
                 onPressed: onCallPressed,
               ),
-              _buildActionButton(
+              _DeliveryAddressActionButton(
                 iconWidget: const FaIcon(
                   FontAwesomeIcons.whatsapp,
                   color: AppColors.primary,
                   size: 18,
                 ),
-                tooltip: 'WhatsApp',
+                tooltip: l10n.whatsApp,
                 onPressed: onWhatsAppPressed,
               ),
             ],
@@ -116,8 +122,21 @@ class DeliveryAddressCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildAvatar() {
+class _DeliveryAddressAvatar extends StatelessWidget {
+  final bool isStore;
+  final ImageProvider? userImage;
+
+  const _DeliveryAddressAvatar({
+    required this.isStore,
+    this.userImage,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (isStore) {
       return Container(
         width: 44.w,
@@ -131,13 +150,13 @@ class DeliveryAddressCard extends StatelessWidget {
           children: [
             Icon(
               Icons.local_florist_rounded,
-              color: Colors.white,
+              color: AppColors.white,
               size: 16.sp,
             ),
             Text(
-              'Flowery',
+              l10n.flowery,
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.white,
                 fontSize: 7.sp,
                 fontWeight: FontWeight.bold,
               ),
@@ -151,7 +170,7 @@ class DeliveryAddressCard extends StatelessWidget {
       width: 44.w,
       height: 44.w,
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F6),
+        color: AppColors.surfaceVariant,
         shape: BoxShape.circle,
         image: userImage != null
             ? DecorationImage(
@@ -169,13 +188,23 @@ class DeliveryAddressCard extends StatelessWidget {
           : null,
     );
   }
+}
 
-  Widget _buildActionButton({
-    IconData? icon,
-    Widget? iconWidget,
-    required String tooltip,
-    required VoidCallback? onPressed,
-  }) {
+class _DeliveryAddressActionButton extends StatelessWidget {
+  final IconData? icon;
+  final Widget? iconWidget;
+  final String tooltip;
+  final VoidCallback? onPressed;
+
+  const _DeliveryAddressActionButton({
+    this.icon,
+    this.iconWidget,
+    required this.tooltip,
+    this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
       child: IconButton(

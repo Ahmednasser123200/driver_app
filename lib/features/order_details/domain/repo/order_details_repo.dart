@@ -10,6 +10,10 @@ import '../params/update_order_status_params.dart';
 abstract interface class OrderDetailsRepo {
   Stream<BaseResponse<UserLocationEntity>> get driverLocationStream;
 
+  Future<bool> checkAndRequestLocationPermission();
+
+  Future<BaseResponse<UserLocationEntity?>> getCurrentDriverLocation();
+
   Future<BaseResponse<DriverOrderDetailsEntity>> getOrderDetails(
     String orderId,
   );

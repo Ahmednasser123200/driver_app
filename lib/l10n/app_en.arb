@@ -186,5 +186,17 @@
   "liveGpsTrackingActive": "Live GPS Tracking Active",
   "locationPermissionRequired": "Location permission is required for live delivery tracking.",
   "failureLocationPermission": "Location permission is required for live delivery tracking.",
-  "failureLocationServiceDisabled": "Location services are disabled on your device. Please enable GPS."
+  "failureLocationServiceDisabled": "Location services are disabled on your device. Please enable GPS.",
+  "back": "Back",
+  "enableGpsToTrackDelivery": "Please enable GPS to track your delivery position.",
+  "couldNotOpenUrl": "Could not open: {url}",
+  "@couldNotOpenUrl": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "routeUnavailable": "Route unavailable",
+  "orderDetailsContextMissing": "Order details context is missing"
 }

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:driver_app/core/constants/storage_keys.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:injectable/injectable.dart';
 
@@ -14,7 +15,10 @@ class AuthInterceptors extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = await _storage.read(key: StorageKeys.kUserToken);
+    String? token = await _storage.read(key: StorageKeys.kUserToken);
+    if ((token == null || token.isEmpty) && dotenv.isInitialized) {
+      token = dotenv.env['ACCESS_TOKEN'] ?? dotenv.env['BEARER_TOKEN'];
+    }
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
     }

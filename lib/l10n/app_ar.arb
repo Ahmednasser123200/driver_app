@@ -186,5 +186,17 @@
   "liveGpsTrackingActive": "تتبع نظام تحديد المواقع مباشر نشط",
   "locationPermissionRequired": "إذن تحديد الموقع مطلوب لتتبع التوصيل المباشر.",
   "failureLocationPermission": "إذن تحديد الموقع مطلوب لتتبع التوصيل المباشر.",
-  "failureLocationServiceDisabled": "خدمات الموقع غير مفعلة على جهازك. يرجى تفعيل نظام GPS."
+  "failureLocationServiceDisabled": "خدمات الموقع غير مفعلة على جهازك. يرجى تفعيل نظام GPS.",
+  "back": "رجوع",
+  "enableGpsToTrackDelivery": "يرجى تفعيل GPS لتتبع موقع التوصيل الخاص بك.",
+  "couldNotOpenUrl": "تعذر فتح: {url}",
+  "@couldNotOpenUrl": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "routeUnavailable": "المسار غير متاح",
+  "orderDetailsContextMissing": "بيانات تفاصيل الطلب غير متوفرة"
 }

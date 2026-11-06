@@ -1,35 +1,41 @@
 import 'dart:async';
+
 import 'package:driver_app/config/base/base_cubit.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
-import 'package:driver_app/core/services/location/location_service.dart';
+import 'package:driver_app/config/errors/app_failure.dart';
+import 'package:driver_app/core/services/url_launcher/url_launcher_service.dart';
 import 'package:driver_app/features/delivery_map/domain/models/delivery_map_target.dart';
+import 'package:driver_app/features/delivery_map/domain/models/geo_point.dart';
+import 'package:driver_app/features/delivery_map/domain/models/route_model.dart';
+import 'package:driver_app/features/delivery_map/domain/use_case/check_location_permission_use_case.dart';
+import 'package:driver_app/features/delivery_map/domain/use_case/get_current_driver_location_use_case.dart';
 import 'package:driver_app/features/delivery_map/domain/use_case/get_driver_location_stream_use_case.dart';
 import 'package:driver_app/features/delivery_map/domain/use_case/get_route_use_case.dart';
 import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_event.dart';
 import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_state.dart';
-import 'package:driver_app/features/delivery_map/presentation/utils/map_marker_generator.dart';
-import 'package:driver_app/features/delivery_map/presentation/utils/polyline_helper.dart';
-import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:driver_app/features/order_details/domain/entities/user_location_entity.dart';
 import 'package:injectable/injectable.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 @injectable
 class DeliveryMapCubit extends BaseCubit<DeliveryMapState, DeliveryMapUiEvent> {
   DeliveryMapCubit({
     required this.getDriverLocationStreamUseCase,
-    required this.locationService,
+    required this.checkLocationPermissionUseCase,
+    required this.getCurrentDriverLocationUseCase,
     required this.getRouteUseCase,
+    required this.urlLauncherService,
   }) : super(const DeliveryMapState());
 
   final GetDriverLocationStreamUseCase getDriverLocationStreamUseCase;
-  final LocationService locationService;
+  final CheckLocationPermissionUseCase checkLocationPermissionUseCase;
+  final GetCurrentDriverLocationUseCase getCurrentDriverLocationUseCase;
   final GetRouteUseCase getRouteUseCase;
+  final UrlLauncherService urlLauncherService;
 
-  StreamSubscription<Position>? _driverLocationSubscription;
-  LatLng? _lastRoutedDriverPosition;
+  StreamSubscription<BaseResponse<UserLocationEntity>>?
+      _driverLocationSubscription;
+  GeoPoint? _lastRoutedDriverPosition;
 
   Future<void> doEvent(DeliveryMapEvent event) async {
     switch (event) {
@@ -62,15 +68,16 @@ class DeliveryMapCubit extends BaseCubit<DeliveryMapState, DeliveryMapUiEvent> {
         pickupAddress: event.pickupAddress ?? state.pickupAddress,
         userAddress: event.userAddress ?? state.userAddress,
         target: event.initialTarget ?? state.target,
+        driverPosition: event.initialDriverPosition ?? state.driverPosition,
         isLoading: true,
       ),
     );
 
+    await _startLocationTracking(fetchRouteOnFix: false);
     await _fetchRoute(force: true);
-    await _updateMapOverlays();
-    await _startLocationTracking();
 
     emit(state.copyWith(isLoading: false));
+    emitEvent(const DeliveryMapFitBounds());
   }
 
   Future<void> _onSwitchTarget(DeliveryMapTarget target) async {
@@ -78,24 +85,25 @@ class DeliveryMapCubit extends BaseCubit<DeliveryMapState, DeliveryMapUiEvent> {
 
     emit(state.copyWith(target: target));
     await _fetchRoute(force: true);
-    await _updateMapOverlays();
+    emitEvent(const DeliveryMapFitBounds());
   }
 
   Future<void> _fetchRoute({bool force = false}) async {
     final origin = state.driverPosition;
-    final destination = state.destinationLatLng;
+    final destination = state.destinationPosition;
+
+    if (origin == null || destination == null) {
+      return;
+    }
 
     if (!force && _lastRoutedDriverPosition != null) {
-      final distance = PolylineHelper.calculateHaversineDistance(
-        _lastRoutedDriverPosition!,
-        origin,
-      );
+      final distance = _lastRoutedDriverPosition!.distanceTo(origin);
       if (distance < 40.0 && state.route != null) {
         return;
       }
     }
 
-    emit(state.copyWith(isRouteLoading: true));
+    emit(state.copyWith(isRouteLoading: true, clearRouteFailure: true));
 
     final result = await getRouteUseCase(
       origin: origin,
@@ -103,16 +111,28 @@ class DeliveryMapCubit extends BaseCubit<DeliveryMapState, DeliveryMapUiEvent> {
     );
 
     switch (result) {
-      case Success(:final data):
+      case Success<RouteModel>(:final data):
         _lastRoutedDriverPosition = origin;
-        emit(state.copyWith(route: data, isRouteLoading: false));
-      case Error():
-        emit(state.copyWith(isRouteLoading: false));
+        emit(
+          state.copyWith(
+            route: data,
+            isRouteLoading: false,
+            clearRouteFailure: true,
+          ),
+        );
+      case Error<RouteModel>(:final failure):
+        emit(
+          state.copyWith(
+            isRouteLoading: false,
+            routeFailure: failure,
+            clearRoute: true,
+          ),
+        );
     }
   }
 
-  Future<void> _startLocationTracking() async {
-    final hasPermission = await locationService.checkAndRequestPermission();
+  Future<void> _startLocationTracking({bool fetchRouteOnFix = true}) async {
+    final hasPermission = await checkLocationPermissionUseCase();
 
     if (!hasPermission) {
       emit(
@@ -132,25 +152,40 @@ class DeliveryMapCubit extends BaseCubit<DeliveryMapState, DeliveryMapUiEvent> {
       ),
     );
 
-    final currentPosition = await locationService.getCurrentPosition();
-    if (currentPosition != null) {
-      final newDriverPosition = LatLng(
-        currentPosition.latitude,
-        currentPosition.longitude,
+    final currentLocationResult = await getCurrentDriverLocationUseCase();
+    if (currentLocationResult is Success<UserLocationEntity?> &&
+        currentLocationResult.data != null) {
+      final currentLocation = currentLocationResult.data!;
+      final newDriverPosition = GeoPoint(
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude,
       );
       emit(state.copyWith(driverPosition: newDriverPosition));
-      await _fetchRoute(force: false);
-      await _updateMapOverlays();
+      if (fetchRouteOnFix) {
+        await _fetchRoute(force: false);
+        emitEvent(const DeliveryMapFitBounds());
+      }
     }
 
     await _driverLocationSubscription?.cancel();
     _driverLocationSubscription = getDriverLocationStreamUseCase().listen(
-      (position) {
-        doEvent(DriverPositionUpdatedEvent(position));
-      },
-      onError: (error) {
-        if (error is LocationServiceDisabledException) {
-          emitEvent(const DeliveryMapLocationServiceDisabled());
+      (response) {
+        switch (response) {
+          case Success<UserLocationEntity>(:final data):
+            doEvent(
+              DriverPositionUpdatedEvent(
+                GeoPoint(
+                  latitude: data.latitude,
+                  longitude: data.longitude,
+                ),
+              ),
+            );
+          case Error<UserLocationEntity>(:final failure):
+            if (failure is LocationServiceDisabledFailure) {
+              emitEvent(const DeliveryMapLocationServiceDisabled());
+            } else if (failure is LocationPermissionFailure) {
+              emitEvent(const DeliveryMapLocationPermissionDenied());
+            }
         }
       },
     );
@@ -162,103 +197,27 @@ class DeliveryMapCubit extends BaseCubit<DeliveryMapState, DeliveryMapUiEvent> {
     emit(state.copyWith(isTrackingLocation: false));
   }
 
-  Future<void> _onDriverPositionUpdated(Position position) async {
-    final newDriverPosition = LatLng(position.latitude, position.longitude);
-    emit(state.copyWith(driverPosition: newDriverPosition));
+  Future<void> _onDriverPositionUpdated(GeoPoint position) async {
+    emit(state.copyWith(driverPosition: position));
     await _fetchRoute(force: false);
-    await _updateMapOverlays();
-  }
-
-  Future<void> _updateMapOverlays() async {
-    final markers = await _buildMarkers();
-    final polylines = _buildPolylines();
-    debugPrint(
-      'DeliveryMapCubit: Updated overlays with ${markers.length} markers and ${polylines.length} polylines',
-    );
-    emit(state.copyWith(markers: markers, polylines: polylines));
-  }
-
-  Future<Set<Marker>> _buildMarkers() async {
-    final destination = state.destinationLatLng;
-    final isPickup = state.target.isPickup;
-
-    final driverIcon = await MapMarkerGenerator.createPillMarker(
-      label: 'Your location',
-      icon: Icons.navigation_rounded,
-    );
-
-    final destIcon = await MapMarkerGenerator.createPillMarker(
-      label: isPickup ? 'Flowery' : 'User',
-      icon: isPickup ? Icons.local_florist_rounded : Icons.person_rounded,
-    );
-
-    return <Marker>{
-      Marker(
-        markerId: const MarkerId('driver_marker'),
-        position: state.driverPosition,
-        icon: driverIcon,
-        infoWindow: const InfoWindow(title: 'Your location'),
-        anchor: const Offset(0.5, 0.5),
-      ),
-      Marker(
-        markerId: MarkerId(isPickup ? 'pickup_marker' : 'user_marker'),
-        position: destination,
-        icon: destIcon,
-        infoWindow: InfoWindow(
-          title: isPickup ? state.pickupAddress.title : state.userAddress.title,
-        ),
-        anchor: const Offset(0.5, 0.5),
-      ),
-    };
-  }
-
-  Set<Polyline> _buildPolylines() {
-    final routePoints = state.route?.points;
-    final polyline = PolylineHelper.buildRoutePolyline(
-      id: 'active_delivery_route',
-      points: routePoints,
-      start: state.driverPosition,
-      end: state.destinationLatLng,
-    );
-
-    return <Polyline>{polyline};
+    emitEvent(const DeliveryMapFitBounds());
   }
 
   Future<void> _callPhone(String? phoneNumber) async {
     if (phoneNumber == null || phoneNumber.trim().isEmpty) return;
 
-    final cleanNumber = phoneNumber.replaceAll(RegExp(r'\s+'), '');
-    final uri = Uri(scheme: 'tel', path: cleanNumber);
-
-    try {
-      final launched = await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
-      if (!launched) {
-        emitEvent(DeliveryMapLaunchUrlFailed(uri.toString()));
-      }
-    } catch (_) {
-      emitEvent(DeliveryMapLaunchUrlFailed(uri.toString()));
+    final launched = await urlLauncherService.callPhone(phoneNumber);
+    if (!launched) {
+      emitEvent(DeliveryMapLaunchUrlFailed(phoneNumber));
     }
   }
 
   Future<void> _openWhatsApp(String? phoneNumber) async {
     if (phoneNumber == null || phoneNumber.trim().isEmpty) return;
 
-    final digitsOnly = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
-    final uri = Uri.parse('https://wa.me/$digitsOnly');
-
-    try {
-      final launched = await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
-      if (!launched) {
-        emitEvent(DeliveryMapLaunchUrlFailed(uri.toString()));
-      }
-    } catch (_) {
-      emitEvent(DeliveryMapLaunchUrlFailed(uri.toString()));
+    final launched = await urlLauncherService.openWhatsApp(phoneNumber);
+    if (!launched) {
+      emitEvent(DeliveryMapLaunchUrlFailed(phoneNumber));
     }
   }
 

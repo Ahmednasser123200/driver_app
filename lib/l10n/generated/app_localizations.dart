@@ -1099,6 +1099,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Location services are disabled on your device. Please enable GPS.'**
   String get failureLocationServiceDisabled;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @enableGpsToTrackDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enable GPS to track your delivery position.'**
+  String get enableGpsToTrackDelivery;
+
+  /// No description provided for @couldNotOpenUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open: {url}'**
+  String couldNotOpenUrl(String url);
+
+  /// No description provided for @routeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Route unavailable'**
+  String get routeUnavailable;
+
+  /// No description provided for @orderDetailsContextMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Order details context is missing'**
+  String get orderDetailsContextMissing;
 }
 
 class _AppLocalizationsDelegate

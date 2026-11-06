@@ -5,6 +5,7 @@ import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
 
 import 'config/di/di.dart';
+import 'config/dio/auth_interceptor.dart';
 import 'config/routing/app_routes.dart';
 import 'config/routing/routes.dart';
 import 'core/constants/api_strings/api_strings.dart';
@@ -21,6 +22,12 @@ Future<void> main() async {
   }
 
   configureDependencies();
+
+  final envToken = dotenv.env['ACCESS_TOKEN'];
+  if (envToken != null && envToken.isNotEmpty) {
+    await getIt<AuthInterceptors>().setToken(envToken);
+  }
+
   runApp(const DriverApp());
 }
 
@@ -41,7 +48,7 @@ class DriverApp extends StatelessWidget {
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('en'),
-          initialRoute: Routes.pickupLocation,
+          initialRoute: Routes.orderDetails,
           onGenerateInitialRoutes: (initialRoute) => [
             AppRoutes.onGenerateRoute(
               RouteSettings(

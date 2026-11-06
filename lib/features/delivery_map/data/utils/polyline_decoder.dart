@@ -1,15 +1,15 @@
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:driver_app/features/delivery_map/domain/models/geo_point.dart';
 
 abstract final class PolylineDecoder {
-  /// Decodes a Google-encoded polyline string into a list of [LatLng] coordinates.
+  /// Decodes a Google-encoded polyline string into a list of [GeoPoint] coordinates.
   ///
   /// Uses the standard 5-decimal place precision (1e5) by default.
-  static List<LatLng> decode(String encoded, {int precision = 5}) {
+  static List<GeoPoint> decode(String encoded, {int precision = 5}) {
     if (encoded.isEmpty) {
-      return const <LatLng>[];
+      return const <GeoPoint>[];
     }
 
-    final points = <LatLng>[];
+    final points = <GeoPoint>[];
     final factor = precision == 6 ? 1e6 : 1e5;
 
     int index = 0;
@@ -45,7 +45,7 @@ abstract final class PolylineDecoder {
       final dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
       lng += dlng;
 
-      points.add(LatLng(lat / factor, lng / factor));
+      points.add(GeoPoint(latitude: lat / factor, longitude: lng / factor));
     }
 
     return points;

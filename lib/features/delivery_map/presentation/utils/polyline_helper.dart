@@ -1,10 +1,17 @@
 import 'dart:math';
+
+import 'package:driver_app/core/themes/app_colors/app_colors.dart';
+import 'package:driver_app/features/delivery_map/domain/models/geo_point.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 abstract final class PolylineHelper {
-  static const Color routeColor = Color(0xFFD21E6A);
+  static const Color routeColor = AppColors.primary;
   static const int defaultWidth = 5;
+
+  /// Converts a domain [GeoPoint] into a Google Maps [LatLng].
+  static LatLng toLatLng(GeoPoint point) =>
+      LatLng(point.latitude, point.longitude);
 
   /// Calculates the geodesic distance between two points in meters using the Haversine formula.
   static double calculateHaversineDistance(LatLng a, LatLng b) {
@@ -30,20 +37,23 @@ abstract final class PolylineHelper {
   static Polyline buildRoutePolyline({
     required String id,
     List<LatLng>? points,
+    List<GeoPoint>? geoPoints,
     LatLng? start,
     LatLng? end,
     Color color = routeColor,
     int width = defaultWidth,
   }) {
-    final routePoints = points != null && points.isNotEmpty
+    final resolvedPoints = points != null && points.isNotEmpty
         ? points
-        : (start != null && end != null
-            ? createRouteCoordinates(start, end)
-            : const <LatLng>[]);
+        : (geoPoints != null && geoPoints.isNotEmpty
+              ? geoPoints.map(toLatLng).toList()
+              : (start != null && end != null
+                    ? createRouteCoordinates(start, end)
+                    : const <LatLng>[]));
 
     return Polyline(
       polylineId: PolylineId(id),
-      points: routePoints,
+      points: resolvedPoints,
       color: color,
       width: width,
       startCap: Cap.roundCap,

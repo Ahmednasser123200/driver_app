@@ -1,3 +1,5 @@
+import 'package:driver_app/features/delivery_map/domain/models/geo_point.dart';
+
 class AddressModel {
   final String title;
   final String addressLine;
@@ -12,6 +14,8 @@ class AddressModel {
     required this.longitude,
     this.phoneNumber,
   });
+
+  GeoPoint get location => GeoPoint(latitude: latitude, longitude: longitude);
 
   AddressModel copyWith({
     String? title,

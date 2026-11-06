@@ -1,6 +1,6 @@
-import 'package:driver_app/features/delivery_map/presentation/utils/polyline_decoder.dart';
+import 'package:driver_app/features/delivery_map/data/utils/polyline_decoder.dart';
+import 'package:driver_app/features/delivery_map/domain/models/geo_point.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 void main() {
   group('PolylineDecoder', () {
@@ -18,8 +18,6 @@ void main() {
     });
 
     test('decode correctly decodes standard Google polyline test vector', () {
-      // Standard official Google Maps polyline vector:
-      // Points: (38.5, -120.2), (40.7, -120.95), (43.252, -126.453)
       const encoded = '_p~iF~ps|U_ulLnnqC_mqNvxq`@';
       final points = PolylineDecoder.decode(encoded);
 
@@ -33,7 +31,6 @@ void main() {
     });
 
     test('decode supports precision 6 decoding', () {
-      // With precision 6 (1e6 factor)
       final points = PolylineDecoder.decode('_p~iF~ps|U', precision: 6);
       expect(points.length, 1);
       expect(points.first.latitude, closeTo(3.85, 0.0001));
@@ -41,9 +38,8 @@ void main() {
     });
 
     test('decode handles malformed or incomplete strings gracefully', () {
-      // Incomplete encoded sequence should terminate safely
       final points = PolylineDecoder.decode('_p~');
-      expect(points, isA<List<LatLng>>());
+      expect(points, isA<List<GeoPoint>>());
     });
   });
 }

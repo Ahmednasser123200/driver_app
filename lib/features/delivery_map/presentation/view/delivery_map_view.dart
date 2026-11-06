@@ -7,6 +7,7 @@ import 'package:driver_app/features/delivery_map/presentation/manager/cubit/deli
 import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_event.dart';
 import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_state.dart';
 import 'package:driver_app/features/delivery_map/presentation/view/delivery_map_body.dart';
+import 'package:driver_app/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -45,23 +46,22 @@ class _DeliveryMapViewState extends State<DeliveryMapView> {
   }
 
   void _handleUiEvent(BuildContext context, DeliveryMapUiEvent event) {
+    final l10n = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
 
     switch (event) {
       case DeliveryMapLocationPermissionDenied():
         messenger.showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Location permission is required for live delivery tracking.',
-            ),
+          SnackBar(
+            content: Text(l10n.locationPermissionToTrackDelivery),
             backgroundColor: AppColors.error,
           ),
         );
 
       case DeliveryMapLocationServiceDisabled():
         messenger.showSnackBar(
-          const SnackBar(
-            content: Text('Please enable GPS to track your delivery position.'),
+          SnackBar(
+            content: Text(l10n.enableGpsToTrackDelivery),
             backgroundColor: AppColors.error,
           ),
         );
@@ -69,10 +69,13 @@ class _DeliveryMapViewState extends State<DeliveryMapView> {
       case DeliveryMapLaunchUrlFailed(:final url):
         messenger.showSnackBar(
           SnackBar(
-            content: Text('Could not open: $url'),
+            content: Text(l10n.couldNotOpenUrl(url)),
             backgroundColor: AppColors.error,
           ),
         );
+
+      case DeliveryMapFitBounds():
+        break;
     }
   }
 

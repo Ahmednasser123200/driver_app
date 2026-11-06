@@ -1,10 +1,14 @@
 import 'package:driver_app/config/base/base_state.dart';
 import 'package:driver_app/config/localization/app_failure_message_mapper.dart';
+import 'package:driver_app/config/routing/routes.dart';
 import 'package:driver_app/core/shared/widgets/custom_button.dart';
 import 'package:driver_app/core/shared/widgets/order_item_card.dart';
 import 'package:driver_app/core/shared/widgets/user_address_card.dart';
+import 'package:driver_app/features/delivery_map/domain/models/delivery_map_args.dart';
+import 'package:driver_app/features/delivery_map/domain/models/delivery_map_target.dart';
 import 'package:driver_app/features/order_details/domain/entities/driver_order_details.dart';
 import 'package:driver_app/features/order_details/domain/entities/order_status.dart';
+import 'package:driver_app/features/order_details/presentation/extensions/address_model_extension.dart';
 import 'package:driver_app/features/order_details/presentation/extensions/currency_extension.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_cubit.dart';
 import 'package:driver_app/features/order_details/presentation/manager/cubit/order_details_event.dart';
@@ -231,6 +235,8 @@ class OrderAddressesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final pickupAddress = data.pickupAddress.toAddressModel();
+    final userAddress = data.userAddress.toAddressModel();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,9 +246,20 @@ class OrderAddressesSection extends StatelessWidget {
           style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 10.h),
-        UserAddressCard(
-          address: data.pickupAddress.addressLine,
-          userName: data.pickupAddress.storeName,
+        InkWell(
+          borderRadius: BorderRadius.circular(8.r),
+          onTap: () => Navigator.of(context).pushNamed(
+            Routes.pickupLocation,
+            arguments: DeliveryMapArgs(
+              pickupAddress: pickupAddress,
+              userAddress: userAddress,
+              initialTarget: DeliveryMapTarget.pickup,
+            ),
+          ),
+          child: UserAddressCard(
+            address: data.pickupAddress.addressLine,
+            userName: data.pickupAddress.storeName,
+          ),
         ),
         SizedBox(height: 16.h),
         Text(
@@ -250,13 +267,24 @@ class OrderAddressesSection extends StatelessWidget {
           style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 10.h),
-        UserAddressCard(
-          address: data.userAddress.addressLine,
-          userName: data.userAddress.recipientName.isNotEmpty
-              ? data.userAddress.recipientName
-              : (data.recipientInfo.recipientName.isNotEmpty
-                    ? data.recipientInfo.recipientName
-                    : l10n.customerName),
+        InkWell(
+          borderRadius: BorderRadius.circular(8.r),
+          onTap: () => Navigator.of(context).pushNamed(
+            Routes.tracking,
+            arguments: DeliveryMapArgs(
+              pickupAddress: pickupAddress,
+              userAddress: userAddress,
+              initialTarget: DeliveryMapTarget.user,
+            ),
+          ),
+          child: UserAddressCard(
+            address: data.userAddress.addressLine,
+            userName: data.userAddress.recipientName.isNotEmpty
+                ? data.userAddress.recipientName
+                : (data.recipientInfo.recipientName.isNotEmpty
+                      ? data.recipientInfo.recipientName
+                      : l10n.customerName),
+          ),
         ),
       ],
     );

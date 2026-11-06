@@ -4,6 +4,11 @@ abstract class ApiStrings {
   static final String baseUrl = dotenv.env['BASE_URL'] ?? '';
   static final String googleMapsApiKey =
       dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
+
+  /// Development-only fallback order ID.
+  ///
+  /// TODO(driver-app): Remove after merge and rely solely on the orderId passed
+  /// to the order details screen after order acceptance.
   static String get defaultOrderId {
     if (dotenv.isInitialized) {
       return dotenv.env['DEFAULT_ORDER_ID'] ??
@@ -110,9 +115,9 @@ abstract class ApiStrings {
   // Checkout
   // =========================
 
-  static const String checkoutDetails = '/checkout/details';
-
   static const String estimateDelivery = '/checkout/estimate-delivery';
+
+  static const String checkoutDetails = '/checkout/details';
 
   // =========================
   // Orders - Customer

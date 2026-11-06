@@ -1,104 +1,74 @@
 import 'dart:async';
 
-import 'package:driver_app/core/services/location/location_service.dart';
+import 'package:driver_app/config/base/base_response.dart';
+import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/delivery_map/domain/use_case/get_driver_location_stream_use_case.dart';
+import 'package:driver_app/features/order_details/domain/entities/user_location_entity.dart';
+import 'package:driver_app/features/order_details/domain/repo/order_details_repo.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockLocationService extends Mock implements LocationService {}
+class MockOrderDetailsRepo extends Mock implements OrderDetailsRepo {}
 
 void main() {
-  late MockLocationService mockLocationService;
-  late StreamController<Position> locationStreamController;
+  late MockOrderDetailsRepo mockOrderDetailsRepo;
+  late StreamController<BaseResponse<UserLocationEntity>>
+      locationStreamController;
   late GetDriverLocationStreamUseCase useCase;
 
   setUp(() {
-    mockLocationService = MockLocationService();
-    locationStreamController = StreamController<Position>.broadcast();
-    when(() => mockLocationService.locationStream)
+    mockOrderDetailsRepo = MockOrderDetailsRepo();
+    locationStreamController =
+        StreamController<BaseResponse<UserLocationEntity>>.broadcast();
+    when(() => mockOrderDetailsRepo.driverLocationStream)
         .thenAnswer((_) => locationStreamController.stream);
 
-    useCase = GetDriverLocationStreamUseCase(mockLocationService);
+    useCase = GetDriverLocationStreamUseCase(mockOrderDetailsRepo);
   });
 
   tearDown(() async {
     await locationStreamController.close();
   });
 
-  Position createPosition({
+  UserLocationEntity createEntity({
     double latitude = 30.0444,
     double longitude = 31.2357,
-    double heading = 90.0,
-    double speed = 15.0,
   }) {
-    return Position(
+    return UserLocationEntity(
       latitude: latitude,
       longitude: longitude,
-      timestamp: DateTime.now().toUtc(),
-      accuracy: 5.0,
-      altitude: 10.0,
-      altitudeAccuracy: 1.0,
-      heading: heading,
-      headingAccuracy: 1.0,
-      speed: speed,
-      speedAccuracy: 0.5,
+      timestamp: DateTime.utc(2026, 11, 3),
     );
   }
 
   group('GetDriverLocationStreamUseCase', () {
-    test('call returns the locationStream from LocationService', () {
+    test('call returns the driverLocationStream from OrderDetailsRepo', () {
       final expectedStream = locationStreamController.stream;
       final stream = useCase.call();
 
       expect(stream, equals(expectedStream));
-      verify(() => mockLocationService.locationStream).called(1);
+      verify(() => mockOrderDetailsRepo.driverLocationStream).called(1);
     });
 
-    test('emits positions when the underlying location stream emits them',
-        () async {
+    test('emits BaseResponse<UserLocationEntity> values in order', () async {
       final stream = useCase();
-      final expectedPositions = [
-        createPosition(latitude: 30.0444, longitude: 31.2357),
-        createPosition(latitude: 30.0450, longitude: 31.2365),
-      ];
+      final item1 = Success(createEntity(latitude: 30.0444, longitude: 31.2357));
+      final item2 = Success(createEntity(latitude: 30.0450, longitude: 31.2365));
 
-      expectLater(stream, emitsInOrder(expectedPositions));
+      expectLater(stream, emitsInOrder([item1, item2]));
 
-      for (final pos in expectedPositions) {
-        locationStreamController.add(pos);
-      }
+      locationStreamController.add(item1);
+      locationStreamController.add(item2);
     });
 
-    test('propagates errors emitted by the location stream', () async {
+    test('emits mapped Error responses without raw exceptions', () async {
       final stream = useCase();
-      final error = const PermissionDeniedException('Location permission denied');
+      const failureResponse =
+          Error<UserLocationEntity>(LocationServiceDisabledFailure());
 
-      expectLater(stream, emitsError(equals(error)));
+      expectLater(stream, emits(failureResponse));
 
-      locationStreamController.addError(error);
-    });
-
-    test('supports multiple concurrent listeners without losing events',
-        () async {
-      final stream1 = useCase();
-      final stream2 = useCase();
-      final pos = createPosition();
-
-      final expectation1 = expectLater(stream1, emits(pos));
-      final expectation2 = expectLater(stream2, emits(pos));
-
-      locationStreamController.add(pos);
-
-      await Future.wait([expectation1, expectation2]);
-    });
-
-    test('emits done when underlying stream closes', () async {
-      final stream = useCase();
-
-      expectLater(stream, emitsDone);
-
-      await locationStreamController.close();
+      locationStreamController.add(failureResponse);
     });
   });
 }

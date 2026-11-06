@@ -523,4 +523,22 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get failureLocationServiceDisabled =>
       'خدمات الموقع غير مفعلة على جهازك. يرجى تفعيل نظام GPS.';
+
+  @override
+  String get back => 'رجوع';
+
+  @override
+  String get enableGpsToTrackDelivery =>
+      'يرجى تفعيل GPS لتتبع موقع التوصيل الخاص بك.';
+
+  @override
+  String couldNotOpenUrl(String url) {
+    return 'تعذر فتح: $url';
+  }
+
+  @override
+  String get routeUnavailable => 'المسار غير متاح';
+
+  @override
+  String get orderDetailsContextMissing => 'بيانات تفاصيل الطلب غير متوفرة';
 }

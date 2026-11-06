@@ -44,6 +44,24 @@ class OrderDetailsRepoImpl implements OrderDetailsRepo {
       );
 
   @override
+  Future<bool> checkAndRequestLocationPermission() =>
+      _locationService.checkAndRequestPermission();
+
+  @override
+  Future<BaseResponse<UserLocationEntity?>> getCurrentDriverLocation() async {
+    try {
+      final position = await _locationService.getCurrentPosition();
+      return Success(position?.toDomain());
+    } on PermissionDeniedException {
+      return const Error(LocationPermissionFailure());
+    } on LocationServiceDisabledException {
+      return const Error(LocationServiceDisabledFailure());
+    } catch (_) {
+      return const Error(UnknownFailure());
+    }
+  }
+
+  @override
   Future<BaseResponse<DriverOrderDetailsEntity>> getOrderDetails(
     String orderId,
   ) => _mapResponse(

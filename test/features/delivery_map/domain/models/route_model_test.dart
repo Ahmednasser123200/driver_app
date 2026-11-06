@@ -1,12 +1,12 @@
+import 'package:driver_app/features/delivery_map/domain/models/geo_point.dart';
 import 'package:driver_app/features/delivery_map/domain/models/route_model.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 void main() {
   group('RouteModel', () {
-    const samplePoints = <LatLng>[
-      LatLng(30.0, 31.0),
-      LatLng(30.1, 31.1),
+    const samplePoints = <GeoPoint>[
+      GeoPoint(latitude: 30.0, longitude: 31.0),
+      GeoPoint(latitude: 30.1, longitude: 31.1),
     ];
 
     test('constructor assigns all fields correctly', () {
@@ -93,9 +93,9 @@ void main() {
       );
 
       const modelB = RouteModel(
-        points: <LatLng>[
-          LatLng(30.0, 31.0),
-          LatLng(30.1, 31.1),
+        points: <GeoPoint>[
+          GeoPoint(latitude: 30.0, longitude: 31.0),
+          GeoPoint(latitude: 30.1, longitude: 31.1),
         ],
         distanceMeters: 1000.0,
         durationSeconds: 600.0,

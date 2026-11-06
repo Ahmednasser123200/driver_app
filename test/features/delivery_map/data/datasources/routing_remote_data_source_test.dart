@@ -1,245 +1,93 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
+import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
-import 'package:driver_app/features/delivery_map/data/datasources/routing_remote_data_source.dart';
+import 'package:driver_app/features/delivery_map/api/client/routing_api_client.dart';
+import 'package:driver_app/features/delivery_map/api/routing_api_module.dart';
+import 'package:driver_app/features/delivery_map/data/datasources/routing_remote_data_source_impl.dart';
+import 'package:driver_app/features/delivery_map/data/dtos/requests/compute_routes_request_dto.dart';
+import 'package:driver_app/features/delivery_map/data/dtos/responses/compute_routes_response_dto.dart';
+import 'package:driver_app/features/delivery_map/domain/models/geo_point.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockDio extends Mock implements Dio {}
+class MockRoutingApiClient extends Mock implements RoutingApiClient {}
+
+class _TestRoutingApiModule extends RoutingApiModule {}
+
+class _FakeHttpClientAdapter implements HttpClientAdapter {
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    return ResponseBody.fromString(
+      jsonEncode({
+        'routes': [
+          {
+            'distanceMeters': 1200,
+            'duration': '180s',
+            'polyline': {'encodedPolyline': '_p~iF~ps|U'},
+          },
+        ],
+      }),
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
 
 void main() {
-  setUpAll(() {
-    registerFallbackValue(RequestOptions(path: ''));
-    registerFallbackValue(Options());
-  });
-
-  late MockDio mockDio;
+  late MockRoutingApiClient mockApiClient;
   late RoutingRemoteDataSourceImpl dataSource;
 
-  const origin = LatLng(30.0190, 31.2140);
-  const destination = LatLng(30.0250, 31.2200);
+  final request = ComputeRoutesRequestDto.fromCoordinates(
+    origin: const GeoPoint(latitude: 30.0190, longitude: 31.2140),
+    destination: const GeoPoint(latitude: 30.0250, longitude: 31.2200),
+  );
+
+  setUpAll(() {
+    registerFallbackValue(request);
+  });
 
   setUp(() {
-    mockDio = MockDio();
-    dataSource = RoutingRemoteDataSourceImpl.withDio(
-      dio: mockDio,
-      apiKey: 'test_api_key',
-    );
+    mockApiClient = MockRoutingApiClient();
+    dataSource = RoutingRemoteDataSourceImpl(mockApiClient);
   });
 
   group('RoutingRemoteDataSourceImpl', () {
-    test('Google Routes API success returns decoded RouteModel', () async {
-      when(
-        () => mockDio.post<Map<String, dynamic>>(
-          any(),
-          data: any(named: 'data'),
-          options: any(named: 'options'),
-        ),
-      ).thenAnswer(
-        (_) async => Response<Map<String, dynamic>>(
-          requestOptions: RequestOptions(path: ''),
-          statusCode: 200,
-          data: <String, dynamic>{
-            'routes': [
-              <String, dynamic>{
-                'distanceMeters': 3500,
-                'duration': '420s',
-                'polyline': <String, dynamic>{
-                  'encodedPolyline': '_p~iF~ps|U',
-                },
-              },
-            ],
-          },
-        ),
+    test('returns Success when RoutingApiClient succeeds', () async {
+      const responseDto = ComputeRoutesResponseDto(
+        routes: [
+          ComputedRouteDto(
+            distanceMeters: 3500,
+            duration: '420s',
+            polyline: RoutePolylineDto(encodedPolyline: '_p~iF~ps|U'),
+          ),
+        ],
       );
 
-      final route = await dataSource.fetchRoute(
-        origin: origin,
-        destination: destination,
-      );
+      when(() => mockApiClient.computeRoutes(request))
+          .thenAnswer((_) async => responseDto);
 
-      expect(route.distanceMeters, 3500.0);
-      expect(route.durationSeconds, 420.0);
-      expect(route.points, isNotEmpty);
-      expect(route.encodedPolyline, '_p~iF~ps|U');
+      final result = await dataSource.fetchRoute(request);
+
+      expect(result, isA<Success<ComputeRoutesResponseDto>>());
+      final success = result as Success<ComputeRoutesResponseDto>;
+      expect(success.data, responseDto);
+      verify(() => mockApiClient.computeRoutes(request)).called(1);
     });
 
-    test('falls back to Google Directions legacy when Routes API fails', () async {
-      // 1. Google Routes throws error
-      when(
-        () => mockDio.post<Map<String, dynamic>>(
-          any(),
-          data: any(named: 'data'),
-          options: any(named: 'options'),
-        ),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: ''),
-          type: DioExceptionType.badResponse,
-        ),
-      );
-
-      // 2. Google Directions Legacy succeeds
-      when(
-        () => mockDio.get<Map<String, dynamic>>(
-          'https://maps.googleapis.com/maps/api/directions/json',
-          queryParameters: any(named: 'queryParameters'),
-        ),
-      ).thenAnswer(
-        (_) async => Response<Map<String, dynamic>>(
-          requestOptions: RequestOptions(path: ''),
-          statusCode: 200,
-          data: <String, dynamic>{
-            'status': 'OK',
-            'routes': [
-              <String, dynamic>{
-                'overview_polyline': <String, dynamic>{
-                  'points': '_p~iF~ps|U',
-                },
-                'legs': [
-                  <String, dynamic>{
-                    'distance': <String, dynamic>{'value': 2800},
-                    'duration': <String, dynamic>{'value': 300},
-                  },
-                ],
-              },
-            ],
-          },
-        ),
-      );
-
-      final route = await dataSource.fetchRoute(
-        origin: origin,
-        destination: destination,
-      );
-
-      expect(route.distanceMeters, 2800.0);
-      expect(route.durationSeconds, 300.0);
-      expect(route.points, isNotEmpty);
-    });
-
-    test('falls back to OSRM when all Google endpoints fail', () async {
-      // 1. Google Routes fails
-      when(
-        () => mockDio.post<Map<String, dynamic>>(
-          any(),
-          data: any(named: 'data'),
-          options: any(named: 'options'),
-        ),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: ''),
-          type: DioExceptionType.badResponse,
-        ),
-      );
-
-      // 2. Google Directions fails
-      when(
-        () => mockDio.get<Map<String, dynamic>>(
-          'https://maps.googleapis.com/maps/api/directions/json',
-          queryParameters: any(named: 'queryParameters'),
-        ),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: ''),
-          type: DioExceptionType.badResponse,
-        ),
-      );
-
-      // 3. OSRM succeeds
-      when(
-        () => mockDio.get<Map<String, dynamic>>(
-          any(that: startsWith('https://router.project-osrm.org')),
-        ),
-      ).thenAnswer(
-        (_) async => Response<Map<String, dynamic>>(
-          requestOptions: RequestOptions(path: ''),
-          statusCode: 200,
-          data: <String, dynamic>{
-            'code': 'Ok',
-            'routes': [
-              <String, dynamic>{
-                'distance': 1500.0,
-                'duration': 180.0,
-                'geometry': <String, dynamic>{
-                  'coordinates': [
-                    [31.2140, 30.0190],
-                    [31.2200, 30.0250],
-                  ],
-                },
-              },
-            ],
-          },
-        ),
-      );
-
-      final route = await dataSource.fetchRoute(
-        origin: origin,
-        destination: destination,
-      );
-
-      expect(route.distanceMeters, 1500.0);
-      expect(route.durationSeconds, 180.0);
-      expect(route.points.length, 2);
-      expect(route.points.first.latitude, 30.0190);
-      expect(route.points.first.longitude, 31.2140);
-    });
-
-    test('throws ServerFailure when OSRM code is not Ok', () async {
-      dataSource = RoutingRemoteDataSourceImpl.withDio(
-        dio: mockDio,
-        apiKey: '', // Skips Google directly
-      );
-
-      when(
-        () => mockDio.get<Map<String, dynamic>>(any()),
-      ).thenAnswer(
-        (_) async => Response<Map<String, dynamic>>(
-          requestOptions: RequestOptions(path: ''),
-          statusCode: 200,
-          data: <String, dynamic>{
-            'code': 'NoRoute',
-          },
-        ),
-      );
-
-      expect(
-        () => dataSource.fetchRoute(origin: origin, destination: destination),
-        throwsA(isA<ServerFailure>()),
-      );
-    });
-
-    test('throws NotFoundFailure when OSRM returns empty routes or coordinates', () async {
-      dataSource = RoutingRemoteDataSourceImpl.withDio(
-        dio: mockDio,
-        apiKey: '',
-      );
-
-      when(
-        () => mockDio.get<Map<String, dynamic>>(any()),
-      ).thenAnswer(
-        (_) async => Response<Map<String, dynamic>>(
-          requestOptions: RequestOptions(path: ''),
-          statusCode: 200,
-          data: <String, dynamic>{
-            'code': 'Ok',
-            'routes': <dynamic>[],
-          },
-        ),
-      );
-
-      expect(
-        () => dataSource.fetchRoute(origin: origin, destination: destination),
-        throwsA(isA<NotFoundFailure>()),
-      );
-    });
-
-    test('maps DioExceptions to specific AppFailures on OSRM failure', () async {
-      dataSource = RoutingRemoteDataSourceImpl.withDio(
-        dio: mockDio,
-        apiKey: '',
-      );
-
+    test('maps DioExceptions via mapDioExceptionToAppFailure', () async {
       final testCases = <DioExceptionType, Type>{
         DioExceptionType.connectionTimeout: TimeoutFailure,
         DioExceptionType.connectionError: InternetConnectionFailure,
@@ -249,28 +97,22 @@ void main() {
       };
 
       for (final entry in testCases.entries) {
-        when(
-          () => mockDio.get<Map<String, dynamic>>(any()),
-        ).thenThrow(
+        when(() => mockApiClient.computeRoutes(request)).thenThrow(
           DioException(
             requestOptions: RequestOptions(path: ''),
             type: entry.key,
           ),
         );
 
-        expect(
-          () => dataSource.fetchRoute(origin: origin, destination: destination),
-          throwsA(isA<AppFailure>()),
-        );
+        final result = await dataSource.fetchRoute(request);
+
+        expect(result, isA<Error<ComputeRoutesResponseDto>>());
+        final error = result as Error<ComputeRoutesResponseDto>;
+        expect(error.failure.runtimeType, entry.value);
       }
     });
 
-    test('maps HTTP status codes from badResponse to correct AppFailures', () async {
-      dataSource = RoutingRemoteDataSourceImpl.withDio(
-        dio: mockDio,
-        apiKey: '',
-      );
-
+    test('maps HTTP status codes from badResponse via mapDioExceptionToAppFailure', () async {
       final statusCases = <int, Type>{
         400: BadRequestFailure,
         401: UnauthorizedFailure,
@@ -280,9 +122,7 @@ void main() {
       };
 
       for (final entry in statusCases.entries) {
-        when(
-          () => mockDio.get<Map<String, dynamic>>(any()),
-        ).thenThrow(
+        when(() => mockApiClient.computeRoutes(request)).thenThrow(
           DioException(
             requestOptions: RequestOptions(path: ''),
             type: DioExceptionType.badResponse,
@@ -293,11 +133,37 @@ void main() {
           ),
         );
 
-        expect(
-          () => dataSource.fetchRoute(origin: origin, destination: destination),
-          throwsA(isA<AppFailure>()),
-        );
+        final result = await dataSource.fetchRoute(request);
+
+        expect(result, isA<Error<ComputeRoutesResponseDto>>());
+        final error = result as Error<ComputeRoutesResponseDto>;
+        expect(error.failure.runtimeType, entry.value);
       }
+    });
+
+    test('returns UnknownFailure on non-Dio unexpected exception', () async {
+      when(() => mockApiClient.computeRoutes(request))
+          .thenThrow(Exception('unexpected'));
+
+      final result = await dataSource.fetchRoute(request);
+
+      expect(result, isA<Error<ComputeRoutesResponseDto>>());
+      expect(
+        (result as Error<ComputeRoutesResponseDto>).failure,
+        isA<UnknownFailure>(),
+      );
+    });
+
+    test('RoutingApiModule and RoutingApiClient execute computeRoutes over Dio', () async {
+      dotenv.loadFromString(envString: 'GOOGLE_MAPS_API_KEY=test_key');
+      final module = _TestRoutingApiModule();
+      final dio = module.googleRoutesDio();
+      dio.httpClientAdapter = _FakeHttpClientAdapter();
+      final client = RoutingApiClient(dio);
+
+      final response = await client.computeRoutes(request);
+      expect(response.routes, isNotNull);
+      expect(response.routes!.first.distanceMeters, 1200);
     });
   });
 }

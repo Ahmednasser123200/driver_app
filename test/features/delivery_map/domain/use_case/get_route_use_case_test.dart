@@ -1,10 +1,10 @@
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
+import 'package:driver_app/features/delivery_map/domain/models/geo_point.dart';
 import 'package:driver_app/features/delivery_map/domain/models/route_model.dart';
 import 'package:driver_app/features/delivery_map/domain/repository/routing_repository.dart';
 import 'package:driver_app/features/delivery_map/domain/use_case/get_route_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockRoutingRepository extends Mock implements RoutingRepository {}
@@ -13,11 +13,11 @@ void main() {
   late MockRoutingRepository mockRepository;
   late GetRouteUseCase useCase;
 
-  const origin = LatLng(30.0190, 31.2140);
-  const destination = LatLng(30.0250, 31.2200);
+  const origin = GeoPoint(latitude: 30.0190, longitude: 31.2140);
+  const destination = GeoPoint(latitude: 30.0250, longitude: 31.2200);
 
   const sampleRoute = RouteModel(
-    points: <LatLng>[origin, destination],
+    points: <GeoPoint>[origin, destination],
     distanceMeters: 1200.0,
     durationSeconds: 240.0,
   );

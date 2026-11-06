@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
+import 'package:driver_app/core/services/location/location_service.dart';
 import 'package:driver_app/features/order_details/data/datasources/order_details_remote_data_source.dart';
 import 'package:driver_app/features/order_details/data/dtos/requests/report_driver_location_request_dto.dart';
 import 'package:driver_app/features/order_details/data/dtos/requests/update_order_status_request_dto.dart';
@@ -14,10 +15,8 @@ import 'package:driver_app/features/order_details/domain/entities/user_location_
 import 'package:driver_app/features/order_details/domain/params/report_driver_location_params.dart';
 import 'package:driver_app/features/order_details/domain/params/update_order_status_params.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-
-import 'package:driver_app/core/services/location/location_service.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:mocktail/mocktail.dart';
 
 import '../../../../helpers/fixtures.dart';
 
@@ -138,6 +137,51 @@ void main() {
       expect(failure, isA<UnknownFailure>());
       await subscription.cancel();
       await controller.close();
+    });
+  });
+
+  group('checkAndRequestLocationPermission & getCurrentDriverLocation', () {
+    test('checkAndRequestLocationPermission delegates to LocationService', () async {
+      when(() => locationService.checkAndRequestPermission())
+          .thenAnswer((_) async => true);
+
+      final granted = await repository.checkAndRequestLocationPermission();
+
+      expect(granted, isTrue);
+      verify(() => locationService.checkAndRequestPermission()).called(1);
+    });
+
+    test('getCurrentDriverLocation maps Position to UserLocationEntity', () async {
+      final pos = buildPositionFixture();
+      when(() => locationService.getCurrentPosition())
+          .thenAnswer((_) async => pos);
+
+      final result = await repository.getCurrentDriverLocation();
+
+      expect(result, isA<Success<UserLocationEntity?>>());
+      final entity = (result as Success<UserLocationEntity?>).data;
+      expect(entity?.latitude, pos.latitude);
+      expect(entity?.longitude, pos.longitude);
+    });
+
+    test('getCurrentDriverLocation maps exceptions to AppFailure', () async {
+      when(() => locationService.getCurrentPosition())
+          .thenThrow(const PermissionDeniedException('denied'));
+      expect(
+        (await repository.getCurrentDriverLocation()
+                as Error<UserLocationEntity?>)
+            .failure,
+        isA<LocationPermissionFailure>(),
+      );
+
+      when(() => locationService.getCurrentPosition())
+          .thenThrow(const LocationServiceDisabledException());
+      expect(
+        (await repository.getCurrentDriverLocation()
+                as Error<UserLocationEntity?>)
+            .failure,
+        isA<LocationServiceDisabledFailure>(),
+      );
     });
   });
 

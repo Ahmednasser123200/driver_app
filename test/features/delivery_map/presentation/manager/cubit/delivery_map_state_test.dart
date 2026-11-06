@@ -1,51 +1,70 @@
+import 'package:driver_app/config/errors/app_failure.dart';
 import 'package:driver_app/features/delivery_map/domain/models/address_model.dart';
 import 'package:driver_app/features/delivery_map/domain/models/delivery_map_target.dart';
+import 'package:driver_app/features/delivery_map/domain/models/geo_point.dart';
 import 'package:driver_app/features/delivery_map/domain/models/route_model.dart';
 import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 void main() {
   group('DeliveryMapState', () {
-    test('default constructor has correct values', () {
+    test('default constructor has null addresses and driverPosition', () {
       const state = DeliveryMapState();
 
       expect(state.target, DeliveryMapTarget.pickup);
-      expect(state.driverPosition, DeliveryMapState.defaultDriverPosition);
-      expect(state.pickupAddress, DeliveryMapState.defaultPickup);
-      expect(state.userAddress, DeliveryMapState.defaultUser);
+      expect(state.driverPosition, isNull);
+      expect(state.pickupAddress, isNull);
+      expect(state.userAddress, isNull);
       expect(state.isLoading, isFalse);
       expect(state.isTrackingLocation, isFalse);
       expect(state.hasLocationPermission, isFalse);
       expect(state.isRouteLoading, isFalse);
+      expect(state.routeFailure, isNull);
+      expect(state.hasRouteFailure, isFalse);
       expect(state.errorMessage, isNull);
-      expect(state.markers, isEmpty);
-      expect(state.polylines, isEmpty);
       expect(state.route, isNull);
-      expect(state.activeDestinationAddress, DeliveryMapState.defaultPickup);
+      expect(state.activeDestinationAddress, isNull);
+      expect(state.destinationPosition, isNull);
+    });
+
+    test('activeDestinationAddress and destinationPosition resolve based on target', () {
+      const customPickup = AddressModel(
+        title: 'Store',
+        addressLine: 'Store St',
+        latitude: 30.0131,
+        longitude: 31.2089,
+      );
+      const customUser = AddressModel(
+        title: 'User',
+        addressLine: 'User St',
+        latitude: 30.0250,
+        longitude: 31.2200,
+      );
+
+      const pickupState = DeliveryMapState(
+        target: DeliveryMapTarget.pickup,
+        pickupAddress: customPickup,
+        userAddress: customUser,
+      );
+      expect(pickupState.activeDestinationAddress, customPickup);
       expect(
-        state.destinationLatLng,
-        LatLng(
-          DeliveryMapState.defaultPickup.latitude,
-          DeliveryMapState.defaultPickup.longitude,
-        ),
+        pickupState.destinationPosition,
+        const GeoPoint(latitude: 30.0131, longitude: 31.2089),
+      );
+
+      const userState = DeliveryMapState(
+        target: DeliveryMapTarget.user,
+        pickupAddress: customPickup,
+        userAddress: customUser,
+      );
+      expect(userState.activeDestinationAddress, customUser);
+      expect(
+        userState.destinationPosition,
+        const GeoPoint(latitude: 30.0250, longitude: 31.2200),
       );
     });
 
-    test('activeDestinationAddress returns userAddress when target is user', () {
-      const state = DeliveryMapState(target: DeliveryMapTarget.user);
-
-      expect(state.activeDestinationAddress, DeliveryMapState.defaultUser);
-      expect(
-        state.destinationLatLng,
-        LatLng(
-          DeliveryMapState.defaultUser.latitude,
-          DeliveryMapState.defaultUser.longitude,
-        ),
-      );
-    });
-
-    test('copyWith updates specified fields and preserves others', () {
+    test('copyWith updates specified fields and supports clearing nullable fields', () {
       const initialState = DeliveryMapState();
 
       const customPickup = AddressModel(
@@ -62,11 +81,9 @@ void main() {
         longitude: 21.0,
         phoneNumber: '456',
       );
-      const newPos = LatLng(12.0, 22.0);
-      const marker = Marker(markerId: MarkerId('m1'));
-      const polyline = Polyline(polylineId: PolylineId('p1'));
+      const newPos = GeoPoint(latitude: 12.0, longitude: 22.0);
       const sampleRoute = RouteModel(
-        points: <LatLng>[newPos],
+        points: <GeoPoint>[newPos],
         distanceMeters: 500,
         durationSeconds: 60,
       );
@@ -80,9 +97,8 @@ void main() {
         isTrackingLocation: true,
         hasLocationPermission: true,
         isRouteLoading: true,
+        routeFailure: const InternetConnectionFailure(),
         errorMessage: 'An error',
-        markers: {marker},
-        polylines: {polyline},
         route: sampleRoute,
       );
 
@@ -94,16 +110,22 @@ void main() {
       expect(updated.isTrackingLocation, isTrue);
       expect(updated.hasLocationPermission, isTrue);
       expect(updated.isRouteLoading, isTrue);
+      expect(updated.routeFailure, isA<InternetConnectionFailure>());
+      expect(updated.hasRouteFailure, isTrue);
       expect(updated.errorMessage, 'An error');
-      expect(updated.markers, {marker});
-      expect(updated.polylines, {polyline});
       expect(updated.route, sampleRoute);
 
-      final clearedError = updated.copyWith(clearErrorMessage: true);
-      expect(clearedError.errorMessage, isNull);
-
-      final clearedRoute = updated.copyWith(clearRoute: true);
-      expect(clearedRoute.route, isNull);
+      final cleared = updated.copyWith(
+        clearDriverPosition: true,
+        clearRouteFailure: true,
+        clearErrorMessage: true,
+        clearRoute: true,
+      );
+      expect(cleared.driverPosition, isNull);
+      expect(cleared.routeFailure, isNull);
+      expect(cleared.hasRouteFailure, isFalse);
+      expect(cleared.errorMessage, isNull);
+      expect(cleared.route, isNull);
     });
 
     test('equality and props work properly', () {

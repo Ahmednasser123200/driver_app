@@ -529,4 +529,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get failureLocationServiceDisabled =>
       'Location services are disabled on your device. Please enable GPS.';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get enableGpsToTrackDelivery =>
+      'Please enable GPS to track your delivery position.';
+
+  @override
+  String couldNotOpenUrl(String url) {
+    return 'Could not open: $url';
+  }
+
+  @override
+  String get routeUnavailable => 'Route unavailable';
+
+  @override
+  String get orderDetailsContextMissing => 'Order details context is missing';
 }

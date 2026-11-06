@@ -1,85 +1,104 @@
 import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:driver_app/config/base/base_response.dart';
 import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/errors/app_failure.dart';
-import 'package:driver_app/core/services/location/location_service.dart';
+import 'package:driver_app/core/services/url_launcher/url_launcher_service.dart';
 import 'package:driver_app/features/delivery_map/domain/models/address_model.dart';
 import 'package:driver_app/features/delivery_map/domain/models/delivery_map_target.dart';
+import 'package:driver_app/features/delivery_map/domain/models/geo_point.dart';
 import 'package:driver_app/features/delivery_map/domain/models/route_model.dart';
+import 'package:driver_app/features/delivery_map/domain/use_case/check_location_permission_use_case.dart';
+import 'package:driver_app/features/delivery_map/domain/use_case/get_current_driver_location_use_case.dart';
 import 'package:driver_app/features/delivery_map/domain/use_case/get_driver_location_stream_use_case.dart';
 import 'package:driver_app/features/delivery_map/domain/use_case/get_route_use_case.dart';
 import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_cubit.dart';
 import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_event.dart';
 import 'package:driver_app/features/delivery_map/presentation/manager/cubit/delivery_map_state.dart';
+import 'package:driver_app/features/order_details/domain/entities/user_location_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mocktail/mocktail.dart';
-
-class MockLocationService extends Mock implements LocationService {}
 
 class MockGetDriverLocationStreamUseCase extends Mock
     implements GetDriverLocationStreamUseCase {}
 
+class MockCheckLocationPermissionUseCase extends Mock
+    implements CheckLocationPermissionUseCase {}
+
+class MockGetCurrentDriverLocationUseCase extends Mock
+    implements GetCurrentDriverLocationUseCase {}
+
 class MockGetRouteUseCase extends Mock implements GetRouteUseCase {}
 
-void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
+class MockUrlLauncherService extends Mock implements UrlLauncherService {}
 
-  late MockLocationService mockLocationService;
+void main() {
   late MockGetDriverLocationStreamUseCase mockLocationStreamUseCase;
+  late MockCheckLocationPermissionUseCase mockCheckPermissionUseCase;
+  late MockGetCurrentDriverLocationUseCase mockGetCurrentLocationUseCase;
   late MockGetRouteUseCase mockGetRouteUseCase;
-  late StreamController<Position> locationStreamController;
+  late MockUrlLauncherService mockUrlLauncherService;
+  late StreamController<BaseResponse<UserLocationEntity>>
+      locationStreamController;
   late DeliveryMapCubit cubit;
 
+  const samplePickup = AddressModel(
+    title: 'Custom Store',
+    addressLine: 'Custom Line',
+    latitude: 30.1,
+    longitude: 31.1,
+    phoneNumber: '+201000000000',
+  );
+
+  const sampleUser = AddressModel(
+    title: 'Custom User',
+    addressLine: 'User Line',
+    latitude: 30.2,
+    longitude: 31.2,
+    phoneNumber: '+201011111111',
+  );
+
   const sampleRoute = RouteModel(
-    points: <LatLng>[
-      LatLng(30.0190, 31.2140),
-      LatLng(30.0210, 31.2160),
-      LatLng(30.0250, 31.2200),
+    points: <GeoPoint>[
+      GeoPoint(latitude: 30.0190, longitude: 31.2140),
+      GeoPoint(latitude: 30.0210, longitude: 31.2160),
+      GeoPoint(latitude: 30.0250, longitude: 31.2200),
     ],
     distanceMeters: 1400.0,
     durationSeconds: 200.0,
     encodedPolyline: 'sample_encoded',
   );
 
-  Position createPosition({
+  UserLocationEntity createLocationEntity({
     double latitude = 30.0444,
     double longitude = 31.2357,
   }) {
-    return Position(
+    return UserLocationEntity(
       latitude: latitude,
       longitude: longitude,
-      timestamp: DateTime.now().toUtc(),
-      accuracy: 5.0,
-      altitude: 10.0,
-      altitudeAccuracy: 1.0,
-      heading: 0.0,
-      headingAccuracy: 1.0,
-      speed: 0.0,
-      speedAccuracy: 0.0,
+      timestamp: DateTime.utc(2026, 11, 3),
     );
   }
 
   setUpAll(() {
-    registerFallbackValue(const LatLng(0, 0));
+    registerFallbackValue(const GeoPoint(latitude: 0, longitude: 0));
   });
 
   setUp(() {
-    mockLocationService = MockLocationService();
     mockLocationStreamUseCase = MockGetDriverLocationStreamUseCase();
+    mockCheckPermissionUseCase = MockCheckLocationPermissionUseCase();
+    mockGetCurrentLocationUseCase = MockGetCurrentDriverLocationUseCase();
     mockGetRouteUseCase = MockGetRouteUseCase();
-    locationStreamController = StreamController<Position>.broadcast();
+    mockUrlLauncherService = MockUrlLauncherService();
+    locationStreamController =
+        StreamController<BaseResponse<UserLocationEntity>>.broadcast();
 
     when(() => mockLocationStreamUseCase.call())
         .thenAnswer((_) => locationStreamController.stream);
-
-    when(() => mockLocationService.checkAndRequestPermission())
-        .thenAnswer((_) async => true);
-    when(() => mockLocationService.getCurrentPosition())
-        .thenAnswer((_) async => createPosition());
-
+    when(() => mockCheckPermissionUseCase.call()).thenAnswer((_) async => true);
+    when(() => mockGetCurrentLocationUseCase.call())
+        .thenAnswer((_) async => Success(createLocationEntity()));
     when(
       () => mockGetRouteUseCase.call(
         origin: any(named: 'origin'),
@@ -89,8 +108,10 @@ void main() {
 
     cubit = DeliveryMapCubit(
       getDriverLocationStreamUseCase: mockLocationStreamUseCase,
-      locationService: mockLocationService,
+      checkLocationPermissionUseCase: mockCheckPermissionUseCase,
+      getCurrentDriverLocationUseCase: mockGetCurrentLocationUseCase,
       getRouteUseCase: mockGetRouteUseCase,
+      urlLauncherService: mockUrlLauncherService,
     );
   });
 
@@ -105,62 +126,81 @@ void main() {
     });
 
     blocTest<DeliveryMapCubit, DeliveryMapState>(
-      'InitDeliveryMapEvent initializes with custom addresses, fetches route, and starts tracking',
+      'InitDeliveryMapEvent initializes addresses, starts tracking, fetches route, and emits FitBounds',
       build: () => cubit,
       act: (c) => c.doEvent(
         const InitDeliveryMapEvent(
-          pickupAddress: AddressModel(
-            title: 'Custom Store',
-            addressLine: 'Custom Line',
-            latitude: 30.1,
-            longitude: 31.1,
-          ),
-          userAddress: AddressModel(
-            title: 'Custom User',
-            addressLine: 'User Line',
-            latitude: 30.2,
-            longitude: 31.2,
-          ),
+          pickupAddress: samplePickup,
+          userAddress: sampleUser,
           initialTarget: DeliveryMapTarget.user,
         ),
       ),
       verify: (c) {
-        expect(c.state.pickupAddress.title, 'Custom Store');
-        expect(c.state.userAddress.title, 'Custom User');
+        expect(c.state.pickupAddress, samplePickup);
+        expect(c.state.userAddress, sampleUser);
         expect(c.state.target, DeliveryMapTarget.user);
         expect(c.state.hasLocationPermission, isTrue);
         expect(c.state.isTrackingLocation, isTrue);
-        expect(c.state.driverPosition, const LatLng(30.0444, 31.2357));
-        expect(c.state.markers, isNotEmpty);
-        expect(c.state.polylines, isNotEmpty);
+        expect(
+          c.state.driverPosition,
+          const GeoPoint(latitude: 30.0444, longitude: 31.2357),
+        );
         expect(c.state.route, sampleRoute);
+        expect(c.state.routeFailure, isNull);
         verify(
           () => mockGetRouteUseCase.call(
             origin: any(named: 'origin'),
             destination: any(named: 'destination'),
           ),
-        ).called(greaterThanOrEqualTo(1));
+        ).called(1);
       },
     );
 
+    test('InitDeliveryMapEvent emits DeliveryMapFitBounds UI event', () async {
+      final events = <BaseUiEvent>[];
+      final sub = cubit.uiEventStream.listen(events.add);
+
+      await cubit.doEvent(
+        const InitDeliveryMapEvent(
+          pickupAddress: samplePickup,
+          userAddress: sampleUser,
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      expect(events, contains(isA<DeliveryMapFitBounds>()));
+      await sub.cancel();
+    });
+
     blocTest<DeliveryMapCubit, DeliveryMapState>(
-      'SwitchTargetEvent updates active target and rebuilds overlays with new route',
+      'SwitchTargetEvent updates active target and fetches new route',
       build: () => cubit,
       act: (c) async {
+        await c.doEvent(
+          const InitDeliveryMapEvent(
+            pickupAddress: samplePickup,
+            userAddress: sampleUser,
+            initialTarget: DeliveryMapTarget.pickup,
+          ),
+        );
         await c.doEvent(const SwitchTargetEvent(DeliveryMapTarget.user));
         // Calling same target again should be a no-op
         await c.doEvent(const SwitchTargetEvent(DeliveryMapTarget.user));
       },
       verify: (c) {
         expect(c.state.target, DeliveryMapTarget.user);
-        expect(c.state.markers, isNotEmpty);
-        expect(c.state.polylines, isNotEmpty);
         expect(c.state.route, sampleRoute);
+        verify(
+          () => mockGetRouteUseCase.call(
+            origin: any(named: 'origin'),
+            destination: any(named: 'destination'),
+          ),
+        ).called(2);
       },
     );
 
     test('StartDriverLocationTrackingEvent handles permission denied', () async {
-      when(() => mockLocationService.checkAndRequestPermission())
+      when(() => mockCheckPermissionUseCase.call())
           .thenAnswer((_) async => false);
 
       final events = <BaseUiEvent>[];
@@ -176,60 +216,83 @@ void main() {
       await sub.cancel();
     });
 
-    test('StartDriverLocationTrackingEvent receives stream error and emits UI event', () async {
-      when(() => mockLocationService.checkAndRequestPermission())
-          .thenAnswer((_) async => true);
-      when(() => mockLocationService.getCurrentPosition())
-          .thenAnswer((_) async => null);
-
+    test('location stream Error responses emit appropriate UI events', () async {
       final events = <BaseUiEvent>[];
       final sub = cubit.uiEventStream.listen(events.add);
 
       await cubit.doEvent(const StartDriverLocationTrackingEvent());
 
-      locationStreamController.addError(const LocationServiceDisabledException());
+      locationStreamController.add(
+        const Error<UserLocationEntity>(LocationServiceDisabledFailure()),
+      );
+      locationStreamController.add(
+        const Error<UserLocationEntity>(LocationPermissionFailure()),
+      );
       await Future<void>.delayed(const Duration(milliseconds: 10));
 
       expect(events, contains(isA<DeliveryMapLocationServiceDisabled>()));
+      expect(events, contains(isA<DeliveryMapLocationPermissionDenied>()));
 
       await sub.cancel();
     });
 
-    test('DriverPositionUpdatedEvent updates driver position and fetches route on major movement', () async {
+    test('location stream Success updates driverPosition and fetches route on major movement', () async {
       await cubit.doEvent(
-        DriverPositionUpdatedEvent(
-          createPosition(latitude: 30.5555, longitude: 31.6666),
+        const InitDeliveryMapEvent(
+          pickupAddress: samplePickup,
+          userAddress: sampleUser,
+        ),
+      );
+
+      locationStreamController.add(
+        Success(createLocationEntity(latitude: 30.5555, longitude: 31.6666)),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+
+      expect(
+        cubit.state.driverPosition,
+        const GeoPoint(latitude: 30.5555, longitude: 31.6666),
+      );
+      expect(cubit.state.route, sampleRoute);
+    });
+
+    test('DriverPositionUpdatedEvent debounces route fetch on minor movement (< 40m)', () async {
+      await cubit.doEvent(
+        const InitDeliveryMapEvent(
+          pickupAddress: samplePickup,
+          userAddress: sampleUser,
+        ),
+      );
+
+      clearInteractions(mockGetRouteUseCase);
+
+      // Micro movement (~1.5 meters from 30.0444, 31.2357)
+      await cubit.doEvent(
+        const DriverPositionUpdatedEvent(
+          GeoPoint(latitude: 30.04441, longitude: 31.23571),
         ),
       );
 
       expect(
         cubit.state.driverPosition,
-        const LatLng(30.5555, 31.6666),
+        const GeoPoint(latitude: 30.04441, longitude: 31.23571),
       );
-      expect(cubit.state.markers, isNotEmpty);
-      expect(cubit.state.polylines, isNotEmpty);
-      expect(cubit.state.route, sampleRoute);
+      verifyNever(
+        () => mockGetRouteUseCase.call(
+          origin: any(named: 'origin'),
+          destination: any(named: 'destination'),
+        ),
+      );
     });
 
-    test('DriverPositionUpdatedEvent debounces route fetch on minor movement (< 40m)', () async {
-      // First position update sets lastRoutedPosition
+    test('route fetch failure stores routeFailure in state and clears previous route', () async {
       await cubit.doEvent(
-        DriverPositionUpdatedEvent(
-          createPosition(latitude: 30.01900, longitude: 31.21400),
+        const InitDeliveryMapEvent(
+          pickupAddress: samplePickup,
+          userAddress: sampleUser,
         ),
       );
 
-      // Micro movement (~2 meters)
-      await cubit.doEvent(
-        DriverPositionUpdatedEvent(
-          createPosition(latitude: 30.01901, longitude: 31.21401),
-        ),
-      );
-
-      expect(cubit.state.driverPosition, const LatLng(30.01901, 31.21401));
-    });
-
-    test('route fetch failure handles Error gracefully without crashing', () async {
       when(
         () => mockGetRouteUseCase.call(
           origin: any(named: 'origin'),
@@ -240,7 +303,9 @@ void main() {
       await cubit.doEvent(const SwitchTargetEvent(DeliveryMapTarget.user));
 
       expect(cubit.state.isRouteLoading, isFalse);
-      expect(cubit.state.polylines, isNotEmpty);
+      expect(cubit.state.route, isNull);
+      expect(cubit.state.routeFailure, isA<InternetConnectionFailure>());
+      expect(cubit.state.hasRouteFailure, isTrue);
     });
 
     test('StopDriverLocationTrackingEvent cancels tracking', () async {
@@ -251,13 +316,27 @@ void main() {
       expect(cubit.state.isTrackingLocation, isFalse);
     });
 
-    test('CallPhoneEvent and OpenWhatsAppEvent handle null and blank inputs cleanly', () async {
+    test('CallPhoneEvent and OpenWhatsAppEvent delegate to UrlLauncherService and emit failure UI event when false', () async {
+      when(() => mockUrlLauncherService.callPhone('+201000000000'))
+          .thenAnswer((_) async => true);
+      when(() => mockUrlLauncherService.openWhatsApp('+201000000000'))
+          .thenAnswer((_) async => false);
+
+      final events = <BaseUiEvent>[];
+      final sub = cubit.uiEventStream.listen(events.add);
+
       await cubit.doEvent(const CallPhoneEvent(null));
       await cubit.doEvent(const CallPhoneEvent('   '));
-      await cubit.doEvent(const OpenWhatsAppEvent(null));
-      await cubit.doEvent(const OpenWhatsAppEvent('   '));
+      await cubit.doEvent(const CallPhoneEvent('+201000000000'));
+      await cubit.doEvent(const OpenWhatsAppEvent('+201000000000'));
+      await Future<void>.delayed(Duration.zero);
 
-      expect(cubit.state.errorMessage, isNull);
+      verify(() => mockUrlLauncherService.callPhone('+201000000000')).called(1);
+      verify(() => mockUrlLauncherService.openWhatsApp('+201000000000'))
+          .called(1);
+      expect(events.whereType<DeliveryMapLaunchUrlFailed>().length, 1);
+
+      await sub.cancel();
     });
   });
 }

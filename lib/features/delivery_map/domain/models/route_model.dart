@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:driver_app/features/delivery_map/domain/models/geo_point.dart';
 
 class RouteModel {
-  final List<LatLng> points;
+  final List<GeoPoint> points;
   final double distanceMeters;
   final double durationSeconds;
   final String? encodedPolyline;
@@ -14,27 +14,29 @@ class RouteModel {
     this.encodedPolyline,
   });
 
+  double get distanceKm => distanceMeters / 1000.0;
+
+  int get durationMinutes => (durationSeconds / 60.0).ceil();
+
   String get formattedDistance {
-    if (distanceMeters >= 1000) {
-      final km = distanceMeters / 1000;
-      return '${km.toStringAsFixed(1)} km';
+    if (distanceMeters < 1000) {
+      return '${distanceMeters.round()} m';
     }
-    return '${distanceMeters.round()} m';
+    return '${distanceKm.toStringAsFixed(1)} km';
   }
 
   String get formattedDuration {
-    final totalMinutes = (durationSeconds / 60).round();
-    if (totalMinutes >= 60) {
-      final hours = totalMinutes ~/ 60;
-      final minutes = totalMinutes % 60;
-      if (minutes == 0) return '$hours hr';
-      return '$hours hr $minutes min';
+    final mins = durationMinutes;
+    if (mins < 60) {
+      return '$mins min';
     }
-    return '$totalMinutes min';
+    final hours = mins ~/ 60;
+    final remMins = mins % 60;
+    return remMins == 0 ? '$hours hr' : '$hours hr $remMins min';
   }
 
   RouteModel copyWith({
-    List<LatLng>? points,
+    List<GeoPoint>? points,
     double? distanceMeters,
     double? durationSeconds,
     String? encodedPolyline,
@@ -55,14 +57,14 @@ class RouteModel {
       identical(this, other) ||
       other is RouteModel &&
           runtimeType == other.runtimeType &&
-          const ListEquality<LatLng>().equals(points, other.points) &&
+          const ListEquality<GeoPoint>().equals(points, other.points) &&
           distanceMeters == other.distanceMeters &&
           durationSeconds == other.durationSeconds &&
           encodedPolyline == other.encodedPolyline;
 
   @override
   int get hashCode => Object.hash(
-        const ListEquality<LatLng>().hash(points),
+        const ListEquality<GeoPoint>().hash(points),
         distanceMeters,
         durationSeconds,
         encodedPolyline,
