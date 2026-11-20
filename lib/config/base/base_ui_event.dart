@@ -1,4 +1,5 @@
 import 'package:driver_app/config/errors/app_failure.dart';
+import 'package:driver_app/config/localization/handle_success_text.dart';
 
 part '../../features/order_details/presentation/manager/cubit/order_details_ui_event.dart';
 part '../../features/delivery_map/presentation/manager/cubit/delivery_map_ui_event.dart';
@@ -17,6 +18,19 @@ class ShowErrorMessage extends BaseUiEvent {
   final String message;
 
   const ShowErrorMessage(this.message);
+}
+
+class ShowLocalizedSuccessMessage extends BaseUiEvent {
+  final AppSuccessEnum message;
+
+  const ShowLocalizedSuccessMessage(this.message);
+}
+
+class NavigateReplaceTo extends BaseUiEvent {
+  final String routeName;
+  final Object? arguments;
+
+  const NavigateReplaceTo(this.routeName, {this.arguments});
 }
 
 class NavigateTo extends BaseUiEvent {

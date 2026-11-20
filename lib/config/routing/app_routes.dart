@@ -1,4 +1,10 @@
+import 'package:driver_app/config/base/base_ui_event.dart';
 import 'package:driver_app/config/di/di.dart';
+import 'package:driver_app/core/shared/widgets/base_ui_event_listener.dart';
+import 'package:driver_app/features/home/presentation/manager/cubit/home_cubit.dart';
+import 'package:driver_app/features/home/presentation/manager/cubit/home_event.dart';
+import 'package:driver_app/features/home/presentation/manager/cubit/home_state.dart';
+import 'package:driver_app/features/home/presentation/view/home_driver_view.dart';
 import 'package:driver_app/core/constants/api_strings/api_strings.dart';
 import 'package:driver_app/features/delivery_map/domain/models/delivery_map_args.dart';
 import 'package:driver_app/features/delivery_map/domain/models/delivery_map_target.dart';
@@ -54,7 +60,13 @@ abstract final class AppRoutes {
       case Routes.home:
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => const _StubScreen('Home'),
+          builder: (_) => BlocProvider<HomeCubit>(
+            create: (context) =>
+                getIt.get<HomeCubit>()..doEvent(GetAvailableOrdersEvent()),
+            child: BaseUiEventListener<HomeCubit, HomeState, BaseUiEvent>(
+              child: const HomeDriverView(),
+            ),
+          ),
         );
       case Routes.orders:
         return MaterialPageRoute(

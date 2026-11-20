@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../config/base/base_cubit.dart';
 import '../../../config/base/base_ui_event.dart';
 import '../../../config/localization/app_failure_message_mapper.dart';
+import '../../../config/localization/handle_success_text.dart';
 import '../../../core/themes/app_colors/app_colors.dart';
 import '../../../l10n/generated/app_localizations.dart';
 
@@ -69,6 +70,22 @@ class _BaseUiEventListenerState<
             content: Text(event.message),
             backgroundColor: AppColors.success,
           ),
+        );
+
+      case ShowLocalizedSuccessMessage():
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              handleSuccessText(AppLocalizations.of(context)!, event.message),
+            ),
+            backgroundColor: AppColors.success,
+          ),
+        );
+
+      case NavigateReplaceTo():
+        Navigator.of(context).pushReplacementNamed(
+          event.routeName,
+          arguments: event.arguments,
         );
 
       case ShowErrorMessage():

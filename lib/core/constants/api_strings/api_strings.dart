@@ -160,6 +160,9 @@ abstract class ApiStrings {
 
   static const String availableOrders = '/order/drivers/available-orders';
 
+  static const String acceptOrderPath =
+      '/order/drivers/me/orders/{orderId}/accept';
+
   static String acceptOrder(String orderId) =>
       '/order/drivers/me/orders/$orderId/accept';
 
